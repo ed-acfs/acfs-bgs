@@ -26,6 +26,12 @@ $dark-theme: mat.m2-define-dark-theme((color: (primary: mat.m2-define-palette(ma
 // Include theme styles for core and each component used in your app.
 @include mat.all-component-themes($dark-theme);
 
+// Compact form fields for toolbars: 36px tall instead of 56px.
+.bgs-dense {
+  @include mat.form-field-density(-4);
+  @include mat.select-density(-4);
+}
+
 /* ---------------------------------------------------------------------------
  * Design tokens — semantic colour palette. Mirrors canonn-signals so the two
  * Canonn tools share one visual language; components reference these via

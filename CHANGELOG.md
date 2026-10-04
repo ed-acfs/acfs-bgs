@@ -2,6 +2,20 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.6.2] - 2026-10-04 — ACFS BGS Tool, nuovo pannello dei filtri
+
+### Nome
+
+- Il tool si chiama **ACFS BGS Tool** (titolo, intestazione, README).
+- Il repo si chiama `ed-acfs/bgs-tool` (prima `acfs-bgs`) e il sito si sposta su **https://flottastellare.it/bgs-tool/**. Il vecchio indirizzo `/acfs-bgs/` smette di funzionare: GitHub non reindirizza i percorsi delle Pages.
+- Progetto Angular e pacchetto npm `bgs-tool`; build in `dist/bgs-tool/`. I file esportati si chiamano `acfs-bgs-tool-AAAA-MM-GG`.
+
+### Interfaccia
+
+- Ricerca e filtri in un **unico pannello**, su due righe ordinate: distanza e righe per pagina sopra, filtri sotto. Su schermi stretti i gruppi vanno a capo interi.
+- I filtri sono **pulsanti a segmenti** uniti ("Tutti | Nessuno | ACFS") invece di pillole separate, con un'etichetta "Mostra" per Guerre/Elezioni e Da aggiornare; i campi di testo sono alti 36 px invece di 56.
+- Tooltip sui filtri, e stato premuto (`aria-pressed`) per i lettori di schermo.
+
 ## [0.6.1] - 2026-10-04 — Modifica delle assegnazioni e filtro architetti ACFS
 
 ### Interfaccia

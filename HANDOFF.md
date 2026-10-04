@@ -1,5 +1,7 @@
 # Handoff: tool BGS per lo squadrone
 
+> **Documento storico** (4 ottobre 2026, prima dell'inizio dei lavori). Lo stato attuale è in [ROADMAP.md](ROADMAP.md) e [CHANGELOG.md](CHANGELOG.md). Da allora il repo si chiama `ed-acfs/bgs-tool` ed è pubblico; il tool si chiama ACFS BGS Tool.
+
 Documento di passaggio da una sessione di analisi in chat. Riassume cosa è stato letto, cosa è stato deciso e cosa resta aperto. I punti marcati **DA VERIFICARE** non sono stati provati.
 
 ## Obiettivo
