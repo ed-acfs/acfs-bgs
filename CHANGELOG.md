@@ -30,6 +30,7 @@ Fase 2 di [ROADMAP.md](ROADMAP.md). Riorganizzazione interna: per chi usa il too
 - Nuovo `scripts/core-purity.test.mjs`: fallisce se in `src/core/` compaiono import di Angular o dell'app, DOM o `localStorage`.
 - Passano 138 test dell'app e 5 degli script.
 - Fine riga LF in tutti i sorgenti, compreso `priority.ts` che era l'unico in CRLF.
+- Nuovo workflow `.github/workflows/ci.yml`: script, test e build a ogni pull request e a ogni push su `main`. Non pubblica nulla.
 
 ## [0.1.0] - 2026-10-04 — Dati Flotta Stellare da Spansh
 
