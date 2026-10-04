@@ -449,6 +449,29 @@
   }
 }
 
+// Architect name and its pencil stay on one line.
+.bgs-architect {
+  white-space: nowrap;
+}
+
+// Pencil next to a registered architect: reopens the Assign dialog to change the assignment.
+.bgs-edit-button {
+  padding: 0;
+  margin-left: 6px;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 0.8em;
+  cursor: pointer;
+  vertical-align: middle;
+  line-height: 1;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-link-hover);
+  }
+}
+
 .bgs-system-link {
   color: var(--color-link);
 }

@@ -21,9 +21,19 @@ import {
 import { ArchitectRegistryRow, architectNames, findArchitectProfile, suggestArchitects } from '../../core/architect-registry';
 import { readYourName, writeYourName } from '../your-name';
 
-/** The system the dialog is assigning an architect to. */
+/** What the registry currently says about the system, when the dialog is changing it. */
+export interface CurrentAssignment {
+  architect: string;
+  /** One of the `AFFILIATION_*` values. */
+  affiliation: string;
+  /** '' when no preference was recorded. */
+  preferredFaction: string;
+}
+
+/** The system the dialog is assigning an architect to, and its current assignment if it has one. */
 export interface AssignArchitectDialogData {
   row: BgsRow;
+  current?: CurrentAssignment;
 }
 
 /** The `preferredFaction` value meaning "Don't know" — sent to the form as no answer at all. */
@@ -69,6 +79,8 @@ export class AssignArchitectDialogComponent {
   private readonly data = inject<AssignArchitectDialogData>(MAT_DIALOG_DATA);
 
   protected readonly systemName = this.data.row.systemName;
+  /** Changing an existing assignment rather than making the first one. */
+  protected readonly editing = this.data.current !== undefined;
   protected readonly affiliationOptions = AFFILIATION_OPTIONS;
   protected readonly dontKnowFaction = DONT_KNOW_FACTION;
   protected readonly notAColony = AFFILIATION_NOT_A_COLONY;
@@ -139,9 +151,10 @@ export class AssignArchitectDialogComponent {
   /** The factions present in this system, plus a defaulted faction from elsewhere if there is one. */
   protected readonly factionOptions = computed<string[]>(() => {
     const names = this.data.row.factions.map(faction => faction.name);
-    const defaulted = this.factionDefault().value;
-    if (defaulted && !names.includes(defaulted)) {
-      names.push(defaulted);
+    for (const extra of [this.factionDefault().value, this.data.current?.preferredFaction ?? '']) {
+      if (extra && !names.includes(extra)) {
+        names.push(extra);
+      }
     }
     return names;
   });
@@ -162,6 +175,17 @@ export class AssignArchitectDialogComponent {
     controls.architect.valueChanges.pipe(takeUntilDestroyed()).subscribe(value => this.architectValue.set(value));
     controls.affiliation.valueChanges.pipe(takeUntilDestroyed()).subscribe(value => this.affiliationValue.set(value));
     controls.preferredFaction.valueChanges.pipe(takeUntilDestroyed()).subscribe(value => this.factionValue.set(value));
+
+    // Changing an existing assignment: start from what's recorded, and keep the defaulting
+    // below from overwriting it.
+    const current = this.data.current;
+    if (current) {
+      this.affiliationChosenByUser = true;
+      this.factionChosenByUser = true;
+      controls.affiliation.setValue(KNOWN_AFFILIATIONS.has(current.affiliation) ? current.affiliation : AFFILIATION_UNKNOWN);
+      controls.architect.setValue(current.architect);
+      controls.preferredFaction.setValue(current.preferredFaction);
+    }
 
     void this.loadRegistry();
 

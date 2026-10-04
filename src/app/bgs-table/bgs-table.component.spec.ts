@@ -12,6 +12,7 @@ function row(systemName: string): BgsRow {
     factionInfluence: null,
     margin: null,
     architect: null,
+    architectAffiliation: null,
     notAColony: false,
     preferredFaction: null,
     preferredFactionRecorded: false,

@@ -21,6 +21,7 @@ function row(overrides: Partial<BgsRow> = {}): BgsRow {
     factionInfluence: null,
     margin: null,
     architect: null,
+    architectAffiliation: null,
     notAColony: false,
     preferredFaction: null,
     preferredFactionRecorded: false,

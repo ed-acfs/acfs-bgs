@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Assegna un architetto</h2>
+<h2 mat-dialog-title>{{ editing ? 'Modifica assegnazione' : 'Assegna un architetto' }}</h2>
 
 <mat-dialog-content>
   <form class="assign-form" [formGroup]="form" (ngSubmit)="send()">

@@ -105,6 +105,13 @@
         [class.bgs-filter-chip--active]="architectFilterMode() === 'none'"
         (click)="setArchitectFilterMode('none')"
       >Nessuno</button>
+      <button
+        type="button"
+        class="bgs-filter-chip"
+        [class.bgs-filter-chip--active]="architectFilterMode() === 'squadron'"
+        (click)="setArchitectFilterMode('squadron')"
+        title="Solo i sistemi con un architetto registrato come membro ACFS"
+      >ACFS</button>
       <mat-form-field
         appearance="outline"
         subscriptSizing="dynamic"
@@ -446,9 +453,7 @@
                   [title]="marginTitle(row)"
                 >{{ marginLabel(row) }}</td>
                 <td class="bgs-col-wrap">
-                  @if (row.notAColony) {
-                    —
-                  } @else if (row.architect === null) {
+                  @if (row.architect === null && !row.notAColony) {
                     <button
                       type="button"
                       class="bgs-system-link bgs-assign-button"
@@ -456,7 +461,15 @@
                       (click)="openAssignDialog(row)"
                     >Assegna</button>
                   } @else {
-                    {{ row.architect }}
+                    <span class="bgs-architect">{{ row.notAColony ? '—' : row.architect }}<button
+                      type="button"
+                      class="bgs-edit-button"
+                      [title]="'Modifica l\'assegnazione di ' + row.systemName"
+                      [attr.aria-label]="'Modifica l\'assegnazione di ' + row.systemName"
+                      (click)="openAssignDialog(row)"
+                    >
+                      <fa-icon [icon]="faPen"></fa-icon>
+                    </button></span>
                   }
                 </td>
                 <td class="bgs-col-wrap" [class.bgs-preferred-derived]="!row.preferredFactionRecorded">{{ row.preferredFaction ?? '—' }}</td>

@@ -2,6 +2,17 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.6.1] - 2026-10-04 — Modifica delle assegnazioni e filtro architetti ACFS
+
+### Interfaccia
+
+- Accanto a un architetto già registrato (o a un sistema segnato "non è una colonia") c'è una matita ✎ che riapre il dialog per **modificare l'assegnazione**. Il dialog si apre con i valori attuali e il titolo "Modifica assegnazione"; l'invio aggiunge una riga al registro, che vale come ultima.
+- Nuovo filtro rapido **"ACFS"** nella sezione Architetto: solo i sistemi il cui architetto risulta membro ACFS. L'appartenenza è della persona: conta la sua registrazione più recente con un'appartenenza indicata, in qualunque sistema. Non serve un elenco separato dei membri: lo dice il registro.
+
+### Test
+
+- Nuovi test per l'elenco degli architetti ACFS e per il dialog in modifica. Passano 146 test dell'app e 7 degli script.
+
 ## [0.6.0] - 2026-10-04 — Pubblicazione su GitHub Pages
 
 Fase 6 di [ROADMAP.md](ROADMAP.md). Il tool va online su **https://flottastellare.it/acfs-bgs/** e si aggiorna da solo.

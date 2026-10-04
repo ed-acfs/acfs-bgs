@@ -188,6 +188,8 @@ export interface BgsRow {
   /** The squadron faction's lead over, or gap to, the faction it competes with for control. */
   margin: FactionMargin | null;
   architect: string | null;
+  /** The registry's affiliation answer for this system (one of the `AFFILIATION_*` values), or null if none. */
+  architectAffiliation: string | null;
   /** Recorded as "Nobody — the system is not a colony": shown blank rather than offering Assign again. */
   notAColony: boolean;
   /**
@@ -252,6 +254,7 @@ export function rowWithAssignment(row: BgsRow, submission: ArchitectSubmission):
   return {
     ...row,
     architect: submission.architect || null,
+    architectAffiliation: submission.affiliation || null,
     notAColony: submission.affiliation === AFFILIATION_NOT_A_COLONY,
     preferredFaction: recorded ?? derivePreferredFaction(row),
     preferredFactionRecorded: recorded !== null,
@@ -566,6 +569,7 @@ export function toBgsRow(
     // registry row that itself answers "not a colony" is different: that's a confirmed
     // answer, so it's shown blank rather than inviting another Assign.
     architect: info?.architect || null,
+    architectAffiliation: info?.affiliation || null,
     notAColony: info?.affiliation === AFFILIATION_NOT_A_COLONY,
     preferredFaction: recordedPreference ?? derivePreferredFaction({ hasOwnStation }),
     preferredFactionRecorded: recordedPreference !== null,

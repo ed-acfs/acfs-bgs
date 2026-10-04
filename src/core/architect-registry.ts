@@ -131,3 +131,20 @@ export function findArchitectProfile(
     preferredFactionCount,
   };
 }
+
+/**
+ * Lower-cased names of every architect whose most recent recorded affiliation is `memberAnswer`
+ * (the form's "The Architect is an ACFS Member"). Membership belongs to the person, not to one
+ * system, so a later blank answer doesn't undo it and a later different answer does.
+ */
+export function architectsWithAffiliation(rows: readonly ArchitectRegistryRow[], memberAnswer: string): Set<string> {
+  const latest = new Map<string, string>();
+  for (const row of rows) {
+    const name = nameKey(row.architect);
+    const affiliation = row.affiliation.trim();
+    if (name && affiliation) {
+      latest.set(name, affiliation);
+    }
+  }
+  return new Set([...latest].filter(([, affiliation]) => affiliation === memberAnswer).map(([name]) => name));
+}

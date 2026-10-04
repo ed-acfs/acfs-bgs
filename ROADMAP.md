@@ -96,7 +96,7 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 ### 6. Pubblicazione e aggiornamento automatico
 
 - [x] Repo pubblico: lo era già il 4 ottobre 2026. Controllato: nessun dato da non condividere; gli URL di Form e fogli in `config.json` finiscono comunque nel sito pubblicato
-- [ ] Attivare GitHub Pages con sorgente "GitHub Actions" (al merge della fase 6)
+- [x] GitHub Pages attivato con sorgente "GitHub Actions" il 4 ottobre 2026; primo deploy riuscito, sito su https://flottastellare.it/acfs-bgs/
 - [x] Workflow `.github/workflows/pages.yml` al posto di `main.yml` (Canonn): test (non nelle esecuzioni orarie), dati Spansh freschi, build con `npm run build:pages` (`--base-href /acfs-bgs/`), pubblicazione su Pages
 - [x] Esecuzione su push a `main`, **ogni ora** (al minuto 17) e manuale (`workflow_dispatch`). Ogni ora invece che solo al tick, perché Spansh si riempie mano a mano che i giocatori passano nei sistemi. Il JSON non viene committato: viaggia solo nel build
 - [x] Sotto il titolo, ora dei dati Spansh e dell'ultimo tick (EDCD Tick Detector, salvato nel JSON come `tick_at`), in UTC
