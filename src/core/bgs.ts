@@ -288,7 +288,7 @@ export function parseArchitectsTsv(text: string): ArchitectRegistryRow[] {
   const architectNameIndex = header.indexOf('Architect Name');
   const preferredFactionIndex = header.indexOf('Preferred Faction');
   // Optional: the Cloud Function's copy of the data has it, but it's not load-bearing for the table.
-  const affiliationIndex = header.indexOf('Canonn Architect');
+  const affiliationIndex = header.indexOf('ACFS Architect');
   if (systemNameIndex === -1 || architectNameIndex === -1 || preferredFactionIndex === -1) {
     return rows;
   }

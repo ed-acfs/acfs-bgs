@@ -2,6 +2,27 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.5.0] - 2026-10-04 — Registro architetti e Watchlist ACFS
+
+Fase 5 di [ROADMAP.md](ROADMAP.md). Il tool legge e scrive il registro dello squadrone invece di non averne nessuno.
+
+### Registro
+
+- Collegati il Google Form "ACFS Architect Registry" e il suo foglio di risposte, pubblicato come TSV. Il dialog "Assegna" invia le risposte al Form; la colonna Architetto e la Fazione preferita le leggono dal foglio.
+- Risposte di appartenenza ACFS ("The Architect is an ACFS Member", "Not an ACFS Member"…), mostrate in italiano nel dialog ("L'architetto è un membro ACFS", "Non è un membro ACFS", "Nessuno: il sistema non è una colonia", "Non so").
+- Flotta Stellare è l'opzione elencata di Fazione preferita; ogni altra fazione passa dall'opzione "Altro" del Form.
+- Una fazione preferita registrata vale più di quella ricavata dalle stazioni: un sistema registrato con un'altra fazione diventa "non intervenire" (⛔).
+
+### Watchlist
+
+- Collegata la scheda `Watchlist` dello stesso foglio (`System`, `Faction`, `Position`, `Details`). Per ora è vuota.
+
+### Verifica
+
+- Prova reale: una risposta inviata con gli stessi campi dell'app compare nel foglio pubblicato in circa 15 secondi e viene letta correttamente. La riga di prova ("PROVA - cancellare questa riga") va cancellata dal foglio.
+- Nel codice non restano riferimenti ai Canonn, a parte i crediti e l'intermediario del typeahead.
+- Passano 142 test dell'app e 5 degli script.
+
 ## [0.4.0] - 2026-10-04 — Priorità a fazione singola
 
 Fase 4 di [ROADMAP.md](ROADMAP.md). La colonna Priorità ora lavora per Flotta Stellare: al 4 ottobre 2026 ci sono 17 sistemi in P1, 5 in P2, 16 in P3, 23 in P4 e 328 in P5.

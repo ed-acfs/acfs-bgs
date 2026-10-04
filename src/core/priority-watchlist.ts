@@ -8,7 +8,7 @@
 /** One row of the Priority Watchlist sheet. */
 export interface PriorityWatchlistEntry {
   systemName: string;
-  /** The faction (Canonn or Canonn Deep Space Research) this entry is tracking. */
+  /** The faction this entry is tracking — usually ours, or an ally we've agreed to protect. */
   faction: string;
   /** The worst acceptable rank (1 = top) for {@link faction} among the system's factions. */
   position: number;

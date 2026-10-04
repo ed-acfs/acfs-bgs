@@ -1,5 +1,5 @@
 /**
- * The Canonn Architect Registry Google Form: its field ids, its accepted answers, and the
+ * The squadron's Architect Registry Google Form: its field ids, its accepted answers, and the
  * request body a submission turns into.
  *
  * The ids and option strings below are the form's own (read out of the live form's
@@ -7,35 +7,37 @@
  * answer for an entry id it doesn't recognise, and rejects an unlisted value for a
  * multiple-choice question that has no "other" option.
  */
+import { FACTION_NAME } from './config';
 
-// Where the form is submitted is `ARCHITECT_FORM_ACTION` in `config.ts`. The entry ids below
-// are still Canonn's and must be replaced along with it (phase 5).
 
-const ENTRY_YOUR_NAME = 'entry.865244908';
-const ENTRY_SYSTEM_NAME = 'entry.451477697';
-const ENTRY_ARCHITECT_NAME = 'entry.1898979532';
-const ENTRY_AFFILIATION = 'entry.1237715592';
-const ENTRY_PREFERRED_FACTION = 'entry.389110787';
+// Where the form is submitted is `ARCHITECT_FORM_ACTION` in `config.ts`; these ids belong to
+// that form ("ACFS Architect Registry").
 
-/** The "Canonn Architect" question's four answers, exactly as the form spells them. */
-export const AFFILIATION_CANONN_MEMBER = 'The Architect is a Canonn Member';
-export const AFFILIATION_NOT_MEMBER = 'Not a Canonn Member';
+const ENTRY_YOUR_NAME = 'entry.1150665299';
+const ENTRY_SYSTEM_NAME = 'entry.2086138170';
+const ENTRY_ARCHITECT_NAME = 'entry.983657745';
+const ENTRY_AFFILIATION = 'entry.1126584006';
+const ENTRY_PREFERRED_FACTION = 'entry.55921704';
+
+/** The "ACFS Architect" question's four answers, exactly as the form spells them. */
+export const AFFILIATION_SQUADRON_MEMBER = 'The Architect is an ACFS Member';
+export const AFFILIATION_NOT_MEMBER = 'Not an ACFS Member';
 export const AFFILIATION_NOT_A_COLONY = 'Nobody The System Is Not a Colony';
 export const AFFILIATION_UNKNOWN = "Don't know";
 
 /** The affiliation dropdown's contents: the form's value, plus a friendlier label to show. */
 export const AFFILIATION_OPTIONS: readonly { value: string; label: string }[] = [
-  { value: AFFILIATION_CANONN_MEMBER, label: 'The Architect is a Canonn Member' },
-  { value: AFFILIATION_NOT_MEMBER, label: 'Not a Canonn Member' },
-  { value: AFFILIATION_NOT_A_COLONY, label: 'Nobody — the system is not a colony' },
-  { value: AFFILIATION_UNKNOWN, label: "Don't know" },
+  { value: AFFILIATION_SQUADRON_MEMBER, label: "L'architetto è un membro ACFS" },
+  { value: AFFILIATION_NOT_MEMBER, label: 'Non è un membro ACFS' },
+  { value: AFFILIATION_NOT_A_COLONY, label: 'Nessuno: il sistema non è una colonia' },
+  { value: AFFILIATION_UNKNOWN, label: 'Non so' },
 ];
 
 /**
  * The only two "Preferred Faction" answers the form lists; anything else (a local faction
  * the colony prefers) has to be sent through the question's "other" option instead.
  */
-const LISTED_PREFERRED_FACTIONS: ReadonlySet<string> = new Set(['Canonn', 'Canonn Deep Space Research']);
+const LISTED_PREFERRED_FACTIONS: ReadonlySet<string> = new Set([FACTION_NAME]);
 
 /** Google's sentinel value for "the answer is in the `.other_option_response` field". */
 const OTHER_OPTION = '__other_option__';

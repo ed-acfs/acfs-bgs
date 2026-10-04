@@ -12,7 +12,7 @@ import { BgsRow } from '../../core/bgs';
 import { FACTION_NAME } from '../../core/config';
 import { BgsService } from '../bgs.service';
 import {
-  AFFILIATION_CANONN_MEMBER,
+  AFFILIATION_SQUADRON_MEMBER,
   AFFILIATION_NOT_A_COLONY,
   AFFILIATION_OPTIONS,
   AFFILIATION_UNKNOWN,
@@ -118,7 +118,7 @@ export class AssignArchitectDialogComponent {
 
   private readonly factionDefault = computed<FactionDefault>(() => {
     // A squadron member's colony defaults to the squadron's faction, when it's present here.
-    if (this.affiliationValue() === AFFILIATION_CANONN_MEMBER) {
+    if (this.affiliationValue() === AFFILIATION_SQUADRON_MEMBER) {
       if (this.data.row.factions.some(faction => faction.name === FACTION_NAME)) {
         return { value: FACTION_NAME, note: `La fazione dello squadrone, presente in ${this.systemName}.` };
       }

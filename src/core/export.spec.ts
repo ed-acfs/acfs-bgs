@@ -46,8 +46,8 @@ describe('toExportRecord', () => {
         factionInfluence: 42.5,
         margin: { points: 12.5, versus: 'Rival', versusInfluence: 30, controlled: true },
         architect: 'Some Architect',
-        preferredFaction: 'Canonn',
-        factions: [{ name: 'Canonn', influencePercent: 42.5 }],
+        preferredFaction: 'Flotta Stellare',
+        factions: [{ name: 'Flotta Stellare', influencePercent: 42.5 }],
         warState: 'active',
         electionState: null,
         retreatState: null,
@@ -66,8 +66,8 @@ describe('toExportRecord', () => {
     expect(record.marginPoints).toBe(12.5);
     expect(record.marginVersus).toBe('Rival');
     expect(record.architect).toBe('Some Architect');
-    expect(record.preferredFaction).toBe('Canonn');
-    expect(record.factions).toEqual([{ name: 'Canonn', influencePercent: 42.5 }]);
+    expect(record.preferredFaction).toBe('Flotta Stellare');
+    expect(record.factions).toEqual([{ name: 'Flotta Stellare', influencePercent: 42.5 }]);
     expect(record.warState).toBe('active');
     expect(record.bodyCount).toBe(12);
     expect(record.population).toBe(1000);
@@ -91,14 +91,14 @@ describe('toExportRecord', () => {
     const record = toExportRecord(
       row({
         watchlist: [
-          { systemName: 'Varati', faction: 'Canonn', position: 1, details: 'Key waypoint, keep it secured.' },
-          { systemName: 'Varati', faction: 'Canonn Deep Space Research', position: 2, details: 'Backup faction.' },
+          { systemName: 'Varati', faction: 'Flotta Stellare', position: 1, details: 'Key waypoint, keep it secured.' },
+          { systemName: 'Varati', faction: 'Earth Defense Fleet', position: 2, details: 'Backup faction.' },
         ],
       }),
       NOW,
     );
     expect(record.watchlistDetails).toBe(
-      'Canonn (target #1): Key waypoint, keep it secured. | Canonn Deep Space Research (target #2): Backup faction.',
+      'Flotta Stellare (target #1): Key waypoint, keep it secured. | Earth Defense Fleet (target #2): Backup faction.',
     );
   });
 });
@@ -119,7 +119,7 @@ describe('rowsToCsv', () => {
           controllingFaction: 'Flotta Stellare',
           factionInfluence: 42.5,
           factions: [
-            { name: 'Canonn', influencePercent: 42.5 },
+            { name: 'Flotta Stellare', influencePercent: 42.5 },
             { name: 'Some Other Faction', influencePercent: 12.3 },
           ],
         }),
@@ -141,10 +141,10 @@ describe('rowsToCsv', () => {
 
   it('quotes the watchlistDetails column when its text contains a comma, so the row still parses as one field', () => {
     const csv = rowsToCsv(
-      [row({ watchlist: [{ systemName: 'Varati', faction: 'Canonn', position: 1, details: 'Key waypoint, keep it secured.' }] })],
+      [row({ watchlist: [{ systemName: 'Varati', faction: 'Flotta Stellare', position: 1, details: 'Key waypoint, keep it secured.' }] })],
       NOW,
     );
-    expect(csv.split('\r\n')[1]).toContain('"Canonn (target #1): Key waypoint, keep it secured."');
+    expect(csv.split('\r\n')[1]).toContain('"Flotta Stellare (target #1): Key waypoint, keep it secured."');
   });
 
   it('prefixes formula-like string fields to prevent spreadsheet formula injection', () => {
@@ -169,10 +169,10 @@ describe('rowsToCsv', () => {
   });
 
   it('exports the station count but not the stations array', () => {
-    const csv = rowsToCsv([row({ stationCount: 2, stations: [{ name: 'Canonns Folly', type: 'Orbis Starport', controllingFaction: 'Canonn' }] })], NOW);
+    const csv = rowsToCsv([row({ stationCount: 2, stations: [{ name: 'Starport Folly', type: 'Orbis Starport', controllingFaction: 'Flotta Stellare' }] })], NOW);
     const cells = csv.split('\r\n')[1].split(',');
     expect(cells[15]).toBe('2'); // stationCount
-    expect(csv).not.toContain('Canonns Folly');
+    expect(csv).not.toContain('Starport Folly');
   });
 
   it('renders null fields as empty cells', () => {

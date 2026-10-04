@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { ARCHITECT_FORM_ACTION, ARCHITECTS_SHEET_URL, WATCHLIST_SHEET_URL } from '../core/config';
 import { BgsService } from './bgs.service';
 import { logger } from '../core/logger';
 
@@ -17,6 +18,12 @@ function dataset(results: unknown[]) {
   return JSON.stringify({ faction: 'Flotta Stellare', generated_at: '2026-10-04T17:49:25.854Z', count: results.length, results });
 }
 
+/** The squadron sheets as Google publishes them: the form's own headers, Italian timestamp column included. */
+const ARCHITECTS_TSV =
+  'Informazioni cronologiche\tYour Name\tSystem Name\tArchitect Name\tACFS Architect\tPreferred Faction\n' +
+  '04/10/2026 21:00:00\tSkyflash\tSystem 1\tHabba-Nero\tNot an ACFS Member\tFlotta Stellare\n';
+const WATCHLIST_TSV = 'System\tFaction\tPosition\tDetails\nSystem 1\tFlotta Stellare\t1\tKeep control.\n';
+
 function systemRecord(name: string) {
   return { name, controlling_minor_faction: null, x: 0, y: 0, z: 0 };
 }
@@ -29,9 +36,14 @@ describe('BgsService dataset loading', () => {
   beforeEach(() => {
     localStorage.clear();
     const records = Array.from({ length: TOTAL_SYSTEMS }, (_unused, i) => systemRecord(`System ${i}`));
+    const responses = new Map<string | null, string>([
+      [BGS_DATA_URL, dataset(records)],
+      [ARCHITECTS_SHEET_URL, ARCHITECTS_TSV],
+      [WATCHLIST_SHEET_URL, WATCHLIST_TSV],
+    ]);
     fetchMock = vi.fn((url: string) =>
-      url === BGS_DATA_URL
-        ? Promise.resolve(textResponse(dataset(records)))
+      responses.has(url)
+        ? Promise.resolve(textResponse(responses.get(url)!))
         : Promise.reject(new Error(`Unexpected fetch in test: ${url}`)),
     );
     vi.stubGlobal('fetch', fetchMock);
@@ -59,14 +71,20 @@ describe('BgsService dataset loading', () => {
     expect(rows.length).toBe(TOTAL_SYSTEMS);
     expect(rows[0].systemName).toBe('System 0');
     expect(beyond.rows).toEqual([]);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls.filter(([url]) => url === BGS_DATA_URL)).toHaveLength(1);
   });
 
-  it('makes no request to any sheet while none is configured', async () => {
-    await service.getPage(0);
+  it('reads the architect registry and the watchlist from the squadron sheets', async () => {
+    const page = await service.getPage(0);
+    const system1 = page.rows.find(row => row.systemName === 'System 1')!;
 
-    expect(await service.getArchitectRegistry()).toEqual([]);
-    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([BGS_DATA_URL]);
+    expect(await service.getArchitectRegistry()).toEqual([
+      { systemName: 'System 1', architect: 'Habba-Nero', affiliation: 'Not an ACFS Member', preferredFaction: 'Flotta Stellare' },
+    ]);
+    expect(system1.architect).toBe('Habba-Nero');
+    expect(system1.preferredFaction).toBe('Flotta Stellare');
+    expect(system1.preferredFactionRecorded).toBe(true);
+    expect(system1.watchlist).toEqual([{ systemName: 'System 1', faction: 'Flotta Stellare', position: 1, details: 'Keep control.' }]);
   });
 
   it('retries the dataset after a failed load instead of caching the failure', async () => {
@@ -78,11 +96,16 @@ describe('BgsService dataset loading', () => {
     expect(retried.rows.length).toBe(TOTAL_SYSTEMS);
   });
 
-  it('refuses to submit an assignment while no registry form is configured', async () => {
-    await expect(
-      service.submitAssignment({ yourName: 'Cmdr', systemName: 'Wong Sher', architect: '', affiliation: '', preferredFaction: '' }),
-    ).rejects.toThrow('not configured');
-    expect(fetchMock).not.toHaveBeenCalled();
+  it('submits an assignment to the squadron form, as an opaque no-cors POST', async () => {
+    fetchMock.mockImplementationOnce(() => Promise.resolve({ ok: false, status: 0, type: 'opaque' } as Response));
+
+    await service.submitAssignment({ yourName: 'Cmdr', systemName: 'Wong Sher', architect: '', affiliation: '', preferredFaction: '' });
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(ARCHITECT_FORM_ACTION);
+    expect(init.method).toBe('POST');
+    expect(init.mode).toBe('no-cors');
+    expect(String(init.body)).toContain('entry.2086138170=Wong+Sher');
   });
 });
 
