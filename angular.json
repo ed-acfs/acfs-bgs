@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "bgs-tool": {
+    "acfs-bgs-tool": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -85,10 +85,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "bgs-tool:build:production"
+              "buildTarget": "acfs-bgs-tool:build:production"
             },
             "development": {
-              "buildTarget": "bgs-tool:build:development"
+              "buildTarget": "acfs-bgs-tool:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -12,7 +12,7 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 - architetto e fazione preferita dei sistemi colonizzati;
 - distanza da un sistema a scelta: di default Wong Sher, la capitale.
 
-Il tool è pubblicato su **https://flottastellare.it/bgs-tool/** e si aggiorna da solo ogni ora.
+Il tool è pubblicato su **https://flottastellare.it/acfs-bgs-tool/** e si aggiorna da solo ogni ora.
 
 Il progetto è in sviluppo. Le fasi, le decisioni prese e le domande aperte sono in [ROADMAP.md](ROADMAP.md). Le modifiche fatte finora sono in [CHANGELOG.md](CHANGELOG.md).
 
@@ -41,8 +41,8 @@ npm run fetch-data
 |---|---|
 | `npm start` | Server di sviluppo su `http://localhost:4200`, si ricarica a ogni modifica |
 | `npm run fetch-data` | Scarica di nuovo i dati da Spansh |
-| `npm run build` | Build di produzione in `dist/bgs-tool/browser/` |
-| `npm run build:pages` | Lo stesso build, per il sito pubblicato sotto `/bgs-tool/` |
+| `npm run build` | Build di produzione in `dist/acfs-bgs-tool/browser/` |
+| `npm run build:pages` | Lo stesso build, per il sito pubblicato sotto `/acfs-bgs-tool/` |
 | `npm test` | Test dell'app ([Vitest](https://vitest.dev/)) |
 | `npm run test:scripts` | Test degli script e controllo che `src/core/` non dipenda da Angular (`node --test`) |
 

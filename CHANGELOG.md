@@ -7,8 +7,8 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 ### Nome
 
 - Il tool si chiama **ACFS BGS Tool** (titolo, intestazione, README).
-- Il repo si chiama `ed-acfs/bgs-tool` (prima `acfs-bgs`) e il sito si sposta su **https://flottastellare.it/bgs-tool/**. Il vecchio indirizzo `/acfs-bgs/` smette di funzionare: GitHub non reindirizza i percorsi delle Pages.
-- Progetto Angular e pacchetto npm `bgs-tool`; build in `dist/bgs-tool/`. I file esportati si chiamano `acfs-bgs-tool-AAAA-MM-GG`.
+- Il repo si chiama `ed-acfs/acfs-bgs-tool` (prima `acfs-bgs`) e il sito si sposta su **https://flottastellare.it/acfs-bgs-tool/**. Il vecchio indirizzo `/acfs-bgs/` smette di funzionare: GitHub non reindirizza i percorsi delle Pages.
+- Progetto Angular e pacchetto npm `acfs-bgs-tool`; build in `dist/acfs-bgs-tool/`. I file esportati si chiamano `acfs-bgs-tool-AAAA-MM-GG`.
 
 ### Interfaccia
 

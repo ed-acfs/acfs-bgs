@@ -1,4 +1,4 @@
-# Publishes the tool on GitHub Pages (https://flottastellare.it/bgs-tool/) with fresh Spansh
+# Publishes the tool on GitHub Pages (https://flottastellare.it/acfs-bgs-tool/) with fresh Spansh
 # data: on every push to main, every hour (Spansh fills in as players fly through systems
 # after the tick), and by hand from the Actions tab.
 #
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: dist/bgs-tool/browser
+          path: dist/acfs-bgs-tool/browser
 
   deploy:
     needs: build

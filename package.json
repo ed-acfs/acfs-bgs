@@ -1,5 +1,5 @@
 {
-  "name": "bgs-tool",
+  "name": "acfs-bgs-tool",
   "version": "0.6.2",
   "scripts": {
     "ng": "ng",
@@ -9,7 +9,7 @@
     "prestart": "npm run generate-build-info && node scripts/fetch-bgs.mjs --if-missing",
     "build": "ng build",
     "prebuild:pages": "npm run generate-build-info && node scripts/fetch-bgs.mjs --if-missing",
-    "build:pages": "ng build --base-href /bgs-tool/",
+    "build:pages": "ng build --base-href /acfs-bgs-tool/",
     "prebuild": "npm run generate-build-info && node scripts/fetch-bgs.mjs --if-missing",
     "watch": "ng build --watch --configuration development",
     "pretest": "npm run generate-build-info",
