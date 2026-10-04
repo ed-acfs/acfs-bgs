@@ -1,36 +1,49 @@
-# Canonn Colony Operations
+# ACFS BGS
 
-Canonn Colony Operations is an Elite Dangerous background-simulation tracker for the Canonn
-faction network. It displays a searchable, sortable table of every system in the Canonn BGS
-(background simulation) with:
+Tool BGS (Background Simulation di Elite Dangerous) dello squadrone **Alto Comando Flotta Stellare** (ACFS), per la PMF **Flotta Stellare**.
 
-- Controlling faction, and a mini bar chart of every minor faction present in the system
-  (Canonn's bar highlighted, ordered by influence, highest first).
-- Canonn (CANO) and Canonn Deep Space Research (CDSR) influence percentages.
-- Architect and preferred-faction details for colonised systems.
-- Distance from a chosen reference system — click any system name to re-anchor and re-sort
-  the whole table by distance from it.
+Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella tutti i sistemi in cui Flotta Stellare è presente, con questi dati:
 
-Every column header is sortable (ascending, then descending on a repeat click, with missing
-values always sorted last). Sorting by anything other than the default page order fetches and
-caches the full dataset once, with a progress meter while it loads.
+- fazione che controlla il sistema e grafico dell'influenza di tutte le fazioni presenti;
+- stati in corso o in arrivo: guerra, elezione, ritirata;
+- età del dato, cioè quanto tempo fa il sistema è stato aggiornato;
+- priorità di intervento, da P0 a P4;
+- architetto e fazione preferita dei sistemi colonizzati;
+- distanza da un sistema a scelta: di default Wong Sher, la capitale.
 
-Data comes from the [Canonn BGS API](https://us-central1-canonn-api-236217.cloudfunctions.net/query/canonnbgs).
+Il progetto è in sviluppo. Le fasi, le decisioni prese e le domande aperte sono in [ROADMAP.md](ROADMAP.md). Le modifiche fatte finora sono in [CHANGELOG.md](CHANGELOG.md).
 
-## Development server
+## Dati
 
-Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The application will
-automatically reload if you change any of the source files.
+I dati vengono da [Spansh](https://spansh.co.uk). Spansh non accetta chiamate dirette dal browser, quindi lo script `scripts/fetch-bgs.mjs` scarica tutti i sistemi con Flotta Stellare presente e li salva in `public/data/bgs.json`. L'app legge quel file. Il file non è versionato.
 
-## Build
+Spansh si aggiorna con i dati che i giocatori inviano mentre volano, quindi è sempre un po' indietro rispetto al gioco. I sistemi visitati di rado possono mostrare dati vecchi di giorni o settimane. La colonna "Updated" indica l'età di ogni dato.
 
-Run `npm run build` to build the project. The build artifacts are stored in
-`dist/canonn-bgs/browser/`.
+## Uso in locale
 
-## Test
+Serve Node.js 22 o successivo.
 
-Run `npm test` to execute the unit tests via [Vitest](https://vitest.dev/).
+```powershell
+npm ci
+npm start              # http://localhost:4200
+```
 
-## License
+Al primo avvio `npm start` scarica i dati da Spansh. Gli avvii successivi riusano il file già scaricato. Per aggiornarlo:
 
-This application is [licensed](LICENSE) under the MIT license.
+```powershell
+npm run fetch-data
+```
+
+| Comando | Cosa fa |
+|---|---|
+| `npm start` | Server di sviluppo su `http://localhost:4200`, si ricarica a ogni modifica |
+| `npm run fetch-data` | Scarica di nuovo i dati da Spansh |
+| `npm run build` | Build di produzione in `dist/canonn-bgs/browser/` |
+| `npm test` | Test dell'app ([Vitest](https://vitest.dev/)) |
+| `npm run test:scripts` | Test dello script dei dati (`node --test`) |
+
+## Crediti e licenza
+
+Il codice deriva da [canonn-colony-operations](https://github.com/canonn-science/canonn-colony-operations) del Canonn Research Group, distribuito con licenza MIT. Il procedimento per scaricare i dati da Spansh segue la loro Cloud Function `canonnbgs` ([Canonn-GCloud](https://github.com/canonn-science/Canonn-GCloud)).
+
+Questo progetto è distribuito con la stessa [licenza MIT](LICENSE), che conserva la nota di copyright originale.
