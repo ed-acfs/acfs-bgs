@@ -8,9 +8,12 @@
  * multiple-choice question that has no "other" option.
  */
 
-/** Where the form is submitted; the `viewform` URL with the last segment swapped. */
-export const ARCHITECT_FORM_ACTION =
-  'https://docs.google.com/forms/d/e/1FAIpQLSfXin9fy62qiVurl1HRypwELW-nh6GATmxODgqMOPhb-S2sCA/formResponse';
+/**
+ * Where the form is submitted; the `viewform` URL with the last segment swapped. Null until
+ * the squadron's own form exists — submitting is refused rather than sent to Canonn's form.
+ * The entry ids below are still Canonn's and must be replaced along with this URL.
+ */
+export const ARCHITECT_FORM_ACTION: string | null = null;
 
 const ENTRY_YOUR_NAME = 'entry.865244908';
 const ENTRY_SYSTEM_NAME = 'entry.451477697';
