@@ -141,7 +141,7 @@ describe('computePriorityAssessment under the squadron policy', () => {
       'in-scope',
     );
     expect(assessment.reasons[0]).toMatchObject({ code: 'lead-lowest-should-control', score: 90 });
-    expect(assessment.tier).toBe('P0');
+    expect(assessment.tier).toBe('P1');
   });
 
   it('shows the conflict itself, not "assign an architect", for a war in an unregistered system', () => {
@@ -169,29 +169,29 @@ describe('factionCountWeight', () => {
 });
 
 describe('deriveTier', () => {
-  it('is P0 at and above 85', () => {
-    expect(deriveTier(85)).toBe('P0');
-    expect(deriveTier(100)).toBe('P0');
+  it('is P1 at and above 85', () => {
+    expect(deriveTier(85)).toBe('P1');
+    expect(deriveTier(100)).toBe('P1');
   });
 
-  it('is P1 from 65 up to just under 85', () => {
-    expect(deriveTier(84.9)).toBe('P1');
-    expect(deriveTier(65)).toBe('P1');
+  it('is P2 from 65 up to just under 85', () => {
+    expect(deriveTier(84.9)).toBe('P2');
+    expect(deriveTier(65)).toBe('P2');
   });
 
-  it('is P2 from 40 up to just under 65', () => {
-    expect(deriveTier(64.9)).toBe('P2');
-    expect(deriveTier(40)).toBe('P2');
+  it('is P3 from 40 up to just under 65', () => {
+    expect(deriveTier(64.9)).toBe('P3');
+    expect(deriveTier(40)).toBe('P3');
   });
 
-  it('is P3 from 20 up to just under 40', () => {
-    expect(deriveTier(39.9)).toBe('P3');
-    expect(deriveTier(20)).toBe('P3');
+  it('is P4 from 20 up to just under 40', () => {
+    expect(deriveTier(39.9)).toBe('P4');
+    expect(deriveTier(20)).toBe('P4');
   });
 
-  it('is P4 below 20', () => {
-    expect(deriveTier(19.9)).toBe('P4');
-    expect(deriveTier(0)).toBe('P4');
+  it('is P5 below 20', () => {
+    expect(deriveTier(19.9)).toBe('P5');
+    expect(deriveTier(0)).toBe('P5');
   });
 });
 
@@ -286,7 +286,7 @@ describe('computePriorityAssessment', () => {
       NOW, 'assumed'
     );
     expect(assessment.scope).toBe('assumed');
-    expect(assessment.tier).toBe('P0');
+    expect(assessment.tier).toBe('P1');
     expect(assessment.reasons.some(r => r.code === 'war-active')).toBe(true);
   });
 
@@ -297,7 +297,7 @@ describe('computePriorityAssessment', () => {
     );
     expect(assessment.reasons[0]).toMatchObject({ code: 'assumed-needs-architect', score: 101 });
     expect(assessment.score).toBe(101);
-    expect(assessment.tier).toBe('P0');
+    expect(assessment.tier).toBe('P1');
   });
 
   it('does not add the "assign an architect" trigger for an assumed system with no live conflict', () => {
@@ -316,7 +316,7 @@ describe('computePriorityAssessment', () => {
     expect(assessment.score).toBeNull();
   });
 
-  it('scores an active retreat at 100 (P0), unweighted, outranking an active war', () => {
+  it('scores an active retreat at 100 (P1), unweighted, outranking an active war', () => {
     const retreating = computePriorityAssessment(
       row({
         preferredFaction: OWN,
@@ -326,7 +326,7 @@ describe('computePriorityAssessment', () => {
       }),
       NOW,
     );
-    expect(retreating.tier).toBe('P0');
+    expect(retreating.tier).toBe('P1');
     expect(retreating.score).toBe(100);
     expect(retreating.reasons[0].code).toBe('retreat');
 
@@ -405,7 +405,7 @@ describe('computePriorityAssessment', () => {
     expect(healthyButLast.score).toBe(quietCrowded.score);
   });
 
-  it('sends a system that prefers us to P0 when our faction is weakest of 4+, even at a healthy influence — safety before control', () => {
+  it('sends a system that prefers us to P1 when our faction is weakest of 4+, even at a healthy influence — safety before control', () => {
     const confirmedButLast = computePriorityAssessment(
       row({
         preferredFaction: OWN,
@@ -423,10 +423,10 @@ describe('computePriorityAssessment', () => {
     expect(confirmedButLast.scope).toBe('in-scope');
     expect(confirmedButLast.reasons[0]).toMatchObject({ code: 'lead-lowest-should-control', score: 90 });
     expect(confirmedButLast.score).toBe(90);
-    expect(confirmedButLast.tier).toBe('P0');
+    expect(confirmedButLast.tier).toBe('P1');
   });
 
-  it('also sends a "not a colony" system to P0 when our faction is weakest of 4+ — still ours to protect from a forced withdrawal', () => {
+  it('also sends a "not a colony" system to P1 when our faction is weakest of 4+ — still ours to protect from a forced withdrawal', () => {
     const notAColonyButLast = computePriorityAssessment(
       row({
         notAColony: true,
@@ -443,10 +443,10 @@ describe('computePriorityAssessment', () => {
     );
     expect(notAColonyButLast.scope).toBe('in-scope');
     expect(notAColonyButLast.reasons[0]).toMatchObject({ code: 'lead-lowest-should-control', score: 90 });
-    expect(notAColonyButLast.tier).toBe('P0');
+    expect(notAColonyButLast.tier).toBe('P1');
   });
 
-  it('surfaces an active retreat as P0 in a "not a colony" system even with a stray third-party preference attached — not hidden behind the hands-off badge', () => {
+  it('surfaces an active retreat as P1 in a "not a colony" system even with a stray third-party preference attached — not hidden behind the hands-off badge', () => {
     const assessment = computePriorityAssessment(
       row({
         notAColony: true,
@@ -459,7 +459,7 @@ describe('computePriorityAssessment', () => {
     expect(assessment.scope).toBe('in-scope');
     expect(assessment.tier).not.toBe('out-of-scope');
     expect(assessment.reasons[0]).toMatchObject({ code: 'retreat', score: 100 });
-    expect(assessment.tier).toBe('P0');
+    expect(assessment.tier).toBe('P1');
   });
 
   it('does not fire the last-place trigger in an assumed (unconfirmed) system of 4+ factions — only an explicit preference counts', () => {
@@ -522,7 +522,7 @@ describe('computePriorityAssessment', () => {
     );
     expect(assessment.reasons[0].code).toBe('none');
     expect(assessment.score).toBe(5);
-    expect(assessment.tier).toBe('P4');
+    expect(assessment.tier).toBe('P5');
   });
 
   describe('gap-to-leader (work priority, population-weighted)', () => {
@@ -695,7 +695,7 @@ describe('computePriorityAssessment', () => {
         expect(assessment.scope).toBe('out-of-scope');
         expect(assessment.tier).not.toBe('out-of-scope');
         expect(assessment.reasons[0]).toMatchObject({ code: 'below-watchlist-position', score: 90 });
-        expect(assessment.tier).toBe('P0');
+        expect(assessment.tier).toBe('P1');
       });
 
       it('keeps the hands-off badge while the watched third party still holds its required position', () => {

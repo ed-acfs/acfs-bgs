@@ -8,7 +8,7 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 - influenza di Flotta Stellare e **margine**: vantaggio sulla seconda fazione dove controlliamo, distacco da chi controlla altrove;
 - stati in corso o in arrivo: guerra, elezione, ritirata;
 - età del dato, cioè quanto tempo fa il sistema è stato aggiornato;
-- priorità di intervento, da P0 a P4;
+- priorità di intervento, da P1 (massima) a P5;
 - architetto e fazione preferita dei sistemi colonizzati;
 - distanza da un sistema a scelta: di default Wong Sher, la capitale.
 

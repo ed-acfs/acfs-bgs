@@ -73,14 +73,14 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 
 - [x] `resolveScope()` a fazione singola: in scope se la fazione preferita è Flotta Stellare o il sistema "non è una colonia"; out-of-scope se la fazione preferita è un'altra (accordo da rispettare); "no-preference" se c'è un architetto senza preferenza
 - [x] **Politica per i sistemi non registrati** (decisa il 4 ottobre 2026 su una simulazione con i dati reali): sono tutti "nostri" (in scope), quindi si difendono e si spinge per il controllo. È configurabile con `unregisteredScope` in `config.json` (`"in-scope"`, oppure `"assumed"` per la politica Canonn: solo difesa finché il sistema non viene registrato)
-- [x] Regole Canonn mantenute come sono: "Nessun architetto assegnato" (101 punti, solo per i sistemi "assumed", quindi inattiva con la politica attuale) e "Ultima su 4+ fazioni" (P0, ora legata all'ambito "nostro" invece che alla preferenza registrata)
+- [x] Regole Canonn mantenute come sono: "Nessun architetto assegnato" (101 punti, solo per i sistemi "assumed", quindi inattiva con la politica attuale) e "Ultima su 4+ fazioni" (P1, ora legata all'ambito "nostro" invece che alla preferenza registrata)
 - [x] Tolti i trigger a coppia (`canonn-cdsr-close`, `isCanonnOnlyPair`), le icone "Canonn vs Canonn" e `canonn.svg`; i conflitti mostrati sono solo quelli di Flotta Stellare
 - [x] Fazione preferita ricavata: Flotta Stellare dove controlla almeno una stazione (289 sistemi su 389), mostrata in grigio
 - [x] Motivazioni della priorità in italiano
 - [x] `priority.spec.ts` riscritto: test della politica Canonn con `"assumed"` esplicito, più quelli della politica dello squadrone
-- [ ] Rivedere soglie e pesi (P0 ≥ 85 … P4) dopo qualche settimana d'uso
+- [ ] Rivedere soglie e pesi (P1 ≥ 85 … P5) dopo qualche settimana d'uso
 
-**Fatto quando:** l'elenco ordinato per priorità torna con quello che lo squadrone farebbe a mano. Raggiunto il 4 ottobre 2026 per la parte di logica: 17 P0, 5 P1, 16 P2, 23 P3, 328 P4. Le soglie restano quelle dei Canonn finché l'uso non suggerisce di cambiarle.
+**Fatto quando:** l'elenco ordinato per priorità torna con quello che lo squadrone farebbe a mano. Raggiunto il 4 ottobre 2026 per la parte di logica: 17 P1, 5 P2, 16 P3, 23 P4, 328 P5. Le soglie restano quelle dei Canonn finché l'uso non suggerisce di cambiarle.
 
 ### 5. Form, Sheet e Watchlist ACFS
 
@@ -103,7 +103,7 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 
 ### 7. Report su Discord
 
-- [ ] Dopo l'aggiornamento, lo stesso workflow confronta i dati nuovi con quelli pubblicati in precedenza (scaricati dal sito stesso) e invia a un webhook: sistemi P0/P1, nuove guerre ed elezioni, ritirate, controlli persi o conquistati
+- [ ] Dopo l'aggiornamento, lo stesso workflow confronta i dati nuovi con quelli pubblicati in precedenza (scaricati dal sito stesso) e invia a un webhook: sistemi P1/P2, nuove guerre ed elezioni, ritirate, controlli persi o conquistati
 - [ ] URL del webhook nei Secrets del repo (`DISCORD_WEBHOOK_URL`)
 - [ ] In seguito: bot con slash command per interrogare (`/bgs sistema`, `/bgs priorità`) e per aggiornare (assegnare architetto o fazione preferita, aggiungere alla Watchlist). Aggiornare vuol dire scrivere nello Sheet, quindi serve un servizio sempre acceso con le credenziali Google: va progettato insieme alla fase 8
 

@@ -13,7 +13,7 @@ import { FACTION_NAME, UNREGISTERED_SCOPE } from './config';
 import { daysElapsed, parseUpdatedAt } from './freshness';
 import { PriorityWatchlistEntry } from './priority-watchlist';
 
-export type PriorityTier = 'P0' | 'P1' | 'P2' | 'P3' | 'P4' | 'out-of-scope' | 'not-applicable';
+export type PriorityTier = 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'out-of-scope' | 'not-applicable';
 export type PriorityScope = 'in-scope' | 'assumed' | 'out-of-scope' | 'no-preference';
 
 /** One applicable trigger, already weighted — the tooltip lists these, highest first. */
@@ -39,10 +39,10 @@ export interface PriorityAssessment {
 }
 
 const TIER_THRESHOLDS: readonly { tier: PriorityTier; min: number }[] = [
-  { tier: 'P0', min: 85 },
-  { tier: 'P1', min: 65 },
-  { tier: 'P2', min: 40 },
-  { tier: 'P3', min: 20 },
+  { tier: 'P1', min: 85 },
+  { tier: 'P2', min: 65 },
+  { tier: 'P3', min: 40 },
+  { tier: 'P4', min: 20 },
 ];
 
 export function deriveTier(score: number): PriorityTier {
@@ -51,7 +51,7 @@ export function deriveTier(score: number): PriorityTier {
       return tier;
     }
   }
-  return 'P4';
+  return 'P5';
 }
 
 /**
@@ -224,7 +224,7 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
   // signal — but only in a system that's ours (in-scope: preferred by us, flagged "not a
   // colony", or unregistered under the squadron's policy), not a guessed/assumed lead: getting a system we're actually responsible for out of danger comes
   // before pushing anywhere else for control, so this outranks the work-priority triggers
-  // below and lands in P0. Not gated by the same "below 10%" floor or faction-count weighting
+  // below and lands in P1. Not gated by the same "below 10%" floor or faction-count weighting
   // as the influence triggers above, since this is about rank position itself, not a raw
   // influence reading. Restricted to 4+ factions: in a 3-faction system there are only two
   // rivals to beat, so "lowest of three" isn't a meaningful risk signal on its own.

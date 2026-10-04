@@ -139,7 +139,7 @@ function compareDescendingNullsLast(a: number | null, b: number | null): number 
 /**
  * The Priority column's comparator: the priority sort key (see {@link prioritySortKey})
  * decides the primary order, direction-sensitive as usual. When two rows tie on that key
- * (e.g. several P0 systems), station count breaks the tie (more stations, higher up), then
+ * (e.g. several P1 systems), station count breaks the tie (more stations, higher up), then
  * population, then body count — a bigger, more developed system matters more when priority is
  * otherwise equal. This tiebreak direction never flips with the column's own asc/desc toggle.
  */

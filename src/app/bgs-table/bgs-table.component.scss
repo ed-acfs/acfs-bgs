@@ -332,7 +332,7 @@
   text-align: center;
 }
 
-// Sized to its own text (P0-P4 or the stop sign), not a fixed box like the Freshness pill —
+// Sized to its own text (P1-P5 or the stop sign), not a fixed box like the Freshness pill —
 // centred within the column via .bgs-col-priority's text-align.
 .bgs-priority-pill {
   display: inline-flex;
@@ -346,20 +346,20 @@
   color: var(--priority-fg);
 }
 
-.bgs-priority-pill--P0 {
+.bgs-priority-pill--P1 {
   --priority-bg: #f8d7da;
   --priority-fg: #7a1420;
 }
-.bgs-priority-pill--P1 {
+.bgs-priority-pill--P2 {
   --priority-bg: #faeeda;
   --priority-fg: #633806;
 }
-.bgs-priority-pill--P2 {
+.bgs-priority-pill--P3 {
   --priority-bg: #faece7;
   --priority-fg: #712b13;
 }
-.bgs-priority-pill--P3,
-.bgs-priority-pill--P4 {
+.bgs-priority-pill--P4,
+.bgs-priority-pill--P5 {
   --priority-bg: #eceef0;
   --priority-fg: #5f6368;
 }
@@ -367,7 +367,7 @@
   --priority-bg: transparent;
   --priority-fg: var(--color-text-muted);
   // The stop sign is the only content this pill ever shows — sized up to at least the
-  // height of the P0-P4 badges (padding included), matching the State column's icon size.
+  // height of the P1-P5 badges (padding included), matching the State column's icon size.
   font-size: 1.15rem;
 }
 

@@ -4,14 +4,15 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
 ## [0.4.0] - 2026-10-04 — Priorità a fazione singola
 
-Fase 4 di [ROADMAP.md](ROADMAP.md). La colonna Priorità ora lavora per Flotta Stellare: al 4 ottobre 2026 ci sono 17 sistemi in P0, 5 in P1, 16 in P2, 23 in P3 e 328 in P4.
+Fase 4 di [ROADMAP.md](ROADMAP.md). La colonna Priorità ora lavora per Flotta Stellare: al 4 ottobre 2026 ci sono 17 sistemi in P1, 5 in P2, 16 in P3, 23 in P4 e 328 in P5.
 
 ### Priorità
 
 - Logica a una sola fazione: tolti i trigger a coppia Canonn/CDSR (`canonn-cdsr-close`, "Canonn vs Canonn") e il calcolo del margine contro "l'altra nostra fazione".
 - **Sistemi non registrati**: sono tutti "nostri" (in scope), quindi oltre alla difesa compare anche "Da conquistare" dove siamo dietro chi controlla. La scelta è configurabile con `unregisteredScope` in `config.json`: `"assumed"` ripristina la politica Canonn (solo difesa finché il sistema non viene registrato). Decisa su una simulazione con i dati reali di tre politiche diverse.
-- La regola "Ultima su 4 o più fazioni" (P0) vale nei sistemi "nostri", non solo in quelli con preferenza registrata.
+- La regola "Ultima su 4 o più fazioni" (P1) vale nei sistemi "nostri", non solo in quelli con preferenza registrata.
 - La regola "Nessun architetto assegnato" resta come nei Canonn: vale solo per i sistemi "assumed", quindi con la politica attuale non scatta.
+- Livelli rinumerati sulla scala ACFS: la massima priorità è **P1** (nei Canonn era P0), la minima P5.
 - Motivazioni della priorità in italiano ("Guerra in corso", "Da conquistare: 5,0 punti dietro chi controlla", ecc.).
 
 ### Dati e stati
