@@ -21,7 +21,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { BgsRow, rowWithAssignment } from '../../core/bgs';
 import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM } from '../../core/config';
-import { BgsService, TypeaheadSystem } from '../bgs.service';
+import { BgsService, DatasetInfo, TypeaheadSystem } from '../bgs.service';
 import {
   AssignArchitectDialogComponent,
   AssignArchitectDialogData,
@@ -79,6 +79,15 @@ interface AnchorPoint {
 const SUGGESTION_DEBOUNCE_MS = 300;
 /** Minimum query length before firing a typeahead lookup. */
 const SUGGESTION_MIN_LENGTH = 3;
+
+/** Day, month and time in UTC (game time), e.g. "4 ott, 21:28". */
+const UTC_TIME_FORMAT = new Intl.DateTimeFormat('it-IT', {
+  day: 'numeric',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'UTC',
+});
 
 /** A 0-100 influence as the table shows it, Italian style: "42,5%". */
 function formatPercent(value: number): string {
@@ -222,6 +231,17 @@ export class BgsTableComponent implements OnDestroy {
   /** Set while an export (which needs the full dataset, however the table is currently paging) is being prepared. */
   protected readonly exporting = signal(false);
   protected readonly exportError = signal<string | null>(null);
+
+  /** When the dataset was downloaded and the last tick at that moment, for the line under the title. */
+  protected readonly datasetInfo = signal<DatasetInfo | null>(null);
+  protected readonly datasetSummary = computed(() => {
+    const info = this.datasetInfo();
+    if (!info) {
+      return null;
+    }
+    const downloaded = `Dati Spansh scaricati il ${UTC_TIME_FORMAT.format(Date.parse(info.generatedAt))} UTC`;
+    return info.tickAt ? `${downloaded} · ultimo tick ${UTC_TIME_FORMAT.format(Date.parse(info.tickAt))} UTC` : downloaded;
+  });
 
   protected readonly mode = signal<Mode>('paged');
 
@@ -434,6 +454,12 @@ export class BgsTableComponent implements OnDestroy {
 
   constructor() {
     void this.ensureBuffered(this.pageSize());
+    this.bgsService.getDatasetInfo().then(
+      info => this.datasetInfo.set(info),
+      () => {
+        // The table's own load reports the failure; the header line just stays empty.
+      },
+    );
     void this.loadArchitectFilterNames();
     this.architectFilterControl.setValue(readYourName());
 

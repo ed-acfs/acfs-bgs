@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "canonn-bgs": {
+    "acfs-bgs": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -85,10 +85,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "canonn-bgs:build:production"
+              "buildTarget": "acfs-bgs:build:production"
             },
             "development": {
-              "buildTarget": "canonn-bgs:build:development"
+              "buildTarget": "acfs-bgs:build:development"
             }
           },
           "defaultConfiguration": "development"

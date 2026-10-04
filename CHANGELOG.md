@@ -2,6 +2,35 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.6.0] - 2026-10-04 — Pubblicazione su GitHub Pages
+
+Fase 6 di [ROADMAP.md](ROADMAP.md). Il tool va online su **https://flottastellare.it/acfs-bgs/** e si aggiorna da solo.
+
+### Pubblicazione
+
+- Nuovo workflow `.github/workflows/pages.yml`, al posto di quello ereditato dai Canonn (`main.yml`): installa, esegue i test, scarica i dati da Spansh, fa il build per `/acfs-bgs/` e pubblica su GitHub Pages.
+- Parte a ogni push su `main`, **ogni ora** (al minuto 17, senza test) e a mano dalla scheda Actions. Ogni ora perché Spansh si riempie mano a mano che i giocatori passano nei sistemi dopo il tick.
+- Nuovo comando `npm run build:pages`. Il progetto Angular si chiama `acfs-bgs` e il build finisce in `dist/acfs-bgs/`.
+
+### Interfaccia
+
+- Sotto il titolo, quando sono stati scaricati i dati da Spansh e quando c'è stato l'ultimo tick, in UTC.
+- Una modifica al registro o alla Watchlist compare entro 15 minuti (prima la pagina teneva i fogli in memoria per 2 ore).
+
+### Dati
+
+- `scripts/fetch-bgs.mjs` salva anche l'ora dell'ultimo tick (`tick_at`) letta dall'EDCD Tick Detector. Se il servizio non risponde il valore resta vuoto e lo scaricamento prosegue.
+
+### Registro
+
+- Inseriti nel registro i 6 sistemi che il registro Canonn assegna a Flotta Stellare (Lagoon Sector YZ-Y c6, Col 285 Sector ZV-M d7-91, Lyncis Sector CL-Y d68, Lyncis Sector NY-R b4-2, Col 285 Sector MY-Q c5-21, HIP 1773), con architetti membri ACFS.
+- Inseriti anche i 3 sistemi che il registro Canonn assegna a Canonn (Lagoon Sector AQ-X b1-2, YU-X b1-4, ZU-X b1-9), con fazione preferita Canonn: nel nostro tool sono "non intervenire", come i nostri 6 lo sono nel loro. Registrati con Flotta Stellare anche HIP 30129 e Col 285 Sector MY-Q c5-22, che controlliamo e dove il registro Canonn indica solo l'architetto.
+- Lyncis Sector CL-Y d68, perso contro Canonn alle elezioni del 4 ottobre 2026, è in Watchlist in prima posizione: resta P1 finché non torniamo primi.
+
+### Test
+
+- Nuovi test per la lettura del tick. Passano 142 test dell'app e 7 degli script.
+
 ## [0.5.0] - 2026-10-04 — Registro architetti e Watchlist ACFS
 
 Fase 5 di [ROADMAP.md](ROADMAP.md). Il tool legge e scrive il registro dello squadrone invece di non averne nessuno.

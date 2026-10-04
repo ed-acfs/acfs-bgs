@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { slimSystem } from './fetch-bgs.mjs';
+import { fetchLastTick, slimSystem } from './fetch-bgs.mjs';
 
 const system = {
   name: 'Wong Sher',
@@ -53,4 +53,15 @@ test('handles a system Spansh returns without stations', () => {
 
   assert.equal(slim.station_count, 0);
   assert.deepEqual(slim.assets, []);
+});
+
+test('reads the last tick from the Tick Detector as an ISO timestamp', async t => {
+  t.mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify('2026-10-04T16:06:50+00:00')));
+  assert.equal(await fetchLastTick(), '2026-10-04T16:06:50.000Z');
+});
+
+test('treats an unreachable Tick Detector as an unknown tick, without failing', async t => {
+  t.mock.method(globalThis, 'fetch', async () => new Response('Service Unavailable', { status: 503 }));
+  t.mock.method(console, 'warn', () => {});
+  assert.equal(await fetchLastTick(), null);
 });
