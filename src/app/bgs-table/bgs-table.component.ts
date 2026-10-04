@@ -81,7 +81,7 @@ interface AnchorPoint {
 }
 
 /** The system name the "sort by distance" search box starts with. */
-const DEFAULT_SEARCH_SYSTEM = 'Varati';
+const DEFAULT_SEARCH_SYSTEM = 'Wong Sher';
 /** Debounce for typeahead suggestion lookups, in ms. */
 const SUGGESTION_DEBOUNCE_MS = 300;
 /** Minimum query length before firing a typeahead lookup. */

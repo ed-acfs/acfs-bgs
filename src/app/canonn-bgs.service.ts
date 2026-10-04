@@ -15,33 +15,32 @@ import { isHomeSystem } from './data/home-systems';
 import { logger } from './data/logger';
 import { PriorityWatchlistEntry, buildWatchlistMap, parseWatchlistTsv } from './data/priority-watchlist';
 
-/** Base URL for the Canonn cloud-function query API. */
-const QUERY_BASE = 'https://us-central1-canonn-api-236217.cloudfunctions.net/query';
-const BGS_ENDPOINT = `${QUERY_BASE}/canonnbgs`;
-const ARCHITECTS_ENDPOINT = `${QUERY_BASE}/canonnbgs/architects`;
-const TYPEAHEAD_ENDPOINT = `${QUERY_BASE}/typeahead`;
+/**
+ * The static dataset `scripts/fetch-bgs.mjs` downloads from Spansh. Relative, so it resolves
+ * under whatever base href the app is deployed with.
+ */
+const BGS_DATA_URL = 'data/bgs.json';
 
 /**
- * The architects Cloud Function endpoint is itself backed by this published Google Sheet
- * (a Form-response registry) — fetching it directly is a single request instead of paging
- * through the Cloud Function, so it's tried first. It's unauthenticated, published-to-web
- * Google infrastructure with no documented stability contract (no ETag/Last-Modified either,
- * so there's no cheap way to check for changes without fetching), so any failure — CORS,
- * network, an unrecognised layout — just falls back to the Cloud Function API below.
+ * Galaxy-wide system name and coordinate lookup, for the "sort by distance" search box:
+ * Canonn's public proxy of Spansh's own typeahead, which sends no CORS headers itself.
  */
-const ARCHITECTS_SHEET_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5TMBu2KJQBaNqSBropWVdXUcOjz-wJe57e8h4pRPzr7zZ066yjO-H2Z7hqZe-fOVSpzy-7dzAqU2z/pub?gid=1448295597&single=true&output=tsv';
-/** Short timeout for the sheet fetch — it's a fast-path attempt, not a resilient one; fail quick and fall back. */
+const TYPEAHEAD_ENDPOINT = 'https://us-central1-canonn-api-236217.cloudfunctions.net/query/typeahead';
+
+/**
+ * The Architect Registry: a Google Form's response sheet, published to the web as TSV. Null
+ * until the squadron's own sheet exists — the table then just shows no architects.
+ * Unauthenticated, published-to-web Google infrastructure with no stability contract, so any
+ * failure (CORS, network, an unrecognised layout) means an empty registry for this session.
+ */
+const ARCHITECTS_SHEET_URL: string | null = null;
 const ARCHITECTS_SHEET_TIMEOUT_MS = 8000;
 
 /**
- * The Priority Watchlist — a different published tab of the same spreadsheet the Architect
- * Registry lives in (see {@link ARCHITECTS_SHEET_URL}'s doc comment; same caveats apply). Unlike
- * the registry, there's no Cloud Function fallback for this one — a failed fetch just means no
- * watchlist entries are applied this session, rather than blocking the table.
+ * The Priority Watchlist — another published tab of the same spreadsheet (same caveats as
+ * {@link ARCHITECTS_SHEET_URL}). Null until the squadron's own sheet exists.
  */
-const WATCHLIST_SHEET_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5TMBu2KJQBaNqSBropWVdXUcOjz-wJe57e8h4pRPzr7zZ066yjO-H2Z7hqZe-fOVSpzy-7dzAqU2z/pub?gid=668117854&single=true&output=tsv';
+const WATCHLIST_SHEET_URL: string | null = null;
 const WATCHLIST_SHEET_TIMEOUT_MS = 8000;
 
 /** Default per-request timeout for remote API calls (ms). */
@@ -50,14 +49,6 @@ const HTTP_TIMEOUT_MS = 20000;
 const HTTP_RETRY_COUNT = 2;
 /** Timeout for a form submission (ms). Not retried — see {@link CanonnBgsService.submitAssignment}. */
 const FORM_SUBMIT_TIMEOUT_MS = 15000;
-
-/**
- * Fallback page size, used only until the API's actual page size is known (see
- * {@link CanonnBgsService.resolvePageSize}); also the client's default page-size selection.
- * Not authoritative — the Cloud Function's real per-page record count isn't a fixed contract
- * (issue #7) and is inferred per-session from page 0's response instead.
- */
-export const BGS_PAGE_SIZE = 50;
 
 /** localStorage key the architect registry is persisted under. */
 const ARCHITECTS_CACHE_KEY = 'canonn-bgs:architects-cache:v2';
@@ -162,30 +153,26 @@ interface BgsSystemRecord {
   /** Number of astronomical bodies scanned in the system. */
   body_count?: number | null;
   population?: number | null;
-  /** Total stations in the system (all of them, not just Canonn's). Higher wins a priority tie. */
+  /** Total stations in the system, fleet carriers excluded. Higher wins a priority tie. */
   station_count?: number | null;
-  /** Every station in the system; those with "canonn" in their name make the system Canonn-led. */
-  canonn_assets?: CanonnAsset[] | null;
+  /** Every station in the system, fleet carriers excluded; those with "canonn" in their name make the system Canonn-led. */
+  assets?: CanonnAsset[] | null;
 }
 
-/** A station or installation in a system, as the API's `canonn_assets` array describes it. */
+/** A station or installation in a system, as the dataset's `assets` array describes it. */
 export interface CanonnAsset {
   name: string;
-  type: string;
+  type: string | null;
   controlling_minor_faction: string | null;
 }
 
-interface BgsPageResponse {
+/** The file `scripts/fetch-bgs.mjs` writes: every system the faction is present in. */
+interface BgsDataset {
+  faction: string;
+  /** ISO 8601 time the dataset was downloaded from Spansh. */
+  generated_at: string;
   count: number;
-  from: number;
   results: BgsSystemRecord[];
-}
-
-interface ArchitectRecord {
-  'System Name': string;
-  'Architect Name': string;
-  'Canonn Architect': string;
-  'Preferred Faction': string;
 }
 
 /** A typeahead match, with the coordinates needed to sort by distance from it. */
@@ -632,22 +619,21 @@ function summarizeFactionState(
 }
 
 /**
- * Fetches the Canonn BGS dataset: a paged table of systems with their controlling
- * faction, Canonn/CDSR influence, and (via a separate lookup) architect details.
+ * Loads the BGS dataset: a table of systems with their controlling faction, the squadron
+ * faction's influence, and (via a separate lookup) architect details.
+ *
+ * The whole dataset is one static file (see {@link BGS_DATA_URL}), so page 0 holds every
+ * system and there are no further pages; the table slices it client-side.
  *
  * Caching:
- * - The search token is fetched once per session and reused for every page.
- * - Each fetched page is memoised in memory so revisiting it (Previous/Next) is free.
- * - The architect registry is fetched once (across all its pages) and persisted in
- *   localStorage for {@link ARCHITECTS_CACHE_DURATION_MS}, since it changes far less
- *   often than BGS influence.
+ * - The dataset is fetched once per session; page 0 is memoised in memory.
+ * - The architect registry is fetched once and persisted in localStorage for
+ *   {@link ARCHITECTS_CACHE_DURATION_MS}, since it changes far less often than BGS influence.
  */
 @Injectable({ providedIn: 'root' })
 export class CanonnBgsService {
-  private tokenPromise?: Promise<string>;
+  private datasetPromise?: Promise<BgsDataset>;
   private readonly pagePromises = new Map<number, Promise<BgsPage>>();
-  /** The API's actual per-page record count, learned from page 0's response — see {@link resolvePageSize}. */
-  private discoveredPageSize: number | null = null;
   private registryPromise?: Promise<ArchitectRegistryRow[]>;
   /** The resolved registry, once loaded — what {@link recordAssignment} appends to. */
   private registryRows: ArchitectRegistryRow[] | null = null;
@@ -703,6 +689,9 @@ export class CanonnBgsService {
    * the first time would add a duplicate row to the registry.
    */
   async submitAssignment(submission: ArchitectSubmission): Promise<void> {
+    if (!ARCHITECT_FORM_ACTION) {
+      throw new Error('The Architect Registry form is not configured yet.');
+    }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FORM_SUBMIT_TIMEOUT_MS);
     try {
@@ -751,57 +740,36 @@ export class CanonnBgsService {
   }
 
   /**
-   * Fetches every page of the BGS dataset (reusing whatever's already cached) and
-   * returns all rows concatenated in their natural order. Used when the table switches
-   * into a full-dataset sort (by distance or by influence), which needs every row.
-   * `onProgress`, if given, is called as each page arrives so the UI can show a meter.
+   * Every row of the BGS dataset, in its natural order (most recently updated first). Used
+   * when the table switches into a full-dataset sort (by distance or by influence). The
+   * dataset is a single file, so `onProgress` only ever reports 0 of 1, then 1 of 1.
    */
   async getAllRows(onProgress?: (loaded: number, total: number) => void): Promise<BgsRow[]> {
-    const first = await this.getPage(0);
-    const total = first.totalPages;
-    const pagesByIndex = new Array<BgsRow[]>(total);
-    let loaded = 0;
-    onProgress?.(0, total);
-    await Promise.all(
-      Array.from({ length: total }, (_unused, page) =>
-        this.getPage(page).then(result => {
-          pagesByIndex[page] = result.rows;
-          loaded++;
-          onProgress?.(loaded, total);
-        }),
-      ),
-    );
-    return pagesByIndex.flat();
+    onProgress?.(0, 1);
+    const { rows } = await this.getPage(0);
+    onProgress?.(1, 1);
+    return rows;
   }
 
   private async fetchPage(page: number): Promise<BgsPage> {
-    const [token, architects, watchlist] = await Promise.all([this.getToken(), this.getArchitectInfo(), this.getWatchlist()]);
-    const response = await this.resilientGet<BgsPageResponse>(`${BGS_ENDPOINT}/${token}/${page}`);
-    const pageSize = this.resolvePageSize(page, response.results.length);
+    const [dataset, architects, watchlist] = await Promise.all([this.getDataset(), this.getArchitectInfo(), this.getWatchlist()]);
     return {
       page,
-      rows: response.results.map(record => this.toRow(record, architects, watchlist)),
-      totalCount: response.count,
-      totalPages: Math.max(1, Math.ceil(response.count / pageSize)),
+      rows: page === 0 ? dataset.results.map(record => this.toRow(record, architects, watchlist)) : [],
+      totalCount: dataset.results.length,
+      totalPages: 1,
     };
   }
 
-  /**
-   * The API's per-page record count isn't a fixed contract (issue #7: it changed from 50 to
-   * 500 without notice, and {@link BGS_PAGE_SIZE} being hardcoded against the old value made
-   * every page past the new, much-shorter last page 404). Page 0 is guaranteed full unless the
-   * whole dataset fits on one page — in which case the size doesn't matter, since `totalPages`
-   * comes out to 1 either way — so it's the one response trusted to reveal the true page size,
-   * and that's reused for every later page. A later page's own `results.length` is deliberately
-   * *not* used for this, since a later page fetched on its own (e.g. a prefetch) may be the
-   * short last page and would otherwise be mistaken for the true page size — if page 0 hasn't
-   * been observed yet, this sticks to the default instead.
-   */
-  private resolvePageSize(page: number, resultsLength: number): number {
-    if (page === 0 && resultsLength > 0) {
-      this.discoveredPageSize = resultsLength;
+  /** Loads the dataset at most once per session; a failure clears the memo so a later call can retry. */
+  private getDataset(): Promise<BgsDataset> {
+    if (!this.datasetPromise) {
+      this.datasetPromise = this.resilientGet<BgsDataset>(BGS_DATA_URL).catch(error => {
+        this.datasetPromise = undefined;
+        throw error;
+      });
     }
-    return this.discoveredPageSize ?? BGS_PAGE_SIZE;
+    return this.datasetPromise;
   }
 
   private toRow(
@@ -827,7 +795,7 @@ export class CanonnBgsService {
       requiresCorroboration: false,
       describeMatch: describeSingleFaction,
     });
-    const hasCanonnStation = (record.canonn_assets ?? []).some(isCanonnAsset);
+    const hasCanonnStation = (record.assets ?? []).some(isCanonnAsset);
     const recordedPreference = info?.preferredFaction || null;
     return {
       systemName: record.name,
@@ -847,7 +815,7 @@ export class CanonnBgsService {
       factions: [...presences]
         .sort((a, b) => b.influence - a.influence)
         .map(p => ({ name: p.name, influencePercent: p.influence * 100 })),
-      stations: (record.canonn_assets ?? []).map(asset => ({
+      stations: (record.assets ?? []).map(asset => ({
         name: asset.name,
         type: asset.type ?? null,
         controllingFaction: asset.controlling_minor_faction ?? null,
@@ -885,13 +853,6 @@ export class CanonnBgsService {
     return presence ? presence.influence * 100 : null;
   }
 
-  private getToken(): Promise<string> {
-    if (!this.tokenPromise) {
-      this.tokenPromise = this.resilientGet<string>(BGS_ENDPOINT);
-    }
-    return this.tokenPromise;
-  }
-
   /** The system -> architect lookup the table's rows are built from, derived from the registry once. */
   private async getArchitectInfo(): Promise<ReadonlyMap<string, ArchitectInfo>> {
     const rows = await this.getRegistry();
@@ -921,50 +882,31 @@ export class CanonnBgsService {
       return cached.rows;
     }
 
-    const rows = (await this.loadRegistryFromSheet()) ?? (await this.loadRegistryFromApi());
-    this.registryRows = rows;
+    const rows = await this.loadRegistryFromSheet();
+    this.registryRows = rows ?? [];
     this.registryFetchedAt = Date.now();
-    this.writeArchitectsCache(rows, this.registryFetchedAt);
-    return rows;
+    // Only a successful fetch is persisted, so a transient failure is retried on the next visit.
+    if (rows !== null) {
+      this.writeArchitectsCache(rows, this.registryFetchedAt);
+    }
+    return this.registryRows;
   }
 
   /**
-   * Fast path: fetch the published Google Sheet directly (one request) and parse it
-   * ourselves. Returns null — never throws — on any failure, so the caller falls back
-   * to {@link loadRegistryFromApi} unconditionally.
+   * Fetches the published Google Sheet and parses it. Returns null — never throws — when no
+   * sheet is configured or the fetch fails, which the caller treats as an empty registry.
    */
   private async loadRegistryFromSheet(): Promise<ArchitectRegistryRow[] | null> {
-    try {
-      const text = await this.fetchTextOnce(ARCHITECTS_SHEET_URL, ARCHITECTS_SHEET_TIMEOUT_MS);
-      const rows = parseArchitectsTsv(text);
-      if (rows.length === 0) {
-        return null;
-      }
-      return rows;
-    } catch (error) {
-      logger.warn('Architects sheet fetch failed, falling back to the Cloud Function API.', error);
+    if (!ARCHITECTS_SHEET_URL) {
       return null;
     }
-  }
-
-  /** Reliable path: page through the Cloud Function's own architects endpoint. */
-  private async loadRegistryFromApi(): Promise<ArchitectRegistryRow[]> {
-    const rows: ArchitectRegistryRow[] = [];
-    for (let page = 0; ; page++) {
-      const records = await this.resilientGet<ArchitectRecord[]>(`${ARCHITECTS_ENDPOINT}/${page}`);
-      if (records.length === 0) {
-        break;
-      }
-      for (const record of records) {
-        rows.push({
-          systemName: record['System Name'],
-          architect: record['Architect Name'],
-          affiliation: record['Canonn Architect'] ?? '',
-          preferredFaction: record['Preferred Faction'],
-        });
-      }
+    try {
+      const text = await this.fetchTextOnce(ARCHITECTS_SHEET_URL, ARCHITECTS_SHEET_TIMEOUT_MS);
+      return parseArchitectsTsv(text);
+    } catch (error) {
+      logger.warn('Architects sheet fetch failed; no architects will be shown this session.', error);
+      return null;
     }
-    return rows;
   }
 
   /** Loads the priority watchlist at most once per session, grouped by system; never throws — see {@link loadWatchlist}. */
@@ -992,6 +934,9 @@ export class CanonnBgsService {
    * entries are applied this session rather than blocking the page from loading at all.
    */
   private async loadWatchlistFromSheet(): Promise<PriorityWatchlistEntry[]> {
+    if (!WATCHLIST_SHEET_URL) {
+      return [];
+    }
     try {
       const text = await this.fetchTextOnce(WATCHLIST_SHEET_URL, WATCHLIST_SHEET_TIMEOUT_MS);
       return parseWatchlistTsv(text);

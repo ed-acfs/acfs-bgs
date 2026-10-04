@@ -1,25 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { BGS_PAGE_SIZE, CanonnBgsService } from './canonn-bgs.service';
+import { CanonnBgsService } from './canonn-bgs.service';
 import { logger } from './data/logger';
 
-const BGS_ENDPOINT = 'https://us-central1-canonn-api-236217.cloudfunctions.net/query/canonnbgs';
-const ARCHITECTS_ENDPOINT = `${BGS_ENDPOINT}/architects`;
-const TOKEN = 'test-token';
-
-/** Escapes regex metacharacters so a URL can be matched literally. */
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-const BGS_PAGE_URL = new RegExp(`^${escapeRegExp(BGS_ENDPOINT)}/${TOKEN}/(\\d+)$`);
-
-/**
- * Stands in for the real Cloud Function, but paging 520 systems 500-at-a-time instead of the
- * 50-at-a-time BGS_PAGE_SIZE assumes — reproducing the API change from issue #7 that broke
- * pagination when it was hardcoded to the old page size.
- */
-const REAL_API_PAGE_SIZE = 500;
-const TOTAL_SYSTEMS = 520;
+const BGS_DATA_URL = 'data/bgs.json';
 
 function textResponse(body: string, status = 200): Response {
   return {
@@ -30,47 +13,27 @@ function textResponse(body: string, status = 200): Response {
   } as Response;
 }
 
+function dataset(results: unknown[]) {
+  return JSON.stringify({ faction: 'Flotta Stellare', generated_at: '2026-10-04T17:49:25.854Z', count: results.length, results });
+}
+
 function systemRecord(name: string) {
   return { name, controlling_minor_faction: null, x: 0, y: 0, z: 0 };
 }
 
-function fakeFetch(url: string): Promise<Response> {
-  if (url === BGS_ENDPOINT) {
-    return Promise.resolve(textResponse(JSON.stringify(TOKEN)));
-  }
-  if (url.startsWith(`${ARCHITECTS_ENDPOINT}/`)) {
-    return Promise.resolve(textResponse('[]'));
-  }
-  if (url.startsWith('https://docs.google.com/')) {
-    return Promise.reject(new Error('sheet unavailable in test'));
-  }
-  const pageMatch = BGS_PAGE_URL.exec(url);
-  if (pageMatch) {
-    const page = Number(pageMatch[1]);
-    const start = page * REAL_API_PAGE_SIZE;
-    if (start >= TOTAL_SYSTEMS) {
-      // The real API's actual last page is well before BGS_PAGE_SIZE-based math would stop
-      // asking for more — this is the 404 issue #7 reported as a "network error".
-      return Promise.resolve(textResponse('Not Found', 404));
-    }
-    const count = Math.min(REAL_API_PAGE_SIZE, TOTAL_SYSTEMS - start);
-    const results = Array.from({ length: count }, (_unused, i) => systemRecord(`System ${start + i}`));
-    return Promise.resolve(textResponse(JSON.stringify({ count: TOTAL_SYSTEMS, from: start, results })));
-  }
-  return Promise.reject(new Error(`Unexpected fetch in test: ${url}`));
-}
-
-function bgsPageRequestCount(fetchMock: ReturnType<typeof vi.fn>): number {
-  return fetchMock.mock.calls.map(([url]) => String(url)).filter(url => BGS_PAGE_URL.test(url)).length;
-}
-
-describe('CanonnBgsService pagination against a differently-sized API page (issue #7)', () => {
+describe('CanonnBgsService dataset loading', () => {
+  const TOTAL_SYSTEMS = 389;
   let service: CanonnBgsService;
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     localStorage.clear();
-    fetchMock = vi.fn(fakeFetch);
+    const records = Array.from({ length: TOTAL_SYSTEMS }, (_unused, i) => systemRecord(`System ${i}`));
+    fetchMock = vi.fn((url: string) =>
+      url === BGS_DATA_URL
+        ? Promise.resolve(textResponse(dataset(records)))
+        : Promise.reject(new Error(`Unexpected fetch in test: ${url}`)),
+    );
     vi.stubGlobal('fetch', fetchMock);
     TestBed.configureTestingModule({});
     service = TestBed.inject(CanonnBgsService);
@@ -80,33 +43,46 @@ describe('CanonnBgsService pagination against a differently-sized API page (issu
     vi.unstubAllGlobals();
   });
 
-  it('derives totalPages from the API\'s actual page size instead of the hardcoded default', async () => {
+  it('returns every system on page 0, as a single page', async () => {
     const first = await service.getPage(0);
 
-    expect(first.rows.length).toBe(REAL_API_PAGE_SIZE);
-    expect(first.totalPages).toBe(2); // ceil(520 / 500), the true number of pages
-    expect(first.totalPages).not.toBe(Math.ceil(TOTAL_SYSTEMS / BGS_PAGE_SIZE)); // the old, wrong answer (11)
+    expect(first.rows.length).toBe(TOTAL_SYSTEMS);
+    expect(first.totalCount).toBe(TOTAL_SYSTEMS);
+    expect(first.totalPages).toBe(1);
   });
 
-  it('fetches every system without requesting pages past the API\'s real last page', async () => {
+  it('fetches the dataset once, however many pages and full-dataset reads are requested', async () => {
     const rows = await service.getAllRows();
+    await service.getPage(0);
+    const beyond = await service.getPage(1);
 
     expect(rows.length).toBe(TOTAL_SYSTEMS);
     expect(rows[0].systemName).toBe('System 0');
-    expect(rows[TOTAL_SYSTEMS - 1].systemName).toBe(`System ${TOTAL_SYSTEMS - 1}`);
-    // Only the 2 pages that actually exist (0 and 1) were requested — not the 11 that
-    // BGS_PAGE_SIZE-based math would have tried, most of which would 404.
-    expect(bgsPageRequestCount(fetchMock)).toBe(2);
+    expect(beyond.rows).toEqual([]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps using the size discovered from page 0 even when a later page is short', async () => {
+  it('makes no request to any sheet while none is configured', async () => {
     await service.getPage(0);
-    const last = await service.getPage(1);
 
-    // Page 1 only has 20 rows (the true last page); that shouldn't be mistaken for the API's
-    // per-page size and used to recompute totalPages.
-    expect(last.rows.length).toBe(TOTAL_SYSTEMS - REAL_API_PAGE_SIZE);
-    expect(last.totalPages).toBe(2);
+    expect(await service.getArchitectRegistry()).toEqual([]);
+    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([BGS_DATA_URL]);
+  });
+
+  it('retries the dataset after a failed load instead of caching the failure', async () => {
+    fetchMock.mockImplementationOnce(() => Promise.resolve(textResponse('Not Found', 404)));
+
+    await expect(service.getPage(0)).rejects.toThrow();
+    const retried = await service.getPage(0);
+
+    expect(retried.rows.length).toBe(TOTAL_SYSTEMS);
+  });
+
+  it('refuses to submit an assignment while no registry form is configured', async () => {
+    await expect(
+      service.submitAssignment({ yourName: 'Cmdr', systemName: 'Wong Sher', architect: '', affiliation: '', preferredFaction: '' }),
+    ).rejects.toThrow('not configured');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 
@@ -133,21 +109,11 @@ describe('CanonnBgsService state summarisation (retreat, FR-1/FR-2)', () => {
   beforeEach(() => {
     localStorage.clear();
     records = [];
-    fetchMock = vi.fn((url: string) => {
-      if (url === BGS_ENDPOINT) {
-        return Promise.resolve(textResponse(JSON.stringify(TOKEN)));
-      }
-      if (url.startsWith(`${ARCHITECTS_ENDPOINT}/`)) {
-        return Promise.resolve(textResponse('[]'));
-      }
-      if (url.startsWith('https://docs.google.com/')) {
-        return Promise.reject(new Error('sheet unavailable in test'));
-      }
-      if (BGS_PAGE_URL.test(url)) {
-        return Promise.resolve(textResponse(JSON.stringify({ count: records.length, from: 0, results: records })));
-      }
-      return Promise.reject(new Error(`Unexpected fetch in test: ${url}`));
-    });
+    fetchMock = vi.fn((url: string) =>
+      url === BGS_DATA_URL
+        ? Promise.resolve(textResponse(dataset(records)))
+        : Promise.reject(new Error(`Unexpected fetch in test: ${url}`)),
+    );
     vi.stubGlobal('fetch', fetchMock);
     TestBed.configureTestingModule({});
     service = TestBed.inject(CanonnBgsService);

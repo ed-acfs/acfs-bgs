@@ -3,13 +3,16 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "fetch-data": "node scripts/fetch-bgs.mjs",
     "generate-build-info": "node scripts/generate-build-info.js",
     "start": "ng serve",
-    "prestart": "npm run generate-build-info",
+    "prestart": "npm run generate-build-info && node scripts/fetch-bgs.mjs --if-missing",
     "build": "ng build",
-    "prebuild": "npm run generate-build-info",
+    "prebuild": "npm run generate-build-info && node scripts/fetch-bgs.mjs --if-missing",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "pretest": "npm run generate-build-info",
+    "test": "ng test",
+    "test:scripts": "node --test scripts/*.test.mjs"
   },
   "private": true,
   "packageManager": "npm@11.16.0",
