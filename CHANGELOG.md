@@ -25,6 +25,7 @@ Prima versione di ACFS BGS, derivata da [canonn-colony-operations](https://githu
 - Nuova nota di copyright ACFS in `LICENSE`, che conserva quella originale del Canonn Research Group.
 - `package.json`: nome `acfs-bgs`, versione 0.1.0.
 - `src/app/build-info.ts` non è più versionato. Viene generato prima di start, build e test.
+- Disattivato il workflow di deploy su GitHub Pages ereditato dai Canonn: falliva a ogni push su `main` perché Pages non è attivo. Torna con la fase 6.
 
 ### Test
 

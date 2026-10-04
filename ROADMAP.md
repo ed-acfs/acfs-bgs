@@ -11,7 +11,7 @@ La domanda a cui il tool deve rispondere ogni giorno dopo il tick: **dove dobbia
 | Fazione | Una sola: `Flotta Stellare`. Si tolgono CDSR e tutte le regole basate su coppie di fazioni |
 | Capitale | `Wong Sher` (sistema home e punto di partenza per le distanze) |
 | Fonte dati | Spansh, scaricato da uno script e pubblicato come JSON statico. Spansh non manda header CORS, quindi il browser non può chiamarlo direttamente. Lo script fa le stesse operazioni della Cloud Function Canonn (`Canonn-GCloud/query/function/localpackage/canonnbgs.py`) |
-| Hosting | Repo `ed-acfs/acfs-bgs` reso pubblico, con GitHub Pages su `https://ed-acfs.github.io/acfs-bgs/` |
+| Hosting | Repo `ed-acfs/acfs-bgs` pubblico (lo è già: l'handoff lo dava privato), con GitHub Pages su `https://ed-acfs.github.io/acfs-bgs/`. Organizzazione su piano Free |
 | Colonizzazione | Come i Canonn: Form e Sheet ACFS con architetto, appartenenza ad ACFS e fazione preferita, più la Watchlist |
 | Lingua | Interfaccia in italiano. Nomi degli stati BGS in inglese, come appaiono in gioco |
 | Registro Canonn | Non lo leggiamo, per ora |
@@ -23,9 +23,10 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 
 ### 0. Preparazione
 
-- [ ] `gh auth login` su questo PC: le credenziali attuali danno 401
-- [ ] Disattivare il workflow upstream "Deploy static content to Pages" finché non arriva la fase 6
-- [ ] Decidere cosa fare delle modifiche ancora non committate: `angular.json` (`analytics: false`) e `src/app/build-info.ts`, che è generato e andrebbe tolto dal versionamento
+- [x] `gh auth login` su questo PC (4 ottobre 2026)
+- [x] Disattivato il workflow upstream "Deploy static content to Pages" fino alla fase 6. Prima di essere disattivato aveva fallito solo al passo "Setup Pages", perché Pages non è attivo: installazione, test e build passano anche sui runner di GitHub
+- [x] `src/app/build-info.ts` tolto dal versionamento
+- [ ] `angular.json` (`analytics: false`): modifica locale, per ora non committata
 
 ### 1. Dati Flotta Stellare nell'app
 
@@ -85,7 +86,8 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 
 ### 6. Pubblicazione e aggiornamento automatico
 
-- [ ] Rendere pubblico il repo, dopo aver controllato che non contenga dati da non condividere
+- [x] Repo pubblico: lo era già il 4 ottobre 2026. Prima di attivare Pages controllare comunque che non contenga dati da non condividere
+- [ ] Attivare GitHub Pages con sorgente "GitHub Actions"
 - [ ] Workflow unico: scarica i dati da Spansh, esegue i test, fa il build con `--base-href /acfs-bgs/` e pubblica su Pages
 - [ ] Esecuzione schedulata (alcune volte al giorno, per coprire il tick) e manuale (`workflow_dispatch`). Il JSON non viene committato: viaggia solo nel build
 - [ ] Mostrare nella pagina l'ora dell'ultimo aggiornamento
