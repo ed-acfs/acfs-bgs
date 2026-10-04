@@ -1,4 +1,5 @@
-import { CANONN_FACTION, CDSR_FACTION, BgsRow } from './bgs';
+import { BgsRow } from './bgs';
+import { FACTION_NAME } from './config';
 import {
   computePriorityAssessment,
   costToClose,
@@ -10,30 +11,28 @@ import {
   resolveScope,
 } from './priority';
 
+const OWN = FACTION_NAME;
+
 /** A minimal, fully-populated row — tests override only the fields they care about. */
 function row(overrides: Partial<BgsRow> = {}): BgsRow {
   return {
     systemName: 'Test System',
     controllingFaction: null,
-    canonnInfluence: null,
-    cdsrInfluence: null,
     factionInfluence: null,
     margin: null,
     architect: null,
     notAColony: false,
     preferredFaction: null,
     preferredFactionRecorded: false,
-    hasCanonnStation: false,
+    hasOwnStation: false,
     factionDetails: [],
     stations: [],
     stationCount: null,
     factions: [],
     warState: null,
     warDetails: null,
-    warIsCanonnVsCanonn: false,
     electionState: null,
     electionDetails: null,
-    electionIsCanonnVsCanonn: false,
     retreatState: null,
     retreatDetails: null,
     expansionState: null,
@@ -49,58 +48,106 @@ function row(overrides: Partial<BgsRow> = {}): BgsRow {
 }
 
 describe('resolveScope', () => {
-  it('is in-scope with Canonn as lead when the preferred faction is Canonn', () => {
-    expect(resolveScope(row({ preferredFaction: 'Canonn' }))).toEqual({ scope: 'in-scope', leadFaction: CANONN_FACTION });
-  });
-
-  it('is in-scope with CDSR as lead when the preferred faction is CDSR', () => {
-    expect(resolveScope(row({ preferredFaction: CDSR_FACTION }))).toEqual({ scope: 'in-scope', leadFaction: CDSR_FACTION });
+  it('is in-scope when the preferred faction is ours', () => {
+    expect(resolveScope(row({ preferredFaction: OWN, factionInfluence: 30 }))).toEqual({ scope: 'in-scope', leadFaction: OWN });
   });
 
   it('matches the preferred faction case- and whitespace-insensitively', () => {
-    expect(resolveScope(row({ preferredFaction: '  canonn  ' }))).toEqual({ scope: 'in-scope', leadFaction: CANONN_FACTION });
-    expect(resolveScope(row({ preferredFaction: 'CANONN DEEP SPACE RESEARCH' }))).toEqual({ scope: 'in-scope', leadFaction: CDSR_FACTION });
+    expect(resolveScope(row({ preferredFaction: `  ${OWN.toLowerCase()}  ` }))).toEqual({ scope: 'in-scope', leadFaction: OWN });
+    expect(resolveScope(row({ preferredFaction: OWN.toUpperCase() }))).toEqual({ scope: 'in-scope', leadFaction: OWN });
   });
 
   it('is out-of-scope when the preferred faction is a third party', () => {
     expect(resolveScope(row({ preferredFaction: 'Varati Ring' }))).toEqual({ scope: 'out-of-scope', leadFaction: null });
   });
 
-  it('is in-scope with Canonn as lead by default policy when marked "not a colony" with no preference', () => {
-    expect(resolveScope(row({ notAColony: true }))).toEqual({ scope: 'in-scope', leadFaction: CANONN_FACTION });
+  it('is in-scope by default policy when marked "not a colony" with no preference', () => {
+    expect(resolveScope(row({ notAColony: true }))).toEqual({ scope: 'in-scope', leadFaction: OWN });
   });
 
-  it('stays in-scope with Canonn as lead for "not a colony" even when a stray third-party preference was also recorded', () => {
+  it('stays in-scope for "not a colony" even when a stray third-party preference was also recorded', () => {
     // The Assign dialog can default Preferred Faction from the architect's answer in a
     // *different* system, so a third-party value alongside "not a colony" isn't a real
     // hands-off agreement for this system — it must not get the out-of-scope treatment.
     expect(resolveScope(row({ notAColony: true, preferredFaction: 'Varati Ring' }))).toEqual({
       scope: 'in-scope',
-      leadFaction: CANONN_FACTION,
+      leadFaction: OWN,
     });
   });
 
-  it('is "assumed" when there is no confirmed preference, leading from whichever faction is present', () => {
-    expect(resolveScope(row({ canonnInfluence: 10 }))).toEqual({ scope: 'assumed', leadFaction: CANONN_FACTION });
-    expect(resolveScope(row({ cdsrInfluence: 10 }))).toEqual({ scope: 'assumed', leadFaction: CDSR_FACTION });
+  it('is "assumed" when there is no confirmed preference, leading with our faction when present', () => {
+    expect(resolveScope(row({ factionInfluence: 10 }), 'assumed')).toEqual({ scope: 'assumed', leadFaction: OWN });
   });
 
-  it('picks the higher-influence faction when both are present with no confirmed preference', () => {
-    expect(resolveScope(row({ canonnInfluence: 20, cdsrInfluence: 5 }))).toEqual({ scope: 'assumed', leadFaction: CANONN_FACTION });
-    expect(resolveScope(row({ canonnInfluence: 5, cdsrInfluence: 20 }))).toEqual({ scope: 'assumed', leadFaction: CDSR_FACTION });
-  });
-
-  it('is "assumed" with no lead when neither faction is present', () => {
+  it('is "assumed" with no lead when our faction is not present', () => {
     expect(resolveScope(row())).toEqual({ scope: 'assumed', leadFaction: null });
   });
 
   it('is "no-preference" when an architect is confirmed but left the faction preference blank', () => {
-    // Distinct from "no registry row at all": someone has already looked at this system, so
-    // there's no reason to guess a lead from influence presence the way "assumed" does.
-    expect(resolveScope(row({ architect: 'Some Commander', canonnInfluence: 10 }))).toEqual({
+    // Distinct from "no registry row at all": someone has already looked at this system and
+    // didn't name us.
+    expect(resolveScope(row({ architect: 'Some Commander', factionInfluence: 10 }))).toEqual({
       scope: 'no-preference',
       leadFaction: null,
     });
+  });
+});
+
+describe('resolveScope under the squadron policy (unregistered systems are ours)', () => {
+  it('is in-scope when nothing is recorded and our faction is present', () => {
+    expect(resolveScope(row({ factionInfluence: 10 }), 'in-scope')).toEqual({ scope: 'in-scope', leadFaction: OWN });
+  });
+
+  it('still leaves a third-party preference out of scope', () => {
+    expect(resolveScope(row({ factionInfluence: 10, preferredFaction: 'Varati Ring' }), 'in-scope')).toEqual({
+      scope: 'out-of-scope',
+      leadFaction: null,
+    });
+  });
+});
+
+describe('computePriorityAssessment under the squadron policy', () => {
+  const NOW = Date.parse('2026-08-07T12:00:00Z');
+
+  it('pushes for control (gap-to-leader) in an unregistered system', () => {
+    const assessment = computePriorityAssessment(
+      row({
+        factionInfluence: 30,
+        controllingFaction: 'Rival',
+        factions: [
+          { name: 'Rival', influencePercent: 35 },
+          { name: OWN, influencePercent: 30 },
+        ],
+      }),
+      NOW,
+      'in-scope',
+    );
+    expect(assessment.scope).toBe('in-scope');
+    expect(assessment.reasons.some(r => r.code === 'gap-to-leader')).toBe(true);
+  });
+
+  it('fires the last-place trigger in an unregistered system of 4+ factions', () => {
+    const assessment = computePriorityAssessment(
+      row({
+        factionInfluence: 12,
+        factions: [
+          { name: 'A', influencePercent: 40 },
+          { name: 'B', influencePercent: 30 },
+          { name: 'C', influencePercent: 18 },
+          { name: OWN, influencePercent: 12 },
+        ],
+      }),
+      NOW,
+      'in-scope',
+    );
+    expect(assessment.reasons[0]).toMatchObject({ code: 'lead-lowest-should-control', score: 90 });
+    expect(assessment.tier).toBe('P0');
+  });
+
+  it('shows the conflict itself, not "assign an architect", for a war in an unregistered system', () => {
+    const assessment = computePriorityAssessment(row({ factionInfluence: 50, warState: 'active' }), NOW, 'in-scope');
+    expect(assessment.reasons[0].code).toBe('war-active');
+    expect(assessment.reasons.some(r => r.code === 'assumed-needs-architect')).toBe(false);
   });
 });
 
@@ -208,7 +255,7 @@ describe('computePriorityAssessment', () => {
   });
 
   it('is "not-applicable" with a null score when an architect is confirmed, no faction preferred, and there is no live conflict', () => {
-    const assessment = computePriorityAssessment(row({ architect: 'Some Commander', canonnInfluence: 10 }), NOW);
+    const assessment = computePriorityAssessment(row({ architect: 'Some Commander', factionInfluence: 10 }), NOW);
     expect(assessment.tier).toBe('not-applicable');
     expect(assessment.scope).toBe('no-preference');
     expect(assessment.score).toBeNull();
@@ -235,8 +282,8 @@ describe('computePriorityAssessment', () => {
 
   it('surfaces an active conflict when no architect has been assigned yet (assumed scope) — getting one assigned is urgent', () => {
     const assessment = computePriorityAssessment(
-      row({ canonnInfluence: 50, warState: 'active', updatedAt: current }),
-      NOW,
+      row({ factionInfluence: 50, warState: 'active', updatedAt: current }),
+      NOW, 'assumed'
     );
     expect(assessment.scope).toBe('assumed');
     expect(assessment.tier).toBe('P0');
@@ -245,8 +292,8 @@ describe('computePriorityAssessment', () => {
 
   it('leads with "assign an architect" — not the conflict itself — when a war/election hits an assumed (architect-less) system', () => {
     const assessment = computePriorityAssessment(
-      row({ canonnInfluence: 50, warState: 'active', updatedAt: current }),
-      NOW,
+      row({ factionInfluence: 50, warState: 'active', updatedAt: current }),
+      NOW, 'assumed'
     );
     expect(assessment.reasons[0]).toMatchObject({ code: 'assumed-needs-architect', score: 101 });
     expect(assessment.score).toBe(101);
@@ -254,14 +301,14 @@ describe('computePriorityAssessment', () => {
   });
 
   it('does not add the "assign an architect" trigger for an assumed system with no live conflict', () => {
-    const assessment = computePriorityAssessment(row({ canonnInfluence: 5, updatedAt: current }), NOW);
+    const assessment = computePriorityAssessment(row({ factionInfluence: 5, updatedAt: current }), NOW, 'assumed');
     expect(assessment.scope).toBe('assumed');
     expect(assessment.reasons.some(r => r.code === 'assumed-needs-architect')).toBe(false);
   });
 
   it('never surfaces a priority badge for a conflict once an architect has confirmed no preference (no-preference scope)', () => {
     const assessment = computePriorityAssessment(
-      row({ architect: 'Some Commander', canonnInfluence: 50, warState: 'active', updatedAt: current }),
+      row({ architect: 'Some Commander', factionInfluence: 50, warState: 'active', updatedAt: current }),
       NOW,
     );
     expect(assessment.scope).toBe('no-preference');
@@ -272,9 +319,9 @@ describe('computePriorityAssessment', () => {
   it('scores an active retreat at 100 (P0), unweighted, outranking an active war', () => {
     const retreating = computePriorityAssessment(
       row({
-        preferredFaction: 'Canonn',
+        preferredFaction: OWN,
         retreatState: 'active',
-        factions: [{ name: 'Canonn', influencePercent: 2 }],
+        factions: [{ name: OWN, influencePercent: 2 }],
         updatedAt: current,
       }),
       NOW,
@@ -283,18 +330,18 @@ describe('computePriorityAssessment', () => {
     expect(retreating.score).toBe(100);
     expect(retreating.reasons[0].code).toBe('retreat');
 
-    const atWar = computePriorityAssessment(row({ preferredFaction: 'Canonn', warState: 'active', updatedAt: current }), NOW);
+    const atWar = computePriorityAssessment(row({ preferredFaction: OWN, warState: 'active', updatedAt: current }), NOW);
     expect(retreating.score!).toBeGreaterThan(atWar.score!);
   });
 
   it('weights a low-influence lead trigger by how many factions share the system', () => {
     const smallSystem = computePriorityAssessment(
       row({
-        preferredFaction: 'Canonn',
-        canonnInfluence: 3,
+        preferredFaction: OWN,
+        factionInfluence: 3,
         factions: [
           { name: 'A', influencePercent: 50 },
-          { name: 'Canonn', influencePercent: 3 },
+          { name: OWN, influencePercent: 3 },
           { name: 'B', influencePercent: 47 },
         ],
         updatedAt: current,
@@ -303,15 +350,15 @@ describe('computePriorityAssessment', () => {
     );
     const crowdedSystem = computePriorityAssessment(
       row({
-        preferredFaction: 'Canonn',
-        canonnInfluence: 3,
+        preferredFaction: OWN,
+        factionInfluence: 3,
         factions: [
           { name: 'A', influencePercent: 20 },
           { name: 'B', influencePercent: 20 },
           { name: 'C', influencePercent: 20 },
           { name: 'D', influencePercent: 20 },
           { name: 'E', influencePercent: 14 },
-          { name: 'Canonn', influencePercent: 3 },
+          { name: OWN, influencePercent: 3 },
         ],
         updatedAt: current,
       }),
@@ -324,15 +371,15 @@ describe('computePriorityAssessment', () => {
   it('does not treat a healthy-influence assumed lead as at-risk just for being nominally last in a small system', () => {
     const healthyButLast = computePriorityAssessment(
       row({
-        canonnInfluence: 28,
+        factionInfluence: 28,
         factions: [
           { name: 'Rival A', influencePercent: 40 },
           { name: 'Rival B', influencePercent: 32 },
-          { name: 'Canonn', influencePercent: 28 },
+          { name: OWN, influencePercent: 28 },
         ],
         updatedAt: current,
       }),
-      NOW,
+      NOW, 'assumed'
     );
     expect(healthyButLast.scope).toBe('assumed');
     expect(healthyButLast.reasons.some(r => r.code === 'lead-lowest-ranked')).toBe(false);
@@ -341,33 +388,33 @@ describe('computePriorityAssessment', () => {
 
     const quietCrowded = computePriorityAssessment(
       row({
-        canonnInfluence: 15,
+        factionInfluence: 15,
         factions: [
           { name: 'A', influencePercent: 20 },
           { name: 'B', influencePercent: 18 },
           { name: 'C', influencePercent: 17 },
           { name: 'D', influencePercent: 16 },
-          { name: 'Canonn', influencePercent: 15 },
+          { name: OWN, influencePercent: 15 },
           { name: 'E', influencePercent: 14 },
         ],
         updatedAt: current,
       }),
-      NOW,
+      NOW, 'assumed'
     );
     expect(quietCrowded.score).toBe(5);
     expect(healthyButLast.score).toBe(quietCrowded.score);
   });
 
-  it('sends a Canonn-preferred system to P0 when our faction is weakest of 4+, even at a healthy influence — safety before control', () => {
+  it('sends a system that prefers us to P0 when our faction is weakest of 4+, even at a healthy influence — safety before control', () => {
     const confirmedButLast = computePriorityAssessment(
       row({
-        preferredFaction: 'Canonn',
-        canonnInfluence: 20,
+        preferredFaction: OWN,
+        factionInfluence: 20,
         factions: [
           { name: 'Rival A', influencePercent: 30 },
           { name: 'Rival B', influencePercent: 28 },
           { name: 'Rival C', influencePercent: 22 },
-          { name: 'Canonn', influencePercent: 20 },
+          { name: OWN, influencePercent: 20 },
         ],
         updatedAt: current,
       }),
@@ -379,37 +426,16 @@ describe('computePriorityAssessment', () => {
     expect(confirmedButLast.tier).toBe('P0');
   });
 
-  it('also sends a CDSR-preferred system to P0 when our faction is weakest of 4+ — the trigger fires for either of our own factions', () => {
-    const cdsrButLast = computePriorityAssessment(
-      row({
-        preferredFaction: CDSR_FACTION,
-        cdsrInfluence: 20,
-        factions: [
-          { name: 'Rival A', influencePercent: 30 },
-          { name: 'Rival B', influencePercent: 28 },
-          { name: 'Rival C', influencePercent: 22 },
-          { name: CDSR_FACTION, influencePercent: 20 },
-        ],
-        updatedAt: current,
-      }),
-      NOW,
-    );
-    expect(cdsrButLast.scope).toBe('in-scope');
-    expect(cdsrButLast.reasons[0]).toMatchObject({ code: 'lead-lowest-should-control', score: 90 });
-    expect(cdsrButLast.score).toBe(90);
-    expect(cdsrButLast.tier).toBe('P0');
-  });
-
   it('also sends a "not a colony" system to P0 when our faction is weakest of 4+ — still ours to protect from a forced withdrawal', () => {
     const notAColonyButLast = computePriorityAssessment(
       row({
         notAColony: true,
-        canonnInfluence: 20,
+        factionInfluence: 20,
         factions: [
           { name: 'Rival A', influencePercent: 30 },
           { name: 'Rival B', influencePercent: 28 },
           { name: 'Rival C', influencePercent: 22 },
-          { name: 'Canonn', influencePercent: 20 },
+          { name: OWN, influencePercent: 20 },
         ],
         updatedAt: current,
       }),
@@ -439,31 +465,31 @@ describe('computePriorityAssessment', () => {
   it('does not fire the last-place trigger in an assumed (unconfirmed) system of 4+ factions — only an explicit preference counts', () => {
     const assumedButLast = computePriorityAssessment(
       row({
-        canonnInfluence: 20,
+        factionInfluence: 20,
         factions: [
           { name: 'Rival A', influencePercent: 30 },
           { name: 'Rival B', influencePercent: 28 },
           { name: 'Rival C', influencePercent: 22 },
-          { name: 'Canonn', influencePercent: 20 },
+          { name: OWN, influencePercent: 20 },
         ],
         updatedAt: current,
       }),
-      NOW,
+      NOW, 'assumed'
     );
     expect(assumedButLast.scope).toBe('assumed');
     expect(assumedButLast.reasons.some(r => r.code === 'lead-lowest-should-control')).toBe(false);
     expect(assumedButLast.score).toBe(5);
   });
 
-  it('does not push for control off "lowest of three" even in a Canonn-preferred system — only 4+ factions', () => {
+  it('does not push for control off "lowest of three" even in a system that prefers us — only 4+ factions', () => {
     const confirmedButLastOfThree = computePriorityAssessment(
       row({
-        preferredFaction: 'Canonn',
-        canonnInfluence: 28,
+        preferredFaction: OWN,
+        factionInfluence: 28,
         factions: [
           { name: 'Rival A', influencePercent: 40 },
           { name: 'Rival B', influencePercent: 32 },
-          { name: 'Canonn', influencePercent: 28 },
+          { name: OWN, influencePercent: 28 },
         ],
         updatedAt: current,
       }),
@@ -473,46 +499,25 @@ describe('computePriorityAssessment', () => {
     expect(confirmedButLastOfThree.score).toBe(5);
   });
 
-  it('is not a close-control race when the "runner-up" is our own other faction, not a rival', () => {
-    const assessment = computePriorityAssessment(
-      row({
-        preferredFaction: 'Canonn',
-        canonnInfluence: 46.5,
-        cdsrInfluence: 40,
-        controllingFaction: 'Canonn',
-        factions: [
-          { name: 'Canonn', influencePercent: 46.5 },
-          { name: 'Canonn Deep Space Research', influencePercent: 40 },
-          { name: 'Rival', influencePercent: 13.5 },
-        ],
-        updatedAt: current,
-      }),
-      NOW,
-    );
-    expect(assessment.reasons.some(r => r.code.startsWith('control-margin'))).toBe(false);
-    expect(assessment.score).toBe(5);
-    expect(assessment.tier).toBe('P4');
-  });
-
   it('never ranks a push for control (gap-to-leader) when the lead faction is only assumed, not confirmed', () => {
     const assumed = computePriorityAssessment(
       row({
-        canonnInfluence: 5,
+        factionInfluence: 5,
         controllingFaction: 'Third Party',
         factions: [
           { name: 'Third Party', influencePercent: 90 },
-          { name: 'Canonn', influencePercent: 5 },
+          { name: OWN, influencePercent: 5 },
         ],
         updatedAt: current,
       }),
-      NOW,
+      NOW, 'assumed'
     );
     expect(assumed.reasons.some(r => r.code === 'gap-to-leader')).toBe(false);
   });
 
   it('falls back to the "nothing applicable" floor when no trigger matches', () => {
     const assessment = computePriorityAssessment(
-      row({ preferredFaction: 'Canonn', canonnInfluence: 95, updatedAt: current }),
+      row({ preferredFaction: OWN, factionInfluence: 95, updatedAt: current }),
       NOW,
     );
     expect(assessment.reasons[0].code).toBe('none');
@@ -524,13 +529,13 @@ describe('computePriorityAssessment', () => {
     it('ranks a system level with the leader above one 20+ points behind, all else equal', () => {
       const levelWithLeader = computePriorityAssessment(
         row({
-          preferredFaction: 'Canonn',
-          canonnInfluence: 30,
+          preferredFaction: OWN,
+          factionInfluence: 30,
           controllingFaction: 'Rival',
           population: 189_000,
           factions: [
             { name: 'Rival', influencePercent: 30 },
-            { name: 'Canonn', influencePercent: 30 },
+            { name: OWN, influencePercent: 30 },
           ],
           updatedAt: current,
         }),
@@ -538,13 +543,13 @@ describe('computePriorityAssessment', () => {
       );
       const farBehindLeader = computePriorityAssessment(
         row({
-          preferredFaction: 'Canonn',
-          canonnInfluence: 30,
+          preferredFaction: OWN,
+          factionInfluence: 30,
           controllingFaction: 'Rival',
           population: 189_000,
           factions: [
             { name: 'Rival', influencePercent: 50.6 },
-            { name: 'Canonn', influencePercent: 30 },
+            { name: OWN, influencePercent: 30 },
           ],
           updatedAt: current,
         }),
@@ -556,13 +561,13 @@ describe('computePriorityAssessment', () => {
     it('scores the same gap lower (more work) in a much bigger population', () => {
       const smallPop = computePriorityAssessment(
         row({
-          preferredFaction: 'Canonn',
-          canonnInfluence: 10,
+          preferredFaction: OWN,
+          factionInfluence: 10,
           controllingFaction: 'Rival',
           population: 1_000,
           factions: [
             { name: 'Rival', influencePercent: 30 },
-            { name: 'Canonn', influencePercent: 10 },
+            { name: OWN, influencePercent: 10 },
           ],
           updatedAt: current,
         }),
@@ -570,13 +575,13 @@ describe('computePriorityAssessment', () => {
       );
       const hugePop = computePriorityAssessment(
         row({
-          preferredFaction: 'Canonn',
-          canonnInfluence: 10,
+          preferredFaction: OWN,
+          factionInfluence: 10,
           controllingFaction: 'Rival',
           population: 6_600_000_000,
           factions: [
             { name: 'Rival', influencePercent: 30 },
-            { name: 'Canonn', influencePercent: 10 },
+            { name: OWN, influencePercent: 10 },
           ],
           updatedAt: current,
         }),
@@ -586,17 +591,17 @@ describe('computePriorityAssessment', () => {
     });
 
     it('floors an unwinnable gap (huge population, wide gap) at the same baseline as a quiet system, never negative', () => {
-      // Canonn's own influence (25%) stays clear of the low-influence risk thresholds below
+      // Our own influence (25%) stays clear of the low-influence risk thresholds below
       // 10%, so the only applicable trigger left is the gap-to-leader one under test.
       const unwinnable = computePriorityAssessment(
         row({
-          preferredFaction: 'Canonn',
-          canonnInfluence: 25,
+          preferredFaction: OWN,
+          factionInfluence: 25,
           controllingFaction: 'Rival',
           population: 6_600_000_000,
           factions: [
             { name: 'Rival', influencePercent: 80 },
-            { name: 'Canonn', influencePercent: 25 },
+            { name: OWN, influencePercent: 25 },
           ],
           updatedAt: current,
         }),
@@ -609,13 +614,13 @@ describe('computePriorityAssessment', () => {
     it('two systems with the same gap and population rank equally regardless of when they were last seen', () => {
       const buildRow = (updatedAt: string | null) =>
         row({
-          preferredFaction: 'Canonn',
-          canonnInfluence: 20,
+          preferredFaction: OWN,
+          factionInfluence: 20,
           controllingFaction: 'Rival',
           population: 1_000_000,
           factions: [
             { name: 'Rival', influencePercent: 35 },
-            { name: 'Canonn', influencePercent: 20 },
+            { name: OWN, influencePercent: 20 },
           ],
           updatedAt,
         });
@@ -635,13 +640,13 @@ describe('computePriorityAssessment', () => {
     it('boosts priority when the watchlisted faction ranks below the required position', () => {
       const assessment = computePriorityAssessment(
         row({
-          preferredFaction: 'Canonn',
-          canonnInfluence: 20,
+          preferredFaction: OWN,
+          factionInfluence: 20,
           factions: [
             { name: 'Rival', influencePercent: 50 },
-            { name: 'Canonn', influencePercent: 20 },
+            { name: OWN, influencePercent: 20 },
           ],
-          watchlist: [{ systemName: 'Test System', faction: CANONN_FACTION, position: 1, details: 'Key waypoint.' }],
+          watchlist: [{ systemName: 'Test System', faction: OWN, position: 1, details: 'Key waypoint.' }],
         }),
         NOW,
       );
@@ -652,10 +657,10 @@ describe('computePriorityAssessment', () => {
     it('does not fire when the watchlisted faction already meets its required position', () => {
       const assessment = computePriorityAssessment(
         row({
-          preferredFaction: 'Canonn',
-          canonnInfluence: 60,
-          factions: [{ name: 'Canonn', influencePercent: 60 }],
-          watchlist: [{ systemName: 'Test System', faction: CANONN_FACTION, position: 1, details: 'Key waypoint.' }],
+          preferredFaction: OWN,
+          factionInfluence: 60,
+          factions: [{ name: OWN, influencePercent: 60 }],
+          watchlist: [{ systemName: 'Test System', faction: OWN, position: 1, details: 'Key waypoint.' }],
         }),
         NOW,
       );
@@ -665,9 +670,9 @@ describe('computePriorityAssessment', () => {
     it('treats a watchlisted faction entirely absent from the system as below any required position', () => {
       const assessment = computePriorityAssessment(
         row({
-          preferredFaction: 'Canonn',
+          preferredFaction: OWN,
           factions: [{ name: 'Rival', influencePercent: 100 }],
-          watchlist: [{ systemName: 'Test System', faction: CANONN_FACTION, position: 1, details: 'Key waypoint.' }],
+          watchlist: [{ systemName: 'Test System', faction: OWN, position: 1, details: 'Key waypoint.' }],
         }),
         NOW,
       );
@@ -712,11 +717,11 @@ describe('computePriorityAssessment', () => {
             preferredFaction: 'Varati Ring',
             factions: [
               { name: 'Varati Ring', influencePercent: 50 },
-              { name: 'Canonn', influencePercent: 5 },
+              { name: OWN, influencePercent: 5 },
             ],
-            canonnInfluence: 5,
-            // Watches Canonn itself, not the hands-off faction — irrelevant to the override.
-            watchlist: [{ systemName: 'Test System', faction: CANONN_FACTION, position: 1, details: 'Unrelated entry.' }],
+            factionInfluence: 5,
+            // Watches our own faction, not the hands-off faction — irrelevant to the override.
+            watchlist: [{ systemName: 'Test System', faction: OWN, position: 1, details: 'Unrelated entry.' }],
           }),
           NOW,
         );
@@ -732,10 +737,10 @@ describe('prioritySortKey', () => {
   const current = '2026-09-09 11:00:00+00';
 
   it('ranks an assumed system with a live conflict above a quiet confirmed one — every badge sorts by its score', () => {
-    const confirmedQuiet = computePriorityAssessment(row({ preferredFaction: 'Canonn', updatedAt: current }), NOW);
+    const confirmedQuiet = computePriorityAssessment(row({ preferredFaction: OWN, updatedAt: current }), NOW, 'assumed');
     const assumedRetreating = computePriorityAssessment(
-      row({ canonnInfluence: 5, retreatState: 'active', updatedAt: current }),
-      NOW,
+      row({ factionInfluence: 5, retreatState: 'active', updatedAt: current }),
+      NOW, 'assumed'
     );
     expect(confirmedQuiet.scope).toBe('in-scope');
     expect(assumedRetreating.scope).toBe('assumed');
@@ -743,8 +748,8 @@ describe('prioritySortKey', () => {
   });
 
   it('orders by score regardless of scope', () => {
-    const worse = computePriorityAssessment(row({ preferredFaction: 'Canonn', warState: 'active', updatedAt: current }), NOW);
-    const better = computePriorityAssessment(row({ preferredFaction: 'Canonn', updatedAt: current }), NOW);
+    const worse = computePriorityAssessment(row({ preferredFaction: OWN, warState: 'active', updatedAt: current }), NOW);
+    const better = computePriorityAssessment(row({ preferredFaction: OWN, updatedAt: current }), NOW);
     expect(prioritySortKey(worse)!).toBeGreaterThan(prioritySortKey(better)!);
   });
 

@@ -4,6 +4,7 @@
   "homeSystem": "Wong Sher",
   "compareFaction": null,
   "conflictMarginPoints": 5,
+  "unregisteredScope": "in-scope",
   "storagePrefix": "acfs-bgs:",
   "dataUrl": "data/bgs.json",
   "typeaheadUrl": "https://us-central1-canonn-api-236217.cloudfunctions.net/query/typeahead",

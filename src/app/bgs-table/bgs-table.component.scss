@@ -155,7 +155,7 @@
     white-space: nowrap;
   }
 
-  // Faction/architect names run long ("Canonn Deep Space Research") and are the columns
+  // Faction/architect names run long ("Earth Defense Fleet") and are the columns
   // most likely to push the table wider than the viewport — wrapping them onto a second
   // line keeps every column visible without horizontal scrolling on a typical screen.
   .bgs-col-wrap {
@@ -164,7 +164,7 @@
     overflow-wrap: break-word;
   }
 
-  // A preferred faction derived from a Canonn-named station, not recorded in the Architect
+  // A preferred faction derived from the stations we control, not recorded in the Architect
   // Registry — greyed so it reads as inferred rather than agreed.
   .bgs-preferred-derived {
     color: var(--color-text-muted);
@@ -319,17 +319,6 @@
 .bgs-state-icon--election.bgs-state-icon--pending {
   filter: grayscale(1);
   opacity: 0.75;
-}
-
-// Canonn-vs-Canonn icon: the logo mark itself, in place of the gun/ballot emoji. It's an
-// <img> rather than a glyph, so it needs explicit sizing to match the emoji icons' footprint;
-// .bgs-state-icon--pending's filter still applies (CSS filter on the parent span composites
-// its children too), so the grey/active distinction keeps working without extra rules here.
-.bgs-state-icon-img {
-  display: inline-block;
-  width: 1.15rem;
-  height: 1.15rem;
-  vertical-align: middle;
 }
 
 // Retreat's warning icon carries its own colour well enough as-is; pending styling still

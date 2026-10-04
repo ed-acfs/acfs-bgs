@@ -127,7 +127,7 @@ describe('BgsService state summarisation (retreat, FR-1/FR-2)', () => {
   it('renders an active retreat for a single faction, with no second corroborator required', async () => {
     records = [
       systemWithPresences('Varati Ring', [
-        { name: 'Canonn Deep Space Research', influence: 0.021, active_states: ['Retreat'] },
+        { name: 'Flotta Stellare', influence: 0.021, active_states: ['Retreat'] },
         { name: 'Other Faction', influence: 0.5 },
       ]),
     ];
@@ -135,7 +135,7 @@ describe('BgsService state summarisation (retreat, FR-1/FR-2)', () => {
     const page = await service.getPage(0);
 
     expect(page.rows[0].retreatState).toBe('active');
-    expect(page.rows[0].retreatDetails).toBe('Retreat: Canonn Deep Space Research (2.1%)');
+    expect(page.rows[0].retreatDetails).toBe('Retreat: Flotta Stellare (2.1%)');
   });
 
   it('does not log an anomaly for an unpaired pending retreat (R9 only applies to two-party states)', async () => {
@@ -143,7 +143,7 @@ describe('BgsService state summarisation (retreat, FR-1/FR-2)', () => {
     const logSpy = vi.spyOn(logger, 'log');
     records = [
       systemWithPresences('Varati Ring', [
-        { name: 'Canonn Deep Space Research', influence: 0.05, pending_states: ['Retreat'] },
+        { name: 'Flotta Stellare', influence: 0.05, pending_states: ['Retreat'] },
       ]),
     ];
 
@@ -167,7 +167,7 @@ describe('BgsService state summarisation (retreat, FR-1/FR-2)', () => {
 
   it('still surfaces a retreat for the same faction away from its home system', async () => {
     records = [
-      systemWithPresences('Some Other System', [{ name: 'Canonn', influence: 0.02, active_states: ['Retreat'] }]),
+      systemWithPresences('Some Other System', [{ name: 'Flotta Stellare', influence: 0.02, active_states: ['Retreat'] }]),
     ];
 
     const page = await service.getPage(0);

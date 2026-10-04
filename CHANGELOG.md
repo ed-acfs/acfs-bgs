@@ -2,6 +2,33 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.4.0] - 2026-10-04 — Priorità a fazione singola
+
+Fase 4 di [ROADMAP.md](ROADMAP.md). La colonna Priorità ora lavora per Flotta Stellare: al 4 ottobre 2026 ci sono 17 sistemi in P0, 5 in P1, 16 in P2, 23 in P3 e 328 in P4.
+
+### Priorità
+
+- Logica a una sola fazione: tolti i trigger a coppia Canonn/CDSR (`canonn-cdsr-close`, "Canonn vs Canonn") e il calcolo del margine contro "l'altra nostra fazione".
+- **Sistemi non registrati**: sono tutti "nostri" (in scope), quindi oltre alla difesa compare anche "Da conquistare" dove siamo dietro chi controlla. La scelta è configurabile con `unregisteredScope` in `config.json`: `"assumed"` ripristina la politica Canonn (solo difesa finché il sistema non viene registrato). Decisa su una simulazione con i dati reali di tre politiche diverse.
+- La regola "Ultima su 4 o più fazioni" (P0) vale nei sistemi "nostri", non solo in quelli con preferenza registrata.
+- La regola "Nessun architetto assegnato" resta come nei Canonn: vale solo per i sistemi "assumed", quindi con la politica attuale non scatta.
+- Motivazioni della priorità in italiano ("Guerra in corso", "Da conquistare: 5,0 punti dietro chi controlla", ecc.).
+
+### Dati e stati
+
+- Guerre, elezioni, ritirate ed espansioni sono quelle di Flotta Stellare; il tooltip nomina prima noi e poi l'avversario ("Election: Flotta Stellare vs Canonn").
+- Tolte le icone "Canonn vs Canonn" e `public/assets/canonn.svg`. Le icone di guerra ed elezioni hanno un nome accessibile.
+- Fazione preferita ricavata: Flotta Stellare nei sistemi dove controlla almeno una stazione (289 su 389), mostrata in grigio.
+- Dialog "Assegna": per un membro dello squadrone la fazione preferita di default è Flotta Stellare, se presente nel sistema.
+
+### Situazione al 4 ottobre 2026
+
+- Due elezioni contro Canonn: Lyncis Sector CL-Y d68 (controllato da noi) e Lyncis Sector NY-R b4-2 (controllato da Canonn), entrambi 50-50. Sono due dei sei sistemi che il registro Canonn assegna a Flotta Stellare.
+
+### Test
+
+- `priority.spec.ts` riscritto per una sola fazione; i test della politica Canonn passano `"assumed"` esplicito. Nuovi test per la politica dello squadrone. `station-preference.spec.ts` al posto di `canonn-asset-preference.spec.ts`. Passano 142 test dell'app e 5 degli script.
+
 ## [0.3.0] - 2026-10-04 — Identità ACFS, italiano, colonne ACFS e Margine
 
 Fase 3 di [ROADMAP.md](ROADMAP.md). È la prima versione che si presenta come tool ACFS e mostra l'influenza di Flotta Stellare.
