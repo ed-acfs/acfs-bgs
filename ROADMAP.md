@@ -58,7 +58,7 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 
 ### 3. Identità e italiano
 
-- [x] Logo ACFS (`app/acfs-logo/`, pulsa durante il caricamento) al posto dell'SVG animato Canonn; `<title>`, descrizione, `lang="it"`, favicon e icona Apple dal set `icon-vanguards` del sito; `package.json` già fatto nella 0.1.0
+- [x] Logo ACFS 2025 "Vanguards" (da `ed-acfs.github.io/extras/ACFS_Logo_2025_Vanguards/PNG`, ridotto a 301×340 px; `app/acfs-logo/`, pulsa durante il caricamento) al posto dell'SVG animato Canonn; `<title>`, descrizione, `lang="it"`, favicon e icona Apple dal set `icon-vanguards` del sito; `package.json` già fatto nella 0.1.0
 - [x] Testi dell'interfaccia in italiano: tabella, filtri, paginazione, tooltip, errori, dialog "Assegna" e dialog informazioni. Numeri con `LOCALE_ID` `it-IT` ("42,5%"), etichette di freschezza "oggi / 5g / 3s / 1a+", ora di aggiornamento in UTC (ora di gioco)
 - [x] La colonna CANO diventa "ACFS" con l'influenza di Flotta Stellare (`factionInfluence`); la colonna CDSR è tolta. Nel grafico Fazioni è evidenziata in arancione la barra di Flotta Stellare
 - [x] Nuova colonna **"Margine"** (`computeMargin()` in `core/bgs.ts`), ordinabile, con tooltip sulla fazione di confronto. Verde se il vantaggio è sopra la soglia, rosso sotto (`conflictMarginPoints`, 5 punti), grigio per il distacco nei sistemi che non controlliamo. Al 4 ottobre 2026 l'unico sistema controllato sotto soglia è Lyncis Sector CL-Y d68, a 0,0 punti da Canonn

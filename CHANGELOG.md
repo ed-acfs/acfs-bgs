@@ -8,7 +8,7 @@ Fase 3 di [ROADMAP.md](ROADMAP.md). È la prima versione che si presenta come to
 
 ### Identità
 
-- Logo di Alto Comando Flotta Stellare nell'intestazione e nella schermata di caricamento, al posto dell'SVG animato Canonn. Durante il caricamento pulsa leggermente (non se il sistema chiede animazioni ridotte).
+- Logo 2025 "Vanguards" di Alto Comando Flotta Stellare (`ed-acfs.github.io/extras/ACFS_Logo_2025_Vanguards/`, ridotto a 301×340 px) nell'intestazione e nella schermata di caricamento, al posto dell'SVG animato Canonn. Durante il caricamento pulsa leggermente (non se il sistema chiede animazioni ridotte).
 - Titolo "ACFS BGS", descrizione in italiano, `lang="it"`, favicon e icona Apple dello squadrone (dal set `icon-vanguards` del sito).
 
 ### Italiano
