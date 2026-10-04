@@ -5,6 +5,7 @@
  */
 import { AFFILIATION_NOT_A_COLONY, ArchitectSubmission } from './architect-form';
 import { ArchitectInfo, ArchitectRegistryRow } from './architect-registry';
+import { FACTION_NAME } from './config';
 import { isHomeSystem } from './home-systems';
 import { logger } from './logger';
 import { PriorityWatchlistEntry } from './priority-watchlist';
@@ -134,6 +135,48 @@ export interface FactionDetail {
   activeStates: string[];
 }
 
+/**
+ * How far the squadron's faction is from the faction it competes with for control: in a
+ * system it controls, its lead over the strongest other faction (positive); elsewhere, its
+ * distance from the controlling faction (usually negative).
+ */
+export interface FactionMargin {
+  /** Our influence minus {@link versus}'s, in percentage points. */
+  points: number;
+  /** The faction we're measured against. */
+  versus: string;
+  /** {@link versus}'s influence, as a 0-100 percentage. */
+  versusInfluence: number;
+  /** Whether we control the system — the margin is then a lead to defend, not a gap to close. */
+  controlled: boolean;
+}
+
+/**
+ * The squadron faction's {@link FactionMargin} in a system, or null when the faction isn't
+ * present or has nobody to be measured against. If the controlling faction isn't among the
+ * presences (Spansh lagging behind), the strongest other faction stands in for it.
+ */
+export function computeMargin(
+  factions: readonly FactionInfluence[],
+  controllingFaction: string | null,
+  ownFaction: string = FACTION_NAME,
+): FactionMargin | null {
+  const own = factions.find(f => f.name === ownFaction);
+  const others = factions.filter(f => f.name !== ownFaction);
+  if (!own || others.length === 0) {
+    return null;
+  }
+  const controlled = controllingFaction === ownFaction;
+  const strongestOther = others.reduce((best, f) => (f.influencePercent > best.influencePercent ? f : best));
+  const versus = controlled ? strongestOther : (others.find(f => f.name === controllingFaction) ?? strongestOther);
+  return {
+    points: own.influencePercent - versus.influencePercent,
+    versus: versus.name,
+    versusInfluence: versus.influencePercent,
+    controlled,
+  };
+}
+
 /** Whether a war/election affecting Canonn or CDSR is already happening or just upcoming. */
 export type FactionStateStatus = 'active' | 'pending' | null;
 
@@ -141,6 +184,10 @@ export type FactionStateStatus = 'active' | 'pending' | null;
 export interface BgsRow {
   systemName: string;
   controllingFaction: string | null;
+  /** The squadron faction's influence, as a 0-100 percentage; null if it has no presence in the system. */
+  factionInfluence: number | null;
+  /** The squadron faction's lead over, or gap to, the faction it competes with for control. */
+  margin: FactionMargin | null;
   /** Canonn faction influence, as a 0-100 percentage; null if Canonn has no presence in the system. */
   canonnInfluence: number | null;
   /** Canonn Deep Space Research faction influence, as a 0-100 percentage; null if absent. */
@@ -547,9 +594,15 @@ export function toBgsRow(
   });
   const hasCanonnStation = (record.assets ?? []).some(isCanonnAsset);
   const recordedPreference = info?.preferredFaction || null;
+  const controllingFaction = record.controlling_minor_faction ?? null;
+  const factions = [...presences]
+    .sort((a, b) => b.influence - a.influence)
+    .map(p => ({ name: p.name, influencePercent: p.influence * 100 }));
   return {
     systemName: record.name,
-    controllingFaction: record.controlling_minor_faction ?? null,
+    controllingFaction,
+    factionInfluence: influencePercent(presences, FACTION_NAME),
+    margin: computeMargin(factions, controllingFaction),
     canonnInfluence,
     cdsrInfluence,
     // Spansh's colonisation flags are unreliable, so any system without a registered
@@ -562,9 +615,7 @@ export function toBgsRow(
     preferredFactionRecorded: recordedPreference !== null,
     hasCanonnStation,
     stationCount: record.station_count ?? null,
-    factions: [...presences]
-      .sort((a, b) => b.influence - a.influence)
-      .map(p => ({ name: p.name, influencePercent: p.influence * 100 })),
+    factions,
     stations: (record.assets ?? []).map(asset => ({
       name: asset.name,
       type: asset.type ?? null,

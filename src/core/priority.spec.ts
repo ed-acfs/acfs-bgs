@@ -17,6 +17,8 @@ function row(overrides: Partial<BgsRow> = {}): BgsRow {
     controllingFaction: null,
     canonnInfluence: null,
     cdsrInfluence: null,
+    factionInfluence: null,
+    margin: null,
     architect: null,
     notAColony: false,
     preferredFaction: null,

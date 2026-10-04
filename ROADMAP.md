@@ -58,16 +58,16 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 
 ### 3. Identità e italiano
 
-- [ ] Logo e nome ACFS: `canonn-logo.component.ts`, `<title>`, favicon, `package.json`
-- [ ] Testi dell'interfaccia in italiano, date e numeri in formato `it-IT`
-- [ ] La colonna CANO diventa "ACFS" e mostra l'influenza di Flotta Stellare. La colonna CDSR (seconda PMF dei Canonn) si toglie, insieme alla logica "Canonn contro CDSR"
-- [ ] Nuova colonna **"Margine"**, in punti percentuali, ordinabile:
-  - nei sistemi che controlliamo: la nostra influenza meno quella della fazione più forte dopo di noi. Valore positivo. Evidenziato sotto la soglia di rischio conflitto, cioè 5 punti, valore configurabile;
-  - negli altri sistemi: la nostra influenza meno quella della fazione che controlla. Di solito negativo, quindi indica il distacco da recuperare;
-  - nel tooltip, il nome della fazione con cui si fa il confronto.
-- [ ] Aggiornare `README.md` e `LICENSE` (si aggiunge il nostro copyright e si mantiene quello originale)
+- [x] Logo ACFS 2025 "Vanguards" (da `ed-acfs.github.io/extras/ACFS_Logo_2025_Vanguards/PNG`, ridotto a 301×340 px; `app/acfs-logo/`, pulsa durante il caricamento) al posto dell'SVG animato Canonn; `<title>`, descrizione, `lang="it"`, favicon e icona Apple dal set `icon-vanguards` del sito; `package.json` già fatto nella 0.1.0
+- [x] Testi dell'interfaccia in italiano: tabella, filtri, paginazione, tooltip, errori, dialog "Assegna" e dialog informazioni. Numeri con `LOCALE_ID` `it-IT` ("42,5%"), etichette di freschezza "oggi / 5g / 3s / 1a+", ora di aggiornamento in UTC (ora di gioco)
+- [x] La colonna CANO diventa "ACFS" con l'influenza di Flotta Stellare (`factionInfluence`); la colonna CDSR è tolta. Nel grafico Fazioni è evidenziata in arancione la barra di Flotta Stellare
+- [x] Nuova colonna **"Margine"** (`computeMargin()` in `core/bgs.ts`), ordinabile, con tooltip sulla fazione di confronto. Verde se il vantaggio è sopra la soglia, rosso sotto (`conflictMarginPoints`, 5 punti), grigio per il distacco nei sistemi che non controlliamo. Al 4 ottobre 2026 l'unico sistema controllato sotto soglia è Lyncis Sector CL-Y d68, a 0,0 punti da Canonn
+- [x] Il filtro rapido "Canonn" diventa "Controllati": solo i sistemi controllati da Flotta Stellare
+- [x] Export JSON/CSV: `factionInfluence`, `marginPoints`, `marginVersus` al posto di `canonnInfluence` e `cdsrInfluence`
+- [x] Corretto un difetto ereditato: i colori delle celle (influenza, margine) erano sovrascritti dal colore generico delle celle e non comparivano mai
+- [x] `README.md` e `LICENSE` già aggiornati nella 0.1.0
 
-**Fatto quando:** la tabella è in italiano, con il logo ACFS e una sola colonna di influenza.
+**Fatto quando:** la tabella è in italiano, con il logo ACFS e una sola colonna di influenza. Raggiunto il 4 ottobre 2026. Restano in inglese, e vanno sistemati nelle fasi successive: le motivazioni della priorità nel tooltip e le icone "Canonn vs Canonn" (fase 4), le opzioni di appartenenza del dialog "Assegna", che sono le risposte del Form Canonn (fase 5).
 
 ### 4. Priorità a fazione singola
 

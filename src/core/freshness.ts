@@ -9,11 +9,11 @@ export type FreshnessBand = 'current' | 'oneTick' | 'days' | 'weeks' | 'unknown'
 /** Everything a freshness pill needs to render, already computed for the current clock. */
 export interface FreshnessInfo {
   band: FreshnessBand;
-  /** Short age label for the pill, e.g. "now", "5d", "3w", "1y+", or "—" for unknown. */
+  /** Short age label for the pill, e.g. "oggi", "5g", "3s", "1a+", or "—" for unknown. */
   label: string;
   /** Full sentence naming the band and the age in words, for the pill's accessible name. */
   accessibleName: string;
-  /** Hover text: the absolute timestamp, or an explanation when there isn't one. */
+  /** Hover text: the absolute time in UTC (game time), or an explanation when there isn't one. */
   title: string;
   /** The raw `updated_at` epoch millis, for sorting; null sorts last regardless of direction. */
   sortValue: number | null;
@@ -61,44 +61,54 @@ function bandFor(days: number): FreshnessBand {
 }
 
 const BAND_WORDS: Record<FreshnessBand, string> = {
-  current: 'Current',
-  oneTick: '1 tick behind',
-  days: 'Days behind',
-  weeks: 'Weeks behind',
-  unknown: 'Update time unknown',
+  current: 'Aggiornato',
+  oneTick: 'Indietro di 1 tick',
+  days: 'Indietro di giorni',
+  weeks: 'Indietro di settimane',
+  unknown: 'Data di aggiornamento sconosciuta',
 };
+
+/** The game runs on UTC, so the hover text shows UTC rather than the viewer's local time. */
+const TIMESTAMP_FORMAT = new Intl.DateTimeFormat('it-IT', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'UTC',
+});
 
 /** Short pill label: rounds down throughout, and clamps at a year to bound the pill width. */
 function formatLabel(days: number): string {
   if (days === 0) {
-    return 'now';
+    return 'oggi';
   }
   if (days <= 6) {
-    return `${days}d`;
+    return `${days}g`;
   }
   const weeks = Math.floor(days / 7);
   if (weeks >= WEEK_LABEL_CLAMP_WEEKS) {
-    return '1y+';
+    return '1a+';
   }
-  return `${weeks}w`;
+  return `${weeks}s`;
 }
 
-/** The age phrase used in the accessible name, e.g. "just now", "5 days ago", "3 weeks ago". */
+/** The age phrase used in the accessible name, e.g. "oggi", "5 giorni fa", "3 settimane fa". */
 function formatAgeWords(days: number): string {
   if (days === 0) {
-    return 'just now';
+    return 'oggi';
   }
   if (days === 1) {
-    return '1 day ago';
+    return '1 giorno fa';
   }
   if (days <= 6) {
-    return `${days} days ago`;
+    return `${days} giorni fa`;
   }
   const weeks = Math.floor(days / 7);
   if (weeks >= WEEK_LABEL_CLAMP_WEEKS) {
-    return 'over a year ago';
+    return 'più di un anno fa';
   }
-  return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+  return weeks === 1 ? '1 settimana fa' : `${weeks} settimane fa`;
 }
 
 /**
@@ -124,8 +134,8 @@ export function computeFreshness(raw: string | null | undefined, nowMs: number =
   return {
     band,
     label,
-    accessibleName: `${BAND_WORDS[band]}, updated ${formatAgeWords(days)}`,
-    title: raw!.trim(),
+    accessibleName: `${BAND_WORDS[band]}, aggiornato ${formatAgeWords(days)}`,
+    title: `Aggiornato il ${TIMESTAMP_FORMAT.format(updatedAtMs)} UTC`,
     sortValue: updatedAtMs,
   };
 }

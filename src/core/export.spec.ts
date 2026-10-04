@@ -8,6 +8,8 @@ function row(overrides: Partial<BgsRow> = {}): BgsRow {
     controllingFaction: null,
     canonnInfluence: null,
     cdsrInfluence: null,
+    factionInfluence: null,
+    margin: null,
     architect: null,
     notAColony: false,
     preferredFaction: null,
@@ -44,9 +46,9 @@ describe('toExportRecord', () => {
     const record = toExportRecord(
       row({
         systemName: 'Varati',
-        controllingFaction: 'Canonn',
-        canonnInfluence: 42.5,
-        cdsrInfluence: 10,
+        controllingFaction: 'Flotta Stellare',
+        factionInfluence: 42.5,
+        margin: { points: 12.5, versus: 'Rival', versusInfluence: 30, controlled: true },
         architect: 'Some Architect',
         preferredFaction: 'Canonn',
         factions: [{ name: 'Canonn', influencePercent: 42.5 }],
@@ -63,9 +65,10 @@ describe('toExportRecord', () => {
     );
 
     expect(record.systemName).toBe('Varati');
-    expect(record.controllingFaction).toBe('Canonn');
-    expect(record.canonnInfluence).toBe(42.5);
-    expect(record.cdsrInfluence).toBe(10);
+    expect(record.controllingFaction).toBe('Flotta Stellare');
+    expect(record.factionInfluence).toBe(42.5);
+    expect(record.marginPoints).toBe(12.5);
+    expect(record.marginVersus).toBe('Rival');
     expect(record.architect).toBe('Some Architect');
     expect(record.preferredFaction).toBe('Canonn');
     expect(record.factions).toEqual([{ name: 'Canonn', influencePercent: 42.5 }]);
@@ -80,7 +83,7 @@ describe('toExportRecord', () => {
   it('folds in the same priority tier and freshness label the table displays', () => {
     const record = toExportRecord(row({ updatedAt: '2026-08-07 12:00:00+00' }), NOW);
     expect(record.priorityTier).toBeTruthy();
-    expect(record.freshnessLabel).toBe('now');
+    expect(record.freshnessLabel).toBe('oggi');
   });
 
   it('is null when the system carries no Priority Watchlist entries', () => {
@@ -117,8 +120,8 @@ describe('rowsToCsv', () => {
       [
         row({
           systemName: 'Varati',
-          controllingFaction: 'Canonn',
-          canonnInfluence: 42.5,
+          controllingFaction: 'Flotta Stellare',
+          factionInfluence: 42.5,
           factions: [
             { name: 'Canonn', influencePercent: 42.5 },
             { name: 'Some Other Faction', influencePercent: 12.3 },
@@ -129,9 +132,9 @@ describe('rowsToCsv', () => {
     );
     const lines = csv.split('\r\n');
     expect(lines[0]).toBe(
-      'systemName,controllingFaction,canonnInfluence,cdsrInfluence,architect,preferredFaction,warState,electionState,retreatState,priorityTier,priorityScore,needsRecon,bodyCount,population,stationCount,x,y,z,updatedAt,freshnessLabel,watchlistDetails',
+      'systemName,controllingFaction,factionInfluence,marginPoints,marginVersus,architect,preferredFaction,warState,electionState,retreatState,priorityTier,priorityScore,needsRecon,bodyCount,population,stationCount,x,y,z,updatedAt,freshnessLabel,watchlistDetails',
     );
-    expect(lines[1]).toContain('Varati,Canonn,42.5,,,,,');
+    expect(lines[1]).toContain('Varati,Flotta Stellare,42.5,,,,,');
     expect(lines[1]).not.toContain('Some Other Faction');
   });
 
@@ -166,13 +169,13 @@ describe('rowsToCsv', () => {
   it('does not alter numeric fields that start with minus when stringified', () => {
     const csv = rowsToCsv([row({ x: -12.5 })], NOW);
     const cells = csv.split('\r\n')[1].split(',');
-    expect(cells[15]).toBe('-12.5');
+    expect(cells[16]).toBe('-12.5');
   });
 
   it('exports the station count but not the stations array', () => {
     const csv = rowsToCsv([row({ stationCount: 2, stations: [{ name: 'Canonns Folly', type: 'Orbis Starport', controllingFaction: 'Canonn' }] })], NOW);
     const cells = csv.split('\r\n')[1].split(',');
-    expect(cells[14]).toBe('2'); // stationCount
+    expect(cells[15]).toBe('2'); // stationCount
     expect(csv).not.toContain('Canonns Folly');
   });
 
@@ -180,6 +183,6 @@ describe('rowsToCsv', () => {
     const csv = rowsToCsv([row()], NOW);
     const cells = csv.split('\r\n')[1].split(',');
     expect(cells[1]).toBe(''); // controllingFaction
-    expect(cells[2]).toBe(''); // canonnInfluence
+    expect(cells[2]).toBe(''); // factionInfluence
   });
 });

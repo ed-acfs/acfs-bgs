@@ -16,6 +16,8 @@ const ROW: BgsRow = {
   controllingFaction: 'Local Lads',
   canonnInfluence: 20,
   cdsrInfluence: 40,
+  factionInfluence: null,
+  margin: null,
   architect: null,
   notAColony: false,
   preferredFaction: null,
@@ -127,7 +129,7 @@ describe('AssignArchitectDialogComponent', () => {
 
     expect(form().controls.affiliation.value).toBe(AFFILIATION_NOT_MEMBER);
     expect(form().controls.preferredFaction.value).toBe('Flat Galaxy Society');
-    expect(component['factionNote']()).toContain('2 times');
+    expect(component['factionNote']()).toContain('2 volte');
     // The faction isn't present in this system, so it has to be offered as an extra option.
     expect(component['factionOptions']()).toContain('Flat Galaxy Society');
   });

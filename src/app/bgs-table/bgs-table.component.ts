@@ -19,14 +19,14 @@ import {
   faDownload,
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
-import { BgsRow, CANONN_FACTION, CDSR_FACTION, rowWithAssignment } from '../../core/bgs';
-import { HOME_SYSTEM } from '../../core/config';
+import { BgsRow, rowWithAssignment } from '../../core/bgs';
+import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM } from '../../core/config';
 import { BgsService, TypeaheadSystem } from '../bgs.service';
 import {
   AssignArchitectDialogComponent,
   AssignArchitectDialogData,
 } from '../assign-architect-dialog/assign-architect-dialog.component';
-import { CanonnLogoComponent } from '../canonn-logo/canonn-logo.component';
+import { AcfsLogoComponent } from '../acfs-logo/acfs-logo.component';
 import {
   PriorityWatchlistDialogComponent,
   PriorityWatchlistDialogData,
@@ -49,8 +49,8 @@ type Mode = 'paged' | 'distance' | 'column';
 
 /** Columns the user can click a header to sort by. */
 type SortColumn =
-  | 'canonn'
-  | 'cdsr'
+  | 'influence'
+  | 'margin'
   | 'controllingFaction'
   | 'architect'
   | 'preferredFaction'
@@ -61,8 +61,8 @@ type SortDirection = 'asc' | 'desc';
 
 /** The Architect quick filter's modes: everyone, systems with no architect, or one named architect. */
 type ArchitectFilterMode = 'all' | 'none' | 'name';
-/** The Faction quick filter's modes: everyone, only Canonn-affiliated systems, or one named faction. */
-type FactionFilterMode = 'all' | 'canonn' | 'name';
+/** The Faction quick filter's modes: everyone, only systems the squadron's faction controls, or one named faction. */
+type FactionFilterMode = 'all' | 'controlled' | 'name';
 
 /** Page sizes the "Page size" quick filter offers. */
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
@@ -80,12 +80,17 @@ const SUGGESTION_DEBOUNCE_MS = 300;
 /** Minimum query length before firing a typeahead lookup. */
 const SUGGESTION_MIN_LENGTH = 3;
 
+/** A 0-100 influence as the table shows it, Italian style: "42,5%". */
+function formatPercent(value: number): string {
+  return `${value.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+}
+
 function columnValue(row: BgsRow, column: SortColumn): string | number | null {
   switch (column) {
-    case 'canonn':
-      return row.canonnInfluence;
-    case 'cdsr':
-      return row.cdsrInfluence;
+    case 'influence':
+      return row.factionInfluence;
+    case 'margin':
+      return row.margin?.points ?? null;
     case 'controllingFaction':
       return row.controllingFaction;
     case 'architect':
@@ -174,7 +179,7 @@ function toAnchorPoint(system: TypeaheadSystem): AnchorPoint {
     MatMenuModule,
     MatSelectModule,
     FaIconComponent,
-    CanonnLogoComponent,
+    AcfsLogoComponent,
   ],
   templateUrl: './bgs-table.component.html',
   styleUrl: './bgs-table.component.scss',
@@ -191,8 +196,8 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly faCheck = faCheck;
   protected readonly faDownload = faDownload;
   protected readonly faCircleInfo = faCircleInfo;
-  /** Both Canonn-affiliated factions — their bars are highlighted orange in the Factions chart. */
-  protected readonly canonnFactionNames: ReadonlySet<string> = new Set([CANONN_FACTION, CDSR_FACTION]);
+  /** The squadron's faction, named in the ACFS column header's tooltip and highlighted orange in the Factions chart. */
+  protected readonly factionName = FACTION_NAME;
   protected readonly encodeURIComponent = encodeURIComponent;
   /** Placeholder rows shown while data is still loading. */
   protected readonly skeletonRows = Array.from({ length: 12 }, (_, i) => i);
@@ -337,15 +342,10 @@ export class BgsTableComponent implements OnDestroy {
       }
     }
     switch (this.factionFilterMode()) {
-      // A system counts if the faction is present there *or* is its preferred faction — which
-      // includes the grey, Canonn-station-derived preference that no registry row records.
-      case 'canonn':
-        rows = rows.filter(
-          row =>
-            row.factions.some(faction => this.canonnFactionNames.has(faction.name)) ||
-            this.canonnFactionNames.has(row.preferredFaction ?? ''),
-        );
+      case 'controlled':
+        rows = rows.filter(row => row.controllingFaction === FACTION_NAME);
         break;
+      // A named faction counts if it's present in the system *or* is its preferred faction.
       case 'name': {
         const key = this.factionFilterName().toLowerCase();
         rows = rows.filter(
@@ -497,7 +497,7 @@ export class BgsTableComponent implements OnDestroy {
     try {
       exportRowsToJson(rows, this.now());
     } catch {
-      this.exportError.set('Failed to export data. Please try again.');
+      this.exportError.set('Esportazione non riuscita. Riprova.');
     }
   }
 
@@ -510,7 +510,7 @@ export class BgsTableComponent implements OnDestroy {
     try {
       exportRowsToCsv(rows, this.now());
     } catch {
-      this.exportError.set('Failed to export data. Please try again.');
+      this.exportError.set('Esportazione non riuscita. Riprova.');
     }
   }
 
@@ -527,12 +527,12 @@ export class BgsTableComponent implements OnDestroy {
       await this.ensureFullDataset();
       const rows = this.filteredDataset();
       if (!rows) {
-        this.exportError.set('Failed to load data to export.');
+        this.exportError.set('Caricamento dei dati da esportare non riuscito.');
         return null;
       }
       return rows;
     } catch {
-      this.exportError.set('Failed to export data. Please try again.');
+      this.exportError.set('Esportazione non riuscita. Riprova.');
       return null;
     } finally {
       this.exporting.set(false);
@@ -646,7 +646,7 @@ export class BgsTableComponent implements OnDestroy {
     this.pageIndex.set(0);
   }
 
-  protected setFactionFilterMode(mode: 'all' | 'canonn'): void {
+  protected setFactionFilterMode(mode: 'all' | 'controlled'): void {
     this.factionFilterMode.set(mode);
     this.factionFilterName.set('');
     this.pageIndex.set(0);
@@ -707,22 +707,51 @@ export class BgsTableComponent implements OnDestroy {
   /** Hover text for the Priority pill: the reasons list, plus a refresh request when the reading is stale — informational, since staleness no longer changes the score. */
   protected priorityTitle(priority: PriorityAssessment): string {
     if (priority.tier === 'out-of-scope') {
-      return 'Do not work the BGS in this system';
+      return 'Non lavorare il BGS in questo sistema';
     }
     const reasons = priority.reasons.map(r => r.label).join('\n');
-    return priority.needsRecon ? `${reasons}\nStale reading — please fly through this system to refresh it.` : reasons;
+    return priority.needsRecon ? `${reasons}\nDato vecchio: passa nel sistema per aggiornarlo.` : reasons;
   }
 
   /** Accessible text equivalent of the Factions mini bar chart, for screen readers. */
   protected factionsSummary(row: BgsRow): string {
-    return row.factions.map(f => `${f.name}: ${f.influencePercent.toFixed(1)}%`).join(', ');
+    return row.factions.map(f => `${f.name}: ${formatPercent(f.influencePercent)}`).join(', ');
+  }
+
+  /** Whether a controlled system's lead is thin enough to risk a conflict for control. */
+  protected marginAtRisk(row: BgsRow): boolean {
+    return row.margin !== null && row.margin.controlled && row.margin.points < CONFLICT_MARGIN_POINTS;
+  }
+
+  /** The Margin cell's text: signed points, Italian style ("+12,4", "−3,0"). */
+  protected marginLabel(row: BgsRow): string {
+    if (!row.margin) {
+      return '—';
+    }
+    const points = row.margin.points;
+    const magnitude = Math.abs(points).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    return `${points < 0 ? '−' : '+'}${magnitude}`;
+  }
+
+  /** Hover text for the Margin cell: who we're measured against, and what the number means. */
+  protected marginTitle(row: BgsRow): string {
+    const margin = row.margin;
+    if (!margin) {
+      return 'Nessuna fazione con cui fare il confronto';
+    }
+    const versus = `${margin.versus} (${formatPercent(margin.versusInfluence)})`;
+    if (!margin.controlled) {
+      return `Distacco da chi controlla il sistema: ${versus}`;
+    }
+    const risk = this.marginAtRisk(row) ? `\nSotto ${CONFLICT_MARGIN_POINTS} punti: rischio di conflitto per il controllo` : '';
+    return `Vantaggio sulla seconda fazione: ${versus}${risk}`;
   }
 
   /** Hover text for the System Name link: the Inara hint plus body count and population. */
   protected systemNameTitle(row: BgsRow): string {
-    const bodyCount = row.bodyCount !== null ? row.bodyCount.toLocaleString() : '—';
-    const population = row.population !== null ? row.population.toLocaleString() : '—';
-    return `View ${row.systemName} on Inara\nBody count: ${bodyCount}\nPopulation: ${population}`;
+    const bodyCount = row.bodyCount !== null ? row.bodyCount.toLocaleString('it-IT') : '—';
+    const population = row.population !== null ? row.population.toLocaleString('it-IT') : '—';
+    return `Apri ${row.systemName} su Inara\nCorpi celesti: ${bodyCount}\nPopolazione: ${population}`;
   }
 
   /**
@@ -747,8 +776,8 @@ export class BgsTableComponent implements OnDestroy {
   /** Hover/aria text for a row's info button: the Priority Watchlist reason if listed, otherwise plain system info. */
   protected infoButtonTitle(row: BgsRow): string {
     return row.watchlist.length > 0
-      ? `Why ${row.systemName} is on the Priority Watchlist`
-      : `System info for ${row.systemName}`;
+      ? `Perché ${row.systemName} è nella Watchlist`
+      : `Informazioni su ${row.systemName}`;
   }
 
   /** Opens the system info dialog from the info button next to System Name, on every row. */
@@ -842,7 +871,7 @@ export class BgsTableComponent implements OnDestroy {
       const match = (response.min_max ?? []).find(s => s.name.toLowerCase() === name.toLowerCase());
       if (!match) {
         this.loading.set(false);
-        this.searchError.set(`System "${name}" not found.`);
+        this.searchError.set(`Sistema "${name}" non trovato.`);
         return;
       }
       this.typeaheadCache.set(match.name.toLowerCase(), match);
@@ -853,7 +882,7 @@ export class BgsTableComponent implements OnDestroy {
       this.selectAnchorPoint(toAnchorPoint(match));
     } catch {
       this.loading.set(false);
-      this.searchError.set(`Unable to search for "${name}". Please try again.`);
+      this.searchError.set(`Ricerca di "${name}" non riuscita. Riprova.`);
     }
   }
 
@@ -942,7 +971,7 @@ export class BgsTableComponent implements OnDestroy {
     } catch (error) {
       this.loading.set(false);
       this.errorMessage.set(
-        error instanceof Error ? `Failed to load BGS data: ${error.message}` : 'Failed to load BGS data.',
+        error instanceof Error ? `Caricamento dei dati BGS non riuscito: ${error.message}` : 'Caricamento dei dati BGS non riuscito.',
       );
       return false;
     }
@@ -969,7 +998,7 @@ export class BgsTableComponent implements OnDestroy {
         this.fullDataset.set(all);
       } catch (error) {
         this.errorMessage.set(
-          error instanceof Error ? `Failed to load full dataset: ${error.message}` : 'Failed to load full dataset.',
+          error instanceof Error ? `Caricamento dell'intero dataset non riuscito: ${error.message}` : "Caricamento dell'intero dataset non riuscito.",
         );
       } finally {
         this.loading.set(false);
