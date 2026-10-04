@@ -19,14 +19,9 @@ import {
   faDownload,
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
-import {
-  BgsRow,
-  CANONN_FACTION,
-  CDSR_FACTION,
-  CanonnBgsService,
-  TypeaheadSystem,
-  rowWithAssignment,
-} from '../canonn-bgs.service';
+import { BgsRow, CANONN_FACTION, CDSR_FACTION, rowWithAssignment } from '../../core/bgs';
+import { HOME_SYSTEM } from '../../core/config';
+import { BgsService, TypeaheadSystem } from '../bgs.service';
 import {
   AssignArchitectDialogComponent,
   AssignArchitectDialogData,
@@ -36,13 +31,13 @@ import {
   PriorityWatchlistDialogComponent,
   PriorityWatchlistDialogData,
 } from '../priority-watchlist-dialog/priority-watchlist-dialog.component';
-import { ArchitectSubmission } from '../data/architect-form';
-import { architectNames, suggestArchitects } from '../data/architect-registry';
-import { distanceLy } from '../data/distance';
-import { exportRowsToCsv, exportRowsToJson } from '../data/export';
-import { FreshnessInfo, computeFreshness } from '../data/freshness';
-import { PriorityAssessment, computePriorityAssessment, prioritySortKey } from '../data/priority';
-import { readYourName } from '../data/your-name';
+import { ArchitectSubmission } from '../../core/architect-form';
+import { architectNames, suggestArchitects } from '../../core/architect-registry';
+import { distanceLy } from '../../core/distance';
+import { exportRowsToCsv, exportRowsToJson } from '../export-download';
+import { FreshnessInfo, computeFreshness } from '../../core/freshness';
+import { PriorityAssessment, computePriorityAssessment, prioritySortKey } from '../../core/priority';
+import { readYourName } from '../your-name';
 
 /**
  * How the table is currently ordered:
@@ -80,8 +75,6 @@ interface AnchorPoint {
   z: number;
 }
 
-/** The system name the "sort by distance" search box starts with. */
-const DEFAULT_SEARCH_SYSTEM = 'Wong Sher';
 /** Debounce for typeahead suggestion lookups, in ms. */
 const SUGGESTION_DEBOUNCE_MS = 300;
 /** Minimum query length before firing a typeahead lookup. */
@@ -188,7 +181,7 @@ function toAnchorPoint(system: TypeaheadSystem): AnchorPoint {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BgsTableComponent implements OnDestroy {
-  private readonly bgsService = inject(CanonnBgsService);
+  private readonly bgsService = inject(BgsService);
   private readonly dialog = inject(MatDialog);
 
   protected readonly faChevronLeft = faChevronLeft;
@@ -230,7 +223,7 @@ export class BgsTableComponent implements OnDestroy {
   // --- paged mode state -----------------------------------------------------------------
   /**
    * Rows fetched so far, in server order — grows one server page (of whatever size the API
-   * hands back, see {@link CanonnBgsService.getPage}) at a time as the user pages past what's
+   * hands back, see {@link BgsService.getPage}) at a time as the user pages past what's
    * already buffered. The *displayed* page size ({@link pageSize}) is independent of the
    * server's own page size, so a display page is just a client-side slice of this buffer.
    */
@@ -238,7 +231,7 @@ export class BgsTableComponent implements OnDestroy {
   private readonly totalCount = signal<number | null>(null);
   /** How many server pages (via `bgsService.getPage`) are already folded into {@link rows}. */
   private nextServerPageIndex = 0;
-  /** The first system loaded on startup — the default Distance reference until the user searches one. */
+  /** The home system (or, if it isn't in the dataset, the first system loaded) — the default Distance reference until the user searches one. */
   private readonly defaultAnchor = signal<BgsRow | null>(null);
 
   // --- 'distance' mode state --------------------------------------------------------------
@@ -253,7 +246,7 @@ export class BgsTableComponent implements OnDestroy {
   private readonly fullDataset = signal<BgsRow[] | null>(null);
 
   // --- system search box ------------------------------------------------------------------
-  protected readonly systemSearchControl = new FormControl(DEFAULT_SEARCH_SYSTEM);
+  protected readonly systemSearchControl = new FormControl(HOME_SYSTEM);
   protected readonly filteredSystems = signal<string[]>([]);
   protected readonly searchError = signal<string | null>(null);
   /** name (lowercase) -> coordinates, from the most recent typeahead responses. */
@@ -943,7 +936,7 @@ export class BgsTableComponent implements OnDestroy {
       this.loading.set(false);
 
       if (this.defaultAnchor() === null && result.rows.length > 0) {
-        this.defaultAnchor.set(result.rows[0]);
+        this.defaultAnchor.set(result.rows.find(row => row.systemName === HOME_SYSTEM) ?? result.rows[0]);
       }
       return true;
     } catch (error) {

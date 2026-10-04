@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { CanonnBgsService } from './canonn-bgs.service';
-import { logger } from './data/logger';
+import { BgsService } from './bgs.service';
+import { logger } from '../core/logger';
 
 const BGS_DATA_URL = 'data/bgs.json';
 
@@ -21,9 +21,9 @@ function systemRecord(name: string) {
   return { name, controlling_minor_faction: null, x: 0, y: 0, z: 0 };
 }
 
-describe('CanonnBgsService dataset loading', () => {
+describe('BgsService dataset loading', () => {
   const TOTAL_SYSTEMS = 389;
-  let service: CanonnBgsService;
+  let service: BgsService;
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
@@ -36,7 +36,7 @@ describe('CanonnBgsService dataset loading', () => {
     );
     vi.stubGlobal('fetch', fetchMock);
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CanonnBgsService);
+    service = TestBed.inject(BgsService);
   });
 
   afterEach(() => {
@@ -101,8 +101,8 @@ function systemWithPresences(
   return { name, controlling_minor_faction: null, x: 0, y: 0, z: 0, minor_faction_presences: presences, ...extra };
 }
 
-describe('CanonnBgsService state summarisation (retreat, FR-1/FR-2)', () => {
-  let service: CanonnBgsService;
+describe('BgsService state summarisation (retreat, FR-1/FR-2)', () => {
+  let service: BgsService;
   let fetchMock: ReturnType<typeof vi.fn>;
   let records: ReturnType<typeof systemWithPresences>[];
 
@@ -116,7 +116,7 @@ describe('CanonnBgsService state summarisation (retreat, FR-1/FR-2)', () => {
     );
     vi.stubGlobal('fetch', fetchMock);
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CanonnBgsService);
+    service = TestBed.inject(BgsService);
   });
 
   afterEach(() => {
@@ -157,7 +157,7 @@ describe('CanonnBgsService state summarisation (retreat, FR-1/FR-2)', () => {
 
   it('suppresses the retreat icon for a faction in its own home system', async () => {
     records = [
-      systemWithPresences('Varati', [{ name: 'Canonn', influence: 0.02, active_states: ['Retreat'] }]),
+      systemWithPresences('Wong Sher', [{ name: 'Flotta Stellare', influence: 0.02, active_states: ['Retreat'] }]),
     ];
 
     const page = await service.getPage(0);

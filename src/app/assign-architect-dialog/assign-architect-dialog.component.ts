@@ -8,16 +8,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { BgsRow, CANONN_FACTION, CDSR_FACTION, CanonnBgsService } from '../canonn-bgs.service';
+import { BgsRow, CANONN_FACTION, CDSR_FACTION } from '../../core/bgs';
+import { BgsService } from '../bgs.service';
 import {
   AFFILIATION_CANONN_MEMBER,
   AFFILIATION_NOT_A_COLONY,
   AFFILIATION_OPTIONS,
   AFFILIATION_UNKNOWN,
   ArchitectSubmission,
-} from '../data/architect-form';
-import { ArchitectRegistryRow, architectNames, findArchitectProfile, suggestArchitects } from '../data/architect-registry';
-import { readYourName, writeYourName } from '../data/your-name';
+} from '../../core/architect-form';
+import { ArchitectRegistryRow, architectNames, findArchitectProfile, suggestArchitects } from '../../core/architect-registry';
+import { readYourName, writeYourName } from '../your-name';
 
 /** The system the dialog is assigning an architect to. */
 export interface AssignArchitectDialogData {
@@ -42,7 +43,7 @@ interface FactionDefault {
  *
  * This replaces opening the Architect Registry Google Form in a new window: the user no longer
  * has to copy details between the two, and because the submitted values are folded back into
- * the loaded table (see {@link CanonnBgsService.recordAssignment}) the new architect appears
+ * the loaded table (see {@link BgsService.recordAssignment}) the new architect appears
  * immediately instead of whenever Google next republishes the response sheet.
  *
  * Closes with the {@link ArchitectSubmission} that was accepted, or `undefined` on cancel.
@@ -64,7 +65,7 @@ interface FactionDefault {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssignArchitectDialogComponent {
-  private readonly bgsService = inject(CanonnBgsService);
+  private readonly bgsService = inject(BgsService);
   private readonly dialogRef = inject(MatDialogRef<AssignArchitectDialogComponent, ArchitectSubmission>);
   private readonly data = inject<AssignArchitectDialogData>(MAT_DIALOG_DATA);
 

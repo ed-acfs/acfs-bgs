@@ -40,7 +40,19 @@ npm run fetch-data
 | `npm run fetch-data` | Scarica di nuovo i dati da Spansh |
 | `npm run build` | Build di produzione in `dist/canonn-bgs/browser/` |
 | `npm test` | Test dell'app ([Vitest](https://vitest.dev/)) |
-| `npm run test:scripts` | Test dello script dei dati (`node --test`) |
+| `npm run test:scripts` | Test degli script e controllo che `src/core/` non dipenda da Angular (`node --test`) |
+
+## Configurazione
+
+Fazione, capitale e indirizzi di dati, Sheet e Form sono in [src/core/config.json](src/core/config.json). Lo leggono sia l'app sia lo script dei dati.
+
+## Struttura
+
+| Cartella | Contenuto |
+|---|---|
+| `src/core/` | Logica pura: tipi dei dati, priorità, freschezza, stati BGS, registro architetti, export. Niente Angular né API del browser, così la stessa logica può girare anche in Node |
+| `src/app/` | L'app Angular: tabella, dialog, caricamento e cache dei dati |
+| `scripts/` | Script Node: scaricamento dei dati da Spansh e informazioni di build |
 
 ## Crediti e licenza
 

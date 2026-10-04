@@ -46,12 +46,15 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 
 ### 2. Modulo `core` senza Angular
 
-- [ ] Spostare `BgsRow`, `toRow()`, `summarizeFactionState()` e i file di `data/` in `src/core/`, senza import da Angular
-- [ ] Un file `src/core/config.ts` con tutto ciò che oggi è cablato su Canonn: nome della fazione, capitale, URL di Sheet e Form, prefisso delle chiavi `localStorage` (`acfs-bgs:`)
-- [ ] Normalizzare a LF le righe di `priority.ts`
-- [ ] Distanza misurata di default da Wong Sher (oggi dal primo sistema caricato, comportamento originale Canonn)
+- [x] `src/core/`: i file di `data/` più `bgs.ts`, che contiene tipi, `toBgsRow()` (era `toRow()` del service), `summarizeFactionState()` e il resto della logica pura del service. Il service passa da circa 1.050 a circa 460 righe e fa solo caricamento e cache
+- [x] Separate le parti legate al browser: lo scaricamento dei file di export va in `app/export-download.ts`, `your-name.ts` (localStorage) in `app/`; il logger non usa più `isDevMode` di Angular, lo attiva `main.ts`
+- [x] `src/core/config.json` (con i tipi in `config.ts`): squadrone, fazione, capitale, `compareFaction` (vuoto), soglia del margine (5 punti), prefisso `acfs-bgs:` per `localStorage`, URL di dati, typeahead, Sheet e Form. Lo legge anche `scripts/fetch-bgs.mjs`, quindi il nome della fazione è scritto in un posto solo
+- [x] `scripts/core-purity.test.mjs`: fallisce se in `src/core/` compaiono import di Angular o dell'app, DOM o `localStorage`
+- [x] Fine riga LF in tutti i sorgenti, `priority.ts` compreso
+- [x] Distanza misurata di default da Wong Sher, se è nel dataset
+- [x] Service rinominato: `CanonnBgsService` → `BgsService` (`app/bgs.service.ts`)
 
-**Fatto quando:** i test passano e nel codice non resta nessun riferimento a Canonn fuori dalla configurazione.
+**Fatto quando:** i test passano e la logica pura non dipende da Angular. Raggiunto il 4 ottobre 2026. Restano riferimenti ai Canonn che sono *comportamento*, non struttura: costanti `CANONN_FACTION`/`CDSR_FACTION` e logica a due fazioni in `bgs.ts` e `priority.ts` (fase 4), testi, colonne e logo (fase 3), ID dei campi del Form (fase 5).
 
 ### 3. Identità e italiano
 

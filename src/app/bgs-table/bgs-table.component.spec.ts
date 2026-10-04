@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { BgsPage, BgsRow, CanonnBgsService } from '../canonn-bgs.service';
+import { BgsRow } from '../../core/bgs';
+import { BgsPage, BgsService } from '../bgs.service';
 import { BgsTableComponent, comparePriorityRows } from './bgs-table.component';
 
 /** A minimal, fully-populated row — only `systemName` varies between rows in these tests. */
@@ -76,7 +77,7 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     await TestBed.configureTestingModule({
       imports: [BgsTableComponent],
       providers: [
-        { provide: CanonnBgsService, useValue: service },
+        { provide: BgsService, useValue: service },
         { provide: MatDialog, useValue: {} },
       ],
     }).compileComponents();

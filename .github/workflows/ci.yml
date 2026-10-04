@@ -1,0 +1,31 @@
+# Tests and build on every pull request and every push to main. Publishes nothing:
+# deployment is the separate Pages workflow, disabled until phase 6 of ROADMAP.md.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run test:scripts
+      - run: npm test -- --watch=false
+      # Downloads the dataset from Spansh (the build only does it when the file is missing).
+      - run: npm run build

@@ -1,8 +1,8 @@
 /**
- * Turns the table's rows into files the user can download — JSON and CSV for anyone who
- * wants to process the data themselves (issue #11).
+ * Turns the table's rows into JSON records and CSV text for anyone who wants to process the
+ * data themselves (issue #11). The browser download itself is in `app/export-download.ts`.
  */
-import { BgsRow } from '../canonn-bgs.service';
+import { BgsRow } from './bgs';
 import { computeFreshness } from './freshness';
 import { computePriorityAssessment } from './priority';
 
@@ -69,32 +69,10 @@ export function toExportRecord(row: BgsRow, nowMs: number): ExportRecord {
   };
 }
 
-/** Timestamped filename shared by every export format, e.g. `canonn-colony-operations-2026-09-20.json`. */
+/** Timestamped filename shared by every export format, e.g. `acfs-bgs-2026-09-20.json`. */
 export function exportFilename(extension: 'json' | 'csv', nowMs: number = Date.now()): string {
   const date = new Date(nowMs).toISOString().slice(0, 10);
-  return `canonn-colony-operations-${date}.${extension}`;
-}
-
-/** Triggers a browser download of `content` under `filename`. */
-function downloadBlob(filename: string, blob: Blob): void {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  try {
-    link.click();
-  } finally {
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-  }
-}
-
-/** Exports `rows` as a pretty-printed JSON file. */
-export function exportRowsToJson(rows: readonly BgsRow[], nowMs: number = Date.now()): void {
-  const records = rows.map(row => toExportRecord(row, nowMs));
-  const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
-  downloadBlob(exportFilename('json', nowMs), blob);
+  return `acfs-bgs-${date}.${extension}`;
 }
 
 const CSV_COLUMNS: readonly (keyof ExportRecord)[] = [
@@ -148,10 +126,4 @@ export function rowsToCsv(rows: readonly BgsRow[], nowMs: number = Date.now()): 
     ...records.map(record => CSV_COLUMNS.map(column => csvField(csvValue(record, column))).join(',')),
   ];
   return lines.join('\r\n');
-}
-
-/** Exports `rows` as a CSV file. */
-export function exportRowsToCsv(rows: readonly BgsRow[], nowMs: number = Date.now()): void {
-  const blob = new Blob([rowsToCsv(rows, nowMs)], { type: 'text/csv' });
-  downloadBlob(exportFilename('csv', nowMs), blob);
 }
