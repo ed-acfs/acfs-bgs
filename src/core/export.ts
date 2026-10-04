@@ -74,10 +74,10 @@ export function toExportRecord(row: BgsRow, nowMs: number): ExportRecord {
   };
 }
 
-/** Timestamped filename shared by every export format, e.g. `acfs-bgs-2026-09-20.json`. */
+/** Timestamped filename shared by every export format, e.g. `acfs-bgs-tool-2026-09-20.json`. */
 export function exportFilename(extension: 'json' | 'csv', nowMs: number = Date.now()): string {
   const date = new Date(nowMs).toISOString().slice(0, 10);
-  return `acfs-bgs-${date}.${extension}`;
+  return `acfs-bgs-tool-${date}.${extension}`;
 }
 
 const CSV_COLUMNS: readonly (keyof ExportRecord)[] = [

@@ -1,4 +1,4 @@
-# Roadmap: tool BGS di Alto Comando Flotta Stellare
+# Roadmap: ACFS BGS Tool
 
 Tool BGS per lo squadrone **Alto Comando Flotta Stellare** (ACFS) e per la sua PMF **Flotta Stellare**, derivato da [canonn-colony-operations](https://github.com/canonn-science/canonn-colony-operations) (MIT). Il contesto di partenza è in `HANDOFF.md`.
 
@@ -11,7 +11,7 @@ La domanda a cui il tool deve rispondere ogni giorno dopo il tick: **dove dobbia
 | Fazione | Una sola: `Flotta Stellare`. Si tolgono CDSR e tutte le regole basate su coppie di fazioni |
 | Capitale | `Wong Sher` (sistema home e punto di partenza per le distanze) |
 | Fonte dati | Spansh, scaricato da uno script e pubblicato come JSON statico. Spansh non manda header CORS, quindi il browser non può chiamarlo direttamente. Lo script fa le stesse operazioni della Cloud Function Canonn (`Canonn-GCloud/query/function/localpackage/canonnbgs.py`) |
-| Hosting | Repo `ed-acfs/acfs-bgs` pubblico (lo è già: l'handoff lo dava privato), con GitHub Pages su `https://flottastellare.it/acfs-bgs/` (il dominio dell'organizzazione vale anche per i siti dei suoi repo). Organizzazione su piano Free |
+| Hosting | Repo `ed-acfs/acfs-bgs-tool` (prima `acfs-bgs`) pubblico (lo è già: l'handoff lo dava privato), con GitHub Pages su `https://flottastellare.it/acfs-bgs-tool/` (il dominio dell'organizzazione vale anche per i siti dei suoi repo). Organizzazione su piano Free |
 | Colonizzazione | Come i Canonn: Form e Sheet ACFS con architetto, appartenenza ad ACFS e fazione preferita, più la Watchlist |
 | Lingua | Interfaccia in italiano. Nomi degli stati BGS in inglese, come appaiono in gioco |
 | Registro Canonn | Non lo leggiamo, per ora |
@@ -96,13 +96,13 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 ### 6. Pubblicazione e aggiornamento automatico
 
 - [x] Repo pubblico: lo era già il 4 ottobre 2026. Controllato: nessun dato da non condividere; gli URL di Form e fogli in `config.json` finiscono comunque nel sito pubblicato
-- [ ] Attivare GitHub Pages con sorgente "GitHub Actions" (al merge della fase 6)
+- [x] GitHub Pages attivato con sorgente "GitHub Actions" il 4 ottobre 2026; primo deploy riuscito su https://flottastellare.it/acfs-bgs/; dalla 0.6.2 il repo si chiama `acfs-bgs-tool` e il sito è su https://flottastellare.it/acfs-bgs-tool/
 - [x] Workflow `.github/workflows/pages.yml` al posto di `main.yml` (Canonn): test (non nelle esecuzioni orarie), dati Spansh freschi, build con `npm run build:pages` (`--base-href /acfs-bgs/`), pubblicazione su Pages
 - [x] Esecuzione su push a `main`, **ogni ora** (al minuto 17) e manuale (`workflow_dispatch`). Ogni ora invece che solo al tick, perché Spansh si riempie mano a mano che i giocatori passano nei sistemi. Il JSON non viene committato: viaggia solo nel build
 - [x] Sotto il titolo, ora dei dati Spansh e dell'ultimo tick (EDCD Tick Detector, salvato nel JSON come `tick_at`), in UTC
 - [x] Cache del registro e della Watchlist nel browser ridotta da 2 ore a 15 minuti
-- [x] Progetto Angular rinominato `acfs-bgs`: il build finisce in `dist/acfs-bgs/`
-- [x] Provato in locale servendo il build sotto `/acfs-bgs/`, come farà GitHub Pages
+- [x] Progetto Angular rinominato `acfs-bgs-tool`: il build finisce in `dist/acfs-bgs-tool/`
+- [x] Provato in locale servendo il build sotto il percorso del sito, come fa GitHub Pages
 
 **Fatto quando:** il sito è online e si aggiorna da solo.
 

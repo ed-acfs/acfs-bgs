@@ -1,7 +1,7 @@
 <div class="bgs-container">
   <div class="bgs-header">
     <div class="bgs-title">
-      <h1>ACFS BGS</h1>
+      <h1>ACFS BGS Tool</h1>
       <p>Dove lavorare oggi: influenza di {{ factionName }}, stati e priorità nei sistemi in cui siamo presenti.</p>
       @if (datasetSummary(); as summary) {
         <p class="bgs-dataset-info">{{ summary }}</p>
@@ -29,147 +29,176 @@
     <app-acfs-logo [animating]="loading()" class="bgs-logo"></app-acfs-logo>
   </div>
 
-  <div class="bgs-search">
-    <mat-form-field appearance="outline" class="bgs-search-field" subscriptSizing="dynamic">
-      <mat-label>Ordina per distanza dal sistema</mat-label>
-      <input
-        matInput
-        [formControl]="systemSearchControl"
-        [matAutocomplete]="systemAuto"
-        maxlength="128"
-        (input)="onSearchInput()"
-        (keyup.enter)="onSystemSearchSubmit()"
-      />
-      <mat-autocomplete #systemAuto="matAutocomplete" (optionSelected)="onSystemOptionSelected($event.option.value)">
-        @for (system of filteredSystems(); track system) {
-          <mat-option [value]="system">{{ system }}</mat-option>
+  <section class="bgs-toolbar" aria-label="Ricerca e filtri">
+    <div class="bgs-toolbar-row">
+      <div class="bgs-filter-group">
+        <span class="bgs-filter-label">Distanza da</span>
+        <mat-form-field appearance="outline" class="bgs-dense bgs-search-field" subscriptSizing="dynamic">
+          <input
+            matInput
+            [formControl]="systemSearchControl"
+            [matAutocomplete]="systemAuto"
+            maxlength="128"
+            placeholder="Sistema…"
+            aria-label="Ordina per distanza dal sistema"
+            (input)="onSearchInput()"
+            (keyup.enter)="onSystemSearchSubmit()"
+          />
+          <mat-autocomplete #systemAuto="matAutocomplete" (optionSelected)="onSystemOptionSelected($event.option.value)">
+            @for (system of filteredSystems(); track system) {
+              <mat-option [value]="system">{{ system }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+        <button
+          type="button"
+          class="bgs-search-button"
+          (click)="onSystemSearchSubmit()"
+          [disabled]="loading()"
+          aria-label="Ordina per distanza da questo sistema"
+          title="Ordina per distanza da questo sistema"
+        >
+          <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
+        </button>
+        @if (searchError(); as err) {
+          <span class="bgs-search-error">{{ err }}</span>
         }
-      </mat-autocomplete>
-    </mat-form-field>
-    <button
-      mat-flat-button
-      color="primary"
-      type="button"
-      (click)="onSystemSearchSubmit()"
-      [disabled]="loading()"
-      aria-label="Ordina per distanza da questo sistema"
-    >
-      <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
-    </button>
-    @if (searchError(); as err) {
-      <span class="bgs-search-error">{{ err }}</span>
-    }
-  </div>
+      </div>
 
-  <div class="bgs-quick-filters">
-    <div class="bgs-filter-group">
-      <span class="bgs-filter-label">Righe</span>
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="bgs-page-size-field">
-        <mat-select [value]="pageSize()" (selectionChange)="setPageSize($event.value)">
-          @for (size of pageSizeOptions; track size) {
-            <mat-option [value]="size">{{ size }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <div class="bgs-filter-group bgs-toolbar-end">
+        <span class="bgs-filter-label">Righe</span>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="bgs-dense bgs-page-size-field">
+          <mat-select [value]="pageSize()" (selectionChange)="setPageSize($event.value)" aria-label="Righe per pagina">
+            @for (size of pageSizeOptions; track size) {
+              <mat-option [value]="size">{{ size }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
     </div>
 
-    <div class="bgs-filter-group">
-      <button
-        type="button"
-        class="bgs-filter-chip"
-        [class.bgs-filter-chip--active]="warElectionOnly()"
-        (click)="toggleWarElection()"
-      >Guerre/Elezioni</button>
-    </div>
+    <div class="bgs-toolbar-row">
+      <div class="bgs-filter-group">
+        <span class="bgs-filter-label">Mostra</span>
+        <div class="bgs-segmented" role="group" aria-label="Mostra solo">
+          <button
+            type="button"
+            class="bgs-segment"
+            [class.bgs-segment--active]="warElectionOnly()"
+            [attr.aria-pressed]="warElectionOnly()"
+            (click)="toggleWarElection()"
+            title="Solo i sistemi con guerre o elezioni in corso o in arrivo"
+          >Guerre/Elezioni</button>
+          <button
+            type="button"
+            class="bgs-segment"
+            [class.bgs-segment--active]="needsReconOnly()"
+            [attr.aria-pressed]="needsReconOnly()"
+            (click)="toggleNeedsRecon()"
+            title="Solo i sistemi con dati vecchi di almeno 2 giorni"
+          >Da aggiornare</button>
+        </div>
+      </div>
 
-    <div class="bgs-filter-group">
-      <button
-        type="button"
-        class="bgs-filter-chip"
-        [class.bgs-filter-chip--active]="needsReconOnly()"
-        (click)="toggleNeedsRecon()"
-      >Da aggiornare</button>
-    </div>
-
-    <div class="bgs-filter-group">
-      <span class="bgs-filter-label">Architetto</span>
-      <button
-        type="button"
-        class="bgs-filter-chip"
-        [class.bgs-filter-chip--active]="architectFilterMode() === 'all'"
-        (click)="setArchitectFilterMode('all')"
-      >Tutti</button>
-      <button
-        type="button"
-        class="bgs-filter-chip"
-        [class.bgs-filter-chip--active]="architectFilterMode() === 'none'"
-        (click)="setArchitectFilterMode('none')"
-      >Nessuno</button>
-      <mat-form-field
-        appearance="outline"
-        subscriptSizing="dynamic"
-        class="bgs-filter-field"
-        [class.bgs-filter-field--active]="architectFilterMode() === 'name'"
-      >
-        <input
-          matInput
-          [formControl]="architectFilterControl"
-          [matAutocomplete]="architectFilterAuto"
-          placeholder="Nome…"
-          maxlength="120"
-          (keyup.enter)="applyArchitectFilterName()"
-        />
-        <mat-autocomplete
-          #architectFilterAuto="matAutocomplete"
-          (optionSelected)="onArchitectFilterOptionSelected($event.option.value)"
+      <div class="bgs-filter-group">
+        <span class="bgs-filter-label">Architetto</span>
+        <div class="bgs-segmented" role="group" aria-label="Filtra per architetto">
+          <button
+            type="button"
+            class="bgs-segment"
+            [class.bgs-segment--active]="architectFilterMode() === 'all'"
+            [attr.aria-pressed]="architectFilterMode() === 'all'"
+            (click)="setArchitectFilterMode('all')"
+          >Tutti</button>
+          <button
+            type="button"
+            class="bgs-segment"
+            [class.bgs-segment--active]="architectFilterMode() === 'none'"
+            [attr.aria-pressed]="architectFilterMode() === 'none'"
+            (click)="setArchitectFilterMode('none')"
+            title="Solo i sistemi senza architetto registrato"
+          >Nessuno</button>
+          <button
+            type="button"
+            class="bgs-segment"
+            [class.bgs-segment--active]="architectFilterMode() === 'squadron'"
+            [attr.aria-pressed]="architectFilterMode() === 'squadron'"
+            (click)="setArchitectFilterMode('squadron')"
+            title="Solo i sistemi con un architetto registrato come membro ACFS"
+          >ACFS</button>
+        </div>
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="bgs-dense bgs-filter-field"
+          [class.bgs-filter-field--active]="architectFilterMode() === 'name'"
         >
-          @for (name of architectFilterSuggestions(); track name) {
-            <mat-option [value]="name">{{ name }}</mat-option>
-          }
-        </mat-autocomplete>
-      </mat-form-field>
-    </div>
+          <input
+            matInput
+            [formControl]="architectFilterControl"
+            [matAutocomplete]="architectFilterAuto"
+            placeholder="Nome…"
+            aria-label="Filtra per nome dell'architetto"
+            maxlength="120"
+            (keyup.enter)="applyArchitectFilterName()"
+          />
+          <mat-autocomplete
+            #architectFilterAuto="matAutocomplete"
+            (optionSelected)="onArchitectFilterOptionSelected($event.option.value)"
+          >
+            @for (name of architectFilterSuggestions(); track name) {
+              <mat-option [value]="name">{{ name }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
 
-    <div class="bgs-filter-group">
-      <span class="bgs-filter-label">Fazione</span>
-      <button
-        type="button"
-        class="bgs-filter-chip"
-        [class.bgs-filter-chip--active]="factionFilterMode() === 'all'"
-        (click)="setFactionFilterMode('all')"
-      >Tutti</button>
-      <button
-        type="button"
-        class="bgs-filter-chip"
-        [class.bgs-filter-chip--active]="factionFilterMode() === 'controlled'"
-        (click)="setFactionFilterMode('controlled')"
-        [title]="'Solo i sistemi controllati da ' + factionName"
-      >Controllati</button>
-      <mat-form-field
-        appearance="outline"
-        subscriptSizing="dynamic"
-        class="bgs-filter-field"
-        [class.bgs-filter-field--active]="factionFilterMode() === 'name'"
-      >
-        <input
-          matInput
-          [formControl]="factionFilterControl"
-          [matAutocomplete]="factionFilterAuto"
-          placeholder="Nome…"
-          maxlength="120"
-          (keyup.enter)="applyFactionFilterName()"
-        />
-        <mat-autocomplete
-          #factionFilterAuto="matAutocomplete"
-          (optionSelected)="onFactionFilterOptionSelected($event.option.value)"
+      <div class="bgs-filter-group">
+        <span class="bgs-filter-label">Fazione</span>
+        <div class="bgs-segmented" role="group" aria-label="Filtra per fazione">
+          <button
+            type="button"
+            class="bgs-segment"
+            [class.bgs-segment--active]="factionFilterMode() === 'all'"
+            [attr.aria-pressed]="factionFilterMode() === 'all'"
+            (click)="setFactionFilterMode('all')"
+          >Tutti</button>
+          <button
+            type="button"
+            class="bgs-segment"
+            [class.bgs-segment--active]="factionFilterMode() === 'controlled'"
+            [attr.aria-pressed]="factionFilterMode() === 'controlled'"
+            (click)="setFactionFilterMode('controlled')"
+            [title]="'Solo i sistemi controllati da ' + factionName"
+          >Controllati</button>
+        </div>
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="bgs-dense bgs-filter-field"
+          [class.bgs-filter-field--active]="factionFilterMode() === 'name'"
         >
-          @for (name of factionFilterSuggestions(); track name) {
-            <mat-option [value]="name">{{ name }}</mat-option>
-          }
-        </mat-autocomplete>
-      </mat-form-field>
+          <input
+            matInput
+            [formControl]="factionFilterControl"
+            [matAutocomplete]="factionFilterAuto"
+            placeholder="Nome…"
+            aria-label="Filtra per nome della fazione"
+            maxlength="120"
+            (keyup.enter)="applyFactionFilterName()"
+          />
+          <mat-autocomplete
+            #factionFilterAuto="matAutocomplete"
+            (optionSelected)="onFactionFilterOptionSelected($event.option.value)"
+          >
+            @for (name of factionFilterSuggestions(); track name) {
+              <mat-option [value]="name">{{ name }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
     </div>
-  </div>
+  </section>
 
   @if (errorMessage(); as message) {
     <div class="bgs-error">
@@ -446,9 +475,7 @@
                   [title]="marginTitle(row)"
                 >{{ marginLabel(row) }}</td>
                 <td class="bgs-col-wrap">
-                  @if (row.notAColony) {
-                    —
-                  } @else if (row.architect === null) {
+                  @if (row.architect === null && !row.notAColony) {
                     <button
                       type="button"
                       class="bgs-system-link bgs-assign-button"
@@ -456,7 +483,15 @@
                       (click)="openAssignDialog(row)"
                     >Assegna</button>
                   } @else {
-                    {{ row.architect }}
+                    <span class="bgs-architect">{{ row.notAColony ? '—' : row.architect }}<button
+                      type="button"
+                      class="bgs-edit-button"
+                      [title]="'Modifica l\'assegnazione di ' + row.systemName"
+                      [attr.aria-label]="'Modifica l\'assegnazione di ' + row.systemName"
+                      (click)="openAssignDialog(row)"
+                    >
+                      <fa-icon [icon]="faPen"></fa-icon>
+                    </button></span>
                   }
                 </td>
                 <td class="bgs-col-wrap" [class.bgs-preferred-derived]="!row.preferredFactionRecorded">{{ row.preferredFaction ?? '—' }}</td>

@@ -17,6 +17,7 @@ const ROW: BgsRow = {
   factionInfluence: null,
   margin: null,
   architect: null,
+  architectAffiliation: null,
   notAColony: false,
   preferredFaction: null,
   preferredFactionRecorded: false,
@@ -183,5 +184,44 @@ describe('AssignArchitectDialogComponent', () => {
 
     await component['send']();
     expect(service.submitAssignment.mock.calls[0][0].architect).toBe('');
+  });
+});
+
+describe('AssignArchitectDialogComponent changing an existing assignment', () => {
+  let fixture: ComponentFixture<AssignArchitectDialogComponent>;
+  let component: AssignArchitectDialogComponent;
+
+  beforeEach(async () => {
+    localStorage.clear();
+    await TestBed.configureTestingModule({
+      imports: [AssignArchitectDialogComponent],
+      providers: [
+        { provide: MatDialogRef, useValue: { close: vi.fn(), disableClose: false } },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: {
+            row: { ...ROW, architect: 'Herix', preferredFaction: 'Canonn', preferredFactionRecorded: true },
+            current: { architect: 'Herix', affiliation: AFFILIATION_NOT_MEMBER, preferredFaction: 'Canonn' },
+          },
+        },
+        {
+          provide: BgsService,
+          useValue: { getArchitectRegistry: vi.fn().mockResolvedValue(REGISTRY), submitAssignment: vi.fn(), recordAssignment: vi.fn() },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AssignArchitectDialogComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('starts from the recorded values instead of the defaults, and says it is a change', () => {
+    const form = component['form'];
+    expect(form.controls.architect.value).toBe('Herix');
+    expect(form.controls.affiliation.value).toBe(AFFILIATION_NOT_MEMBER);
+    expect(form.controls.preferredFaction.value).toBe('Canonn');
+    expect(component['factionOptions']()).toContain('Canonn');
+    expect(fixture.nativeElement.textContent).toContain('Modifica assegnazione');
   });
 });

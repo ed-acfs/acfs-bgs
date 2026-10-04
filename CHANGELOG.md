@@ -2,6 +2,31 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.6.2] - 2026-10-04 — ACFS BGS Tool, nuovo pannello dei filtri
+
+### Nome
+
+- Il tool si chiama **ACFS BGS Tool** (titolo, intestazione, README).
+- Il repo si chiama `ed-acfs/acfs-bgs-tool` (prima `acfs-bgs`) e il sito si sposta su **https://flottastellare.it/acfs-bgs-tool/**. Il vecchio indirizzo `/acfs-bgs/` smette di funzionare: GitHub non reindirizza i percorsi delle Pages.
+- Progetto Angular e pacchetto npm `acfs-bgs-tool`; build in `dist/acfs-bgs-tool/`. I file esportati si chiamano `acfs-bgs-tool-AAAA-MM-GG`.
+
+### Interfaccia
+
+- Ricerca e filtri in un **unico pannello**, su due righe ordinate: distanza e righe per pagina sopra, filtri sotto. Su schermi stretti i gruppi vanno a capo interi.
+- I filtri sono **pulsanti a segmenti** uniti ("Tutti | Nessuno | ACFS") invece di pillole separate, con un'etichetta "Mostra" per Guerre/Elezioni e Da aggiornare; i campi di testo sono alti 36 px invece di 56.
+- Tooltip sui filtri, e stato premuto (`aria-pressed`) per i lettori di schermo.
+
+## [0.6.1] - 2026-10-04 — Modifica delle assegnazioni e filtro architetti ACFS
+
+### Interfaccia
+
+- Accanto a un architetto già registrato (o a un sistema segnato "non è una colonia") c'è una matita ✎ che riapre il dialog per **modificare l'assegnazione**. Il dialog si apre con i valori attuali e il titolo "Modifica assegnazione"; l'invio aggiunge una riga al registro, che vale come ultima.
+- Nuovo filtro rapido **"ACFS"** nella sezione Architetto: solo i sistemi il cui architetto risulta membro ACFS. L'appartenenza è della persona: conta la sua registrazione più recente con un'appartenenza indicata, in qualunque sistema. Non serve un elenco separato dei membri: lo dice il registro.
+
+### Test
+
+- Nuovi test per l'elenco degli architetti ACFS e per il dialog in modifica. Passano 146 test dell'app e 7 degli script.
+
 ## [0.6.0] - 2026-10-04 — Pubblicazione su GitHub Pages
 
 Fase 6 di [ROADMAP.md](ROADMAP.md). Il tool va online su **https://flottastellare.it/acfs-bgs/** e si aggiorna da solo.

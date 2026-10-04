@@ -23,7 +23,7 @@ const RECALL_URL = 'https://spansh.co.uk/api/systems/search/recall';
 const PAGE_SIZE = 500;
 /** EDCD Tick Detector: the time of the last BGS tick, as a JSON string. */
 const TICK_URL = 'https://tick.edcd.io/api/tick';
-const USER_AGENT = 'acfs-bgs/0.1 (+https://github.com/ed-acfs/acfs-bgs)';
+const USER_AGENT = 'acfs-bgs-tool (+https://github.com/ed-acfs/acfs-bgs-tool)';
 const TIMEOUT_MS = 60_000;
 /** Spansh's pseudo-faction for fleet carriers, which aren't stations the BGS cares about. */
 const FLEET_CARRIER_FACTION = 'FleetCarrier';

@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 .bgs-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -55,79 +59,130 @@
   font-size: 0.85rem;
 }
 
-.bgs-search {
+// Search and quick filters share one panel: two tidy rows on a desktop, wrapping group by
+// group (never chip by chip) on a narrow screen.
+.bgs-toolbar {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 20px;
-  flex-wrap: wrap;
+  padding: 14px 16px;
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-surface-5);
+  border-radius: 10px;
 }
 
-.bgs-search-field {
-  width: 320px;
-  max-width: 100%;
-}
-
-.bgs-search-error {
-  align-self: center;
-  color: var(--color-danger);
-  font-size: 0.85rem;
-}
-
-.bgs-quick-filters {
+.bgs-toolbar-row {
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin-bottom: 20px;
+  gap: 12px 28px;
   flex-wrap: wrap;
+}
+
+.bgs-toolbar-end {
+  margin-left: auto;
 }
 
 .bgs-filter-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .bgs-filter-label {
-  color: var(--color-text-2);
-  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
-.bgs-filter-chip {
-  padding: 4px 10px;
+.bgs-search-field {
+  width: 260px;
+  max-width: 60vw;
+}
+
+.bgs-search-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--color-accent);
+  color: var(--color-surface-3);
+  cursor: pointer;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    filter: brightness(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.bgs-search-error {
+  color: var(--color-danger);
+  font-size: 0.85rem;
+}
+
+// A row of mutually exclusive (or independent, for "Mostra") options joined into one control.
+.bgs-segmented {
+  display: inline-flex;
   border: 1px solid var(--color-border-muted);
-  border-radius: 999px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bgs-segment {
+  padding: 0 12px;
+  height: 34px;
+  border: none;
   background: none;
   color: var(--color-text-2);
-  font-size: 0.8rem;
+  font: inherit;
+  font-size: 0.82rem;
+  white-space: nowrap;
   cursor: pointer;
-  line-height: 1.4;
+
+  & + & {
+    border-left: 1px solid var(--color-border-muted);
+  }
+
+  &:hover:not(.bgs-segment--active) {
+    background-color: var(--color-surface-5);
+    color: var(--color-text-bright);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
 }
 
-.bgs-filter-chip:hover {
-  border-color: var(--color-link-hover);
-  color: var(--color-link-hover);
-}
-
-.bgs-filter-chip--active {
+.bgs-segment--active {
   background-color: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-surface);
+  color: var(--color-surface-3);
+  font-weight: 600;
 }
 
 .bgs-filter-field {
-  width: 160px;
+  width: 140px;
 }
 
 .bgs-filter-field--active .mat-mdc-text-field-wrapper {
   outline: 2px solid var(--color-accent);
   outline-offset: -1px;
+  border-radius: 4px;
 }
 
 .bgs-page-size-field {
-  width: 80px;
+  width: 76px;
 }
 
 .bgs-error {
@@ -449,6 +504,29 @@
   }
 }
 
+// Architect name and its pencil stay on one line.
+.bgs-architect {
+  white-space: nowrap;
+}
+
+// Pencil next to a registered architect: reopens the Assign dialog to change the assignment.
+.bgs-edit-button {
+  padding: 0;
+  margin-left: 6px;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 0.8em;
+  cursor: pointer;
+  vertical-align: middle;
+  line-height: 1;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-link-hover);
+  }
+}
+
 .bgs-system-link {
   color: var(--color-link);
 }
@@ -551,6 +629,27 @@
 }
 
 @media (max-width: 600px) {
+  // Groups wrap inside themselves too, and the text fields share whatever width is left.
+  .bgs-toolbar {
+    padding: 12px;
+  }
+
+  .bgs-toolbar-end {
+    margin-left: 0;
+  }
+
+  .bgs-filter-group {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .bgs-search-field,
+  .bgs-filter-field {
+    flex: 1 1 140px;
+    width: auto;
+    max-width: none;
+  }
+
   .bgs-header {
     flex-direction: column;
     align-items: flex-start;

@@ -1,6 +1,7 @@
 import {
   ArchitectRegistryRow,
   architectNames,
+  architectsWithAffiliation,
   buildArchitectInfoMap,
   findArchitectProfile,
   suggestArchitects,
@@ -84,5 +85,31 @@ describe('findArchitectProfile', () => {
     const profile = findArchitectProfile(rows, 'Herix', 'A');
     expect(profile?.preferredFactionCount).toBe(1);
     expect(findArchitectProfile([rows[0]], 'Herix', 'A')).toBeNull();
+  });
+});
+
+describe('architectsWithAffiliation', () => {
+  const MEMBER = 'The Architect is an ACFS Member';
+
+  it('lists architects whose latest answered affiliation is membership, case-insensitively', () => {
+    const rows = [
+      row({ systemName: 'A', architect: 'Habba-Nero', affiliation: MEMBER }),
+      row({ systemName: 'B', architect: 'Machu', affiliation: "Don't know" }),
+    ];
+    expect(architectsWithAffiliation(rows, MEMBER)).toEqual(new Set(['habba-nero']));
+  });
+
+  it('keeps membership across a later blank answer, but not across a later different one', () => {
+    const rows = [
+      row({ systemName: 'A', architect: 'Habba-Nero', affiliation: MEMBER }),
+      row({ systemName: 'B', architect: 'Habba-Nero', affiliation: '' }),
+      row({ systemName: 'C', architect: 'Donkiro', affiliation: MEMBER }),
+      row({ systemName: 'D', architect: 'Donkiro', affiliation: 'Not an ACFS Member' }),
+    ];
+    expect(architectsWithAffiliation(rows, MEMBER)).toEqual(new Set(['habba-nero']));
+  });
+
+  it('ignores rows without an architect', () => {
+    expect(architectsWithAffiliation([row({ systemName: 'A', affiliation: MEMBER })], MEMBER)).toEqual(new Set());
   });
 });

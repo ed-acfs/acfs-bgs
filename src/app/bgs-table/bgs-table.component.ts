@@ -15,6 +15,7 @@ import {
   faChevronLeft,
   faChevronRight,
   faCircleInfo,
+  faPen,
   faCopy,
   faDownload,
   faMagnifyingGlass,
@@ -31,8 +32,8 @@ import {
   PriorityWatchlistDialogComponent,
   PriorityWatchlistDialogData,
 } from '../priority-watchlist-dialog/priority-watchlist-dialog.component';
-import { ArchitectSubmission } from '../../core/architect-form';
-import { architectNames, suggestArchitects } from '../../core/architect-registry';
+import { AFFILIATION_SQUADRON_MEMBER, ArchitectSubmission } from '../../core/architect-form';
+import { architectNames, architectsWithAffiliation, suggestArchitects } from '../../core/architect-registry';
 import { distanceLy } from '../../core/distance';
 import { exportRowsToCsv, exportRowsToJson } from '../export-download';
 import { FreshnessInfo, computeFreshness } from '../../core/freshness';
@@ -60,7 +61,7 @@ type SortColumn =
 type SortDirection = 'asc' | 'desc';
 
 /** The Architect quick filter's modes: everyone, systems with no architect, or one named architect. */
-type ArchitectFilterMode = 'all' | 'none' | 'name';
+type ArchitectFilterMode = 'all' | 'none' | 'squadron' | 'name';
 /** The Faction quick filter's modes: everyone, only systems the squadron's faction controls, or one named faction. */
 type FactionFilterMode = 'all' | 'controlled' | 'name';
 
@@ -205,6 +206,7 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly faCheck = faCheck;
   protected readonly faDownload = faDownload;
   protected readonly faCircleInfo = faCircleInfo;
+  protected readonly faPen = faPen;
   /** The squadron's faction, named in the ACFS column header's tooltip and highlighted orange in the Factions chart. */
   protected readonly factionName = FACTION_NAME;
   protected readonly encodeURIComponent = encodeURIComponent;
@@ -288,6 +290,8 @@ export class BgsTableComponent implements OnDestroy {
   /** FR-5: "needs recon" pairs naturally with the Distance sort — stale systems near me. */
   protected readonly needsReconOnly = signal(false);
   protected readonly architectFilterMode = signal<ArchitectFilterMode>('all');
+  /** Lower-cased names of the architects the registry records as squadron members, for the "ACFS" filter. */
+  private readonly squadronArchitects = signal<ReadonlySet<string>>(new Set());
   private readonly architectFilterName = signal('');
   protected readonly factionFilterMode = signal<FactionFilterMode>('all');
   private readonly factionFilterName = signal('');
@@ -355,6 +359,11 @@ export class BgsTableComponent implements OnDestroy {
       case 'none':
         rows = rows.filter(row => row.architect === null);
         break;
+      case 'squadron': {
+        const members = this.squadronArchitects();
+        rows = rows.filter(row => row.architect !== null && members.has(row.architect.trim().toLowerCase()));
+        break;
+      }
       case 'name': {
         const key = this.architectFilterName().toLowerCase();
         rows = rows.filter(row => (row.architect ?? '').toLowerCase() === key);
@@ -649,7 +658,7 @@ export class BgsTableComponent implements OnDestroy {
     this.pageIndex.set(0);
   }
 
-  protected setArchitectFilterMode(mode: 'all' | 'none'): void {
+  protected setArchitectFilterMode(mode: 'all' | 'none' | 'squadron'): void {
     this.architectFilterMode.set(mode);
     this.architectFilterName.set('');
     this.pageIndex.set(0);
@@ -785,7 +794,17 @@ export class BgsTableComponent implements OnDestroy {
    * submits is folded straight into the loaded rows, so the table updates without a refetch.
    */
   protected openAssignDialog(row: BgsRow): void {
-    const data: AssignArchitectDialogData = { row };
+    const registered = row.architect !== null || row.notAColony || row.preferredFactionRecorded;
+    const data: AssignArchitectDialogData = registered
+      ? {
+          row,
+          current: {
+            architect: row.architect ?? '',
+            affiliation: row.architectAffiliation ?? '',
+            preferredFaction: row.preferredFactionRecorded ? (row.preferredFaction ?? '') : '',
+          },
+        }
+      : { row };
     this.dialog
       .open<AssignArchitectDialogComponent, AssignArchitectDialogData, ArchitectSubmission>(
         AssignArchitectDialogComponent,
@@ -821,6 +840,8 @@ export class BgsTableComponent implements OnDestroy {
 
   /** Reflects a successful submission in whichever row collections are currently loaded. */
   private applyAssignment(submission: ArchitectSubmission): void {
+    // The service has already folded the submission into the registry; refresh what's derived from it.
+    void this.loadArchitectFilterNames();
     const patch = (rows: BgsRow[]): BgsRow[] =>
       rows.map(row => (row.systemName === submission.systemName ? rowWithAssignment(row, submission) : row));
     this.rows.update(patch);
@@ -1038,7 +1059,9 @@ export class BgsTableComponent implements OnDestroy {
   /** Loads the architect registry's names once, for the Architect quick filter's typeahead. */
   private async loadArchitectFilterNames(): Promise<void> {
     try {
-      this.architectRegistryNames.set(architectNames(await this.bgsService.getArchitectRegistry()));
+      const registry = await this.bgsService.getArchitectRegistry();
+      this.architectRegistryNames.set(architectNames(registry));
+      this.squadronArchitects.set(architectsWithAffiliation(registry, AFFILIATION_SQUADRON_MEMBER));
     } catch {
       // Suggestions are a convenience; the filter's free-text entry still works without them.
     }

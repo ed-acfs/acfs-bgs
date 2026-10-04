@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "acfs-bgs": {
+    "acfs-bgs-tool": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -67,8 +67,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "8kB",
-                  "maximumError": "10kB"
+                  "maximumWarning": "12kB",
+                  "maximumError": "16kB"
                 }
               ],
               "outputHashing": "all"
@@ -85,10 +85,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "acfs-bgs:build:production"
+              "buildTarget": "acfs-bgs-tool:build:production"
             },
             "development": {
-              "buildTarget": "acfs-bgs:build:development"
+              "buildTarget": "acfs-bgs-tool:build:development"
             }
           },
           "defaultConfiguration": "development"

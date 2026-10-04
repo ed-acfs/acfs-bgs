@@ -9,6 +9,7 @@ function row(overrides: Partial<BgsRow> = {}): BgsRow {
     factionInfluence: null,
     margin: null,
     architect: null,
+    architectAffiliation: null,
     notAColony: false,
     preferredFaction: null,
     preferredFactionRecorded: false,
@@ -105,8 +106,8 @@ describe('toExportRecord', () => {
 
 describe('exportFilename', () => {
   it('embeds the date and requested extension', () => {
-    expect(exportFilename('json', NOW)).toBe('acfs-bgs-2026-08-07.json');
-    expect(exportFilename('csv', NOW)).toBe('acfs-bgs-2026-08-07.csv');
+    expect(exportFilename('json', NOW)).toBe('acfs-bgs-tool-2026-08-07.json');
+    expect(exportFilename('csv', NOW)).toBe('acfs-bgs-tool-2026-08-07.csv');
   });
 });
 
