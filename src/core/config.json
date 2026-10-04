@@ -8,7 +8,7 @@
   "storagePrefix": "acfs-bgs:",
   "dataUrl": "data/bgs.json",
   "typeaheadUrl": "https://us-central1-canonn-api-236217.cloudfunctions.net/query/typeahead",
-  "architectsSheetUrl": null,
-  "watchlistSheetUrl": null,
-  "architectFormAction": null
+  "architectsSheetUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdtIVLB03Rx68y8rDGLfHQOp_z05m9CkA4p4RFb4RZSVvRpfSz6TpVwDiQPYLFpVdQIDlPvV0Dtt7k/pub?gid=622902059&single=true&output=tsv",
+  "watchlistSheetUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdtIVLB03Rx68y8rDGLfHQOp_z05m9CkA4p4RFb4RZSVvRpfSz6TpVwDiQPYLFpVdQIDlPvV0Dtt7k/pub?gid=1865441724&single=true&output=tsv",
+  "architectFormAction": "https://docs.google.com/forms/d/e/1FAIpQLScNQghiaWYDJWNjkcyNWUshoHtM4jmQORcGU2N7iHyCAfVZpA/formResponse"
 }

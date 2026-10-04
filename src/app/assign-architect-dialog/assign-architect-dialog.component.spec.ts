@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { BgsRow } from '../../core/bgs';
 import { BgsService } from '../bgs.service';
 import {
-  AFFILIATION_CANONN_MEMBER,
+  AFFILIATION_SQUADRON_MEMBER,
   AFFILIATION_NOT_A_COLONY,
   AFFILIATION_NOT_MEMBER,
   AFFILIATION_UNKNOWN,
@@ -115,7 +115,7 @@ describe('AssignArchitectDialogComponent', () => {
   });
 
   it('defaults a squadron architect to the squadron faction when it is present', async () => {
-    await chooseAffiliation(AFFILIATION_CANONN_MEMBER);
+    await chooseAffiliation(AFFILIATION_SQUADRON_MEMBER);
     expect(form().controls.preferredFaction.value).toBe('Flotta Stellare');
   });
 

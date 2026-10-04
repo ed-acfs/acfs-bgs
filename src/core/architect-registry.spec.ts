@@ -13,10 +13,10 @@ function row(partial: Partial<ArchitectRegistryRow>): ArchitectRegistryRow {
 describe('buildArchitectInfoMap', () => {
   it('keeps the last row for a system, since the registry is append-only', () => {
     const map = buildArchitectInfoMap([
-      row({ systemName: 'Varati', architect: 'Old', preferredFaction: 'Canonn' }),
-      row({ systemName: 'Varati', architect: 'New', preferredFaction: 'Canonn Deep Space Research' }),
+      row({ systemName: 'Varati', architect: 'Old', preferredFaction: 'Flotta Stellare' }),
+      row({ systemName: 'Varati', architect: 'New', preferredFaction: 'Earth Defense Fleet' }),
     ]);
-    expect(map.get('Varati')).toEqual({ architect: 'New', affiliation: '', preferredFaction: 'Canonn Deep Space Research' });
+    expect(map.get('Varati')).toEqual({ architect: 'New', affiliation: '', preferredFaction: 'Earth Defense Fleet' });
   });
 
   it('skips rows with no system name', () => {
@@ -59,10 +59,10 @@ describe('suggestArchitects', () => {
 
 describe('findArchitectProfile', () => {
   const rows = [
-    row({ systemName: 'A', architect: 'Herix', affiliation: 'Not a Canonn Member', preferredFaction: 'Flat Galaxy Society' }),
+    row({ systemName: 'A', architect: 'Herix', affiliation: 'Not an ACFS Member', preferredFaction: 'Flat Galaxy Society' }),
     row({ systemName: 'B', architect: 'herix', affiliation: '', preferredFaction: 'Flat Galaxy Society' }),
-    row({ systemName: 'C', architect: 'Herix', affiliation: 'The Architect is a Canonn Member', preferredFaction: '' }),
-    row({ systemName: 'D', architect: 'Someone Else', preferredFaction: 'Canonn' }),
+    row({ systemName: 'C', architect: 'Herix', affiliation: 'The Architect is an ACFS Member', preferredFaction: '' }),
+    row({ systemName: 'D', architect: 'Someone Else', preferredFaction: 'Flotta Stellare' }),
   ];
 
   it('returns null for an unknown or blank name', () => {
@@ -74,7 +74,7 @@ describe('findArchitectProfile', () => {
     const profile = findArchitectProfile(rows, ' herix ');
     expect(profile).toEqual({
       name: 'Herix',
-      affiliation: 'The Architect is a Canonn Member',
+      affiliation: 'The Architect is an ACFS Member',
       preferredFaction: 'Flat Galaxy Society',
       preferredFactionCount: 2,
     });

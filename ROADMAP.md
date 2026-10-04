@@ -84,12 +84,14 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 
 ### 5. Form, Sheet e Watchlist ACFS
 
-- [ ] Creazione del Google Form (a cura dell'utente). Titoli delle domande: `Your Name`, `System Name`, `Architect Name`, `ACFS Architect` (The Architect is an ACFS Member / Not an ACFS Member / Nobody The System Is Not a Colony / Don't know), `Preferred Faction` (Flotta Stellare + Altro)
-- [ ] Risposte collegate a uno Sheet, con una seconda scheda `Watchlist` (colonne `System`, `Faction`, `Position`, `Details`), entrambe pubblicate sul web come TSV
-- [ ] Collegare nell'app gli ID dei campi del Form e gli URL dei TSV
-- [ ] Opzionale: inserire nel nostro registro, a mano, i 6 sistemi che i Canonn già indicano come preferiti di Flotta Stellare
+- [x] Google Form "ACFS Architect Registry" creato dall'utente il 4 ottobre 2026. Domande: `Your Name`, `System Name`, `Architect Name`, `ACFS Architect` (The Architect is an ACFS Member / Not an ACFS Member / Nobody The System Is Not a Colony / Don't know), `Preferred Faction` (Flotta Stellare + Altro)
+- [x] Risposte collegate a uno Sheet, con una seconda scheda `Watchlist` (`System`, `Faction`, `Position`, `Details`); entrambe pubblicate sul web come TSV
+- [x] ID dei campi ricavati dal Form pubblicato (`FB_PUBLIC_LOAD_DATA_`) e collegati in `core/architect-form.ts`; URL di Form e TSV in `config.json`
+- [x] Risposte di appartenenza ACFS, con etichette italiane nel dialog Assegna; intestazione `ACFS Architect` nel parser
+- [x] Prova reale: un invio con gli stessi campi dell'app compare nel foglio pubblicato dopo circa 15 secondi e viene letto dai parser dell'app (riga "PROVA - cancellare questa riga", da cancellare dal foglio)
+- [ ] Opzionale: inserire nel nostro registro i 6 sistemi che il registro Canonn assegna a Flotta Stellare
 
-**Fatto quando:** un'assegnazione fatta dal dialog compare nella tabella al ricaricamento successivo.
+**Fatto quando:** un'assegnazione fatta dal dialog compare nella tabella al ricaricamento successivo. Raggiunto il 4 ottobre 2026 per la catena Form → foglio → app; l'invio dal dialog nel browser va provato una volta dal sito pubblicato.
 
 ### 6. Pubblicazione e aggiornamento automatico
 

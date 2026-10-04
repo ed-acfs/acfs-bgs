@@ -12,7 +12,7 @@
 export interface ArchitectRegistryRow {
   systemName: string;
   architect: string;
-  /** The "Canonn Architect" answer — one of the `AFFILIATION_*` values, or '' if unanswered. */
+  /** The "ACFS Architect" answer — one of the `AFFILIATION_*` values, or '' if unanswered. */
   affiliation: string;
   preferredFaction: string;
 }
@@ -20,7 +20,7 @@ export interface ArchitectRegistryRow {
 /** What the registry records about a system: the columns the table's Architect/Preferred Faction show. */
 export interface ArchitectInfo {
   architect: string;
-  /** The "Canonn Architect" answer this system's row was last recorded with — one of the `AFFILIATION_*` values, or ''. */
+  /** The "ACFS Architect" answer this system's row was last recorded with — one of the `AFFILIATION_*` values, or ''. */
   affiliation: string;
   preferredFaction: string;
 }
