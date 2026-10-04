@@ -10,8 +10,12 @@ import { computePriorityAssessment } from './priority';
 export interface ExportRecord {
   systemName: string;
   controllingFaction: string | null;
-  canonnInfluence: number | null;
-  cdsrInfluence: number | null;
+  /** The squadron faction's influence, 0-100. */
+  factionInfluence: number | null;
+  /** Lead over the next faction where we control, gap to the controller elsewhere, in points. */
+  marginPoints: number | null;
+  /** The faction {@link marginPoints} is measured against. */
+  marginVersus: string | null;
   architect: string | null;
   preferredFaction: string | null;
   factions: { name: string; influencePercent: number }[];
@@ -25,7 +29,7 @@ export interface ExportRecord {
   population: number | null;
   /** Stations in the system (all of them). */
   stationCount: number | null;
-  /** The system's stations, the API's canonn_assets — name, type and controlling faction each. */
+  /** The system's stations (fleet carriers excluded) — name, type and controlling faction each. */
   stations: { name: string; type: string | null; controllingFaction: string | null }[];
   x: number;
   y: number;
@@ -42,8 +46,9 @@ export function toExportRecord(row: BgsRow, nowMs: number): ExportRecord {
   return {
     systemName: row.systemName,
     controllingFaction: row.controllingFaction,
-    canonnInfluence: row.canonnInfluence,
-    cdsrInfluence: row.cdsrInfluence,
+    factionInfluence: row.factionInfluence,
+    marginPoints: row.margin?.points ?? null,
+    marginVersus: row.margin?.versus ?? null,
     architect: row.architect,
     preferredFaction: row.preferredFaction,
     factions: row.factions.map(f => ({ name: f.name, influencePercent: f.influencePercent })),
@@ -78,8 +83,9 @@ export function exportFilename(extension: 'json' | 'csv', nowMs: number = Date.n
 const CSV_COLUMNS: readonly (keyof ExportRecord)[] = [
   'systemName',
   'controllingFaction',
-  'canonnInfluence',
-  'cdsrInfluence',
+  'factionInfluence',
+  'marginPoints',
+  'marginVersus',
   'architect',
   'preferredFaction',
   'warState',

@@ -2,6 +2,45 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.3.0] - 2026-10-04 — Identità ACFS, italiano, colonne ACFS e Margine
+
+Fase 3 di [ROADMAP.md](ROADMAP.md). È la prima versione che si presenta come tool ACFS e mostra l'influenza di Flotta Stellare.
+
+### Identità
+
+- Logo di Alto Comando Flotta Stellare nell'intestazione e nella schermata di caricamento, al posto dell'SVG animato Canonn. Durante il caricamento pulsa leggermente (non se il sistema chiede animazioni ridotte).
+- Titolo "ACFS BGS", descrizione in italiano, `lang="it"`, favicon e icona Apple dello squadrone (dal set `icon-vanguards` del sito).
+
+### Italiano
+
+- Interfaccia in italiano: intestazioni, filtri rapidi, paginazione, tooltip, messaggi di errore, dialog "Assegna" e dialog informazioni sul sistema.
+- Numeri in formato italiano tramite `LOCALE_ID` `it-IT` ("42,5%", "1.234").
+- Età del dato: "oggi", "5g", "3s", "1a+". Il tooltip mostra data e ora dell'aggiornamento in UTC, cioè l'ora di gioco.
+
+### Colonne
+
+- **ACFS** al posto di CANO: influenza di Flotta Stellare.
+- **Margine** al posto di CDSR: nei sistemi controllati, vantaggio sulla seconda fazione; altrove, distacco da chi controlla. Verde sopra la soglia di rischio, rosso sotto (5 punti, `conflictMarginPoints` in `config.json`), grigio per i distacchi. Il tooltip indica la fazione di confronto e la sua influenza. Al 4 ottobre 2026 l'unico sistema controllato sotto soglia è Lyncis Sector CL-Y d68, a 0,0 punti da Canonn.
+- Nel grafico Fazioni la barra arancione è quella di Flotta Stellare.
+- Il filtro rapido "Canonn" diventa **"Controllati"**: mostra solo i sistemi controllati da Flotta Stellare.
+
+### Export
+
+- JSON e CSV riportano `factionInfluence`, `marginPoints` e `marginVersus` al posto di `canonnInfluence` e `cdsrInfluence`.
+
+### Correzioni
+
+- I colori delle celle di influenza (e ora di margine) non comparivano mai: la regola generica sul colore delle celle li sovrascriveva. Il difetto era già nell'originale Canonn.
+
+### Test
+
+- Nuovo `src/core/margin.spec.ts` per il calcolo del margine. Passano 144 test dell'app e 5 degli script.
+
+### Ancora in inglese
+
+- Le motivazioni della priorità nel tooltip e le icone "Canonn vs Canonn": si rifanno nella fase 4.
+- Le opzioni di appartenenza del dialog "Assegna": sono le risposte del Form Canonn e cambiano con il nostro Form, nella fase 5.
+
 ## [0.2.0] - 2026-10-04 — Modulo core e configurazione
 
 Fase 2 di [ROADMAP.md](ROADMAP.md). Riorganizzazione interna: per chi usa il tool cambia solo il sistema di riferimento della distanza.

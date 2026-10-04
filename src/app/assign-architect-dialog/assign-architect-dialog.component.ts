@@ -126,17 +126,17 @@ export class AssignArchitectDialogComponent {
     if (this.affiliationValue() === AFFILIATION_CANONN_MEMBER) {
       const canonn = this.dominantCanonnFaction();
       if (canonn) {
-        return { value: canonn, note: `The Canonn faction with the highest influence in ${this.systemName}.` };
+        return { value: canonn, note: `La fazione Canonn con più influenza in ${this.systemName}.` };
       }
       return { value: DONT_KNOW_FACTION, note: null };
     }
 
     const profile = this.profile();
     if (profile?.preferredFaction) {
-      const times = profile.preferredFactionCount === 1 ? 'once' : `${profile.preferredFactionCount} times`;
+      const times = profile.preferredFactionCount === 1 ? 'una volta' : `${profile.preferredFactionCount} volte`;
       return {
         value: profile.preferredFaction,
-        note: `${profile.name} has chosen ${profile.preferredFaction} ${times} in other systems.`,
+        note: `${profile.name} ha scelto ${profile.preferredFaction} ${times} in altri sistemi.`,
       };
     }
     return { value: DONT_KNOW_FACTION, note: null };
@@ -258,8 +258,8 @@ export class AssignArchitectDialogComponent {
     } catch (error) {
       this.sendError.set(
         error instanceof Error && error.name === 'AbortError'
-          ? 'The submission timed out before Google accepted it. Nothing has been recorded — you can retry.'
-          : "Couldn't submit to the Architect Registry. Check your connection and retry.",
+          ? 'Google non ha risposto in tempo. Non è stato registrato nulla: puoi riprovare.'
+          : 'Invio al registro architetti non riuscito. Controlla la connessione e riprova.',
       );
       this.canRetry.set(true);
     } finally {

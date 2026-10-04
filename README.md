@@ -5,6 +5,7 @@ Tool BGS (Background Simulation di Elite Dangerous) dello squadrone **Alto Coman
 Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella tutti i sistemi in cui Flotta Stellare è presente, con questi dati:
 
 - fazione che controlla il sistema e grafico dell'influenza di tutte le fazioni presenti;
+- influenza di Flotta Stellare e **margine**: vantaggio sulla seconda fazione dove controlliamo, distacco da chi controlla altrove;
 - stati in corso o in arrivo: guerra, elezione, ritirata;
 - età del dato, cioè quanto tempo fa il sistema è stato aggiornato;
 - priorità di intervento, da P0 a P4;
@@ -17,7 +18,7 @@ Il progetto è in sviluppo. Le fasi, le decisioni prese e le domande aperte sono
 
 I dati vengono da [Spansh](https://spansh.co.uk). Spansh non accetta chiamate dirette dal browser, quindi lo script `scripts/fetch-bgs.mjs` scarica tutti i sistemi con Flotta Stellare presente e li salva in `public/data/bgs.json`. L'app legge quel file. Il file non è versionato.
 
-Spansh si aggiorna con i dati che i giocatori inviano mentre volano, quindi è sempre un po' indietro rispetto al gioco. I sistemi visitati di rado possono mostrare dati vecchi di giorni o settimane. La colonna "Updated" indica l'età di ogni dato.
+Spansh si aggiorna con i dati che i giocatori inviano mentre volano, quindi è sempre un po' indietro rispetto al gioco. I sistemi visitati di rado possono mostrare dati vecchi di giorni o settimane. La colonna "Aggiornato" indica l'età di ogni dato.
 
 ## Uso in locale
 

@@ -3,45 +3,45 @@
 <mat-dialog-content>
   @if (entries.length > 0) {
     <section class="info-card">
-      <h3 class="info-heading">Information</h3>
+      <h3 class="info-heading">Watchlist</h3>
       @for (entry of entries; track entry.faction) {
         <div class="info-entry">
           <p class="info-details">{{ entry.details }}</p>
-          <p class="info-target">Priority Watchlist target: #{{ entry.position }}</p>
+          <p class="info-target">Posizione da mantenere: {{ entry.position }}ª o meglio</p>
         </div>
       }
     </section>
   }
 
-  <section class="info-stats" aria-label="System overview">
+  <section class="info-stats" aria-label="Riepilogo del sistema">
     <div class="info-stat info-stat--wide">
-      <span class="info-stat-label">Controlling faction</span>
+      <span class="info-stat-label">Fazione di controllo</span>
       <span class="info-stat-value">{{ row.controllingFaction ?? '—' }}</span>
     </div>
     <div class="info-stat">
-      <span class="info-stat-label">Population</span>
+      <span class="info-stat-label">Popolazione</span>
       <span class="info-stat-value">{{ row.population === null ? '—' : (row.population | number) }}</span>
     </div>
     <div class="info-stat">
-      <span class="info-stat-label">Stations</span>
+      <span class="info-stat-label">Stazioni</span>
       <span class="info-stat-value">{{ row.stationCount === null ? '—' : (row.stationCount | number) }}</span>
     </div>
     <div class="info-stat">
-      <span class="info-stat-label">Bodies</span>
+      <span class="info-stat-label">Corpi celesti</span>
       <span class="info-stat-value">{{ row.bodyCount === null ? '—' : (row.bodyCount | number) }}</span>
     </div>
   </section>
 
   <section class="info-card info-card--table">
-    <h3 class="info-heading">Canonn assets</h3>
+    <h3 class="info-heading">Stazioni</h3>
     @if (row.stations.length > 0) {
       <div class="info-table-wrap">
         <table class="info-table">
           <thead>
             <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Type</th>
-              <th scope="col">Faction</th>
+              <th scope="col">Nome</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Fazione</th>
             </tr>
           </thead>
           <tbody>
@@ -56,21 +56,21 @@
         </table>
       </div>
     } @else {
-      <p class="info-empty">No Canonn assets recorded.</p>
+      <p class="info-empty">Nessuna stazione registrata.</p>
     }
   </section>
 
   <section class="info-card info-card--table">
-    <h3 class="info-heading">Factions</h3>
+    <h3 class="info-heading">Fazioni</h3>
     <div class="info-table-wrap">
       <table class="info-table">
         <thead>
           <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Allegiance</th>
-            <th scope="col">Government</th>
-            <th scope="col" class="info-num">Influence</th>
-            <th scope="col">Active states</th>
+            <th scope="col">Nome</th>
+            <th scope="col">Alleanza</th>
+            <th scope="col">Governo</th>
+            <th scope="col" class="info-num">Influenza</th>
+            <th scope="col">Stati attivi</th>
           </tr>
         </thead>
         <tbody>
@@ -90,5 +90,5 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-flat-button color="primary" type="button" mat-dialog-close>Close</button>
+  <button mat-flat-button color="primary" type="button" mat-dialog-close>Chiudi</button>
 </mat-dialog-actions>

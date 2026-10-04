@@ -1,22 +1,22 @@
-<h2 mat-dialog-title>Assign an architect</h2>
+<h2 mat-dialog-title>Assegna un architetto</h2>
 
 <mat-dialog-content>
   <form class="assign-form" [formGroup]="form" (ngSubmit)="send()">
     <div class="assign-system">
-      <span class="assign-system-label">System Name</span>
+      <span class="assign-system-label">Sistema</span>
       <span class="assign-system-name">{{ systemName }}</span>
     </div>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Your Name</mat-label>
+      <mat-label>Il tuo nome</mat-label>
       <input matInput formControlName="yourName" maxlength="120" autocomplete="off" />
       @if (form.controls.yourName.hasError('required') && form.controls.yourName.touched) {
-        <mat-error>Tell us who's reporting this.</mat-error>
+        <mat-error>Indica chi sta facendo la segnalazione.</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Affiliation</mat-label>
+      <mat-label>Appartenenza</mat-label>
       <mat-select formControlName="affiliation" (selectionChange)="onAffiliationChosen()">
         @for (option of affiliationOptions; track option.value) {
           <mat-option [value]="option.value">{{ option.label }}</mat-option>
@@ -25,7 +25,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Architect</mat-label>
+      <mat-label>Architetto</mat-label>
       <input
         matInput
         formControlName="architect"
@@ -39,16 +39,16 @@
         }
       </mat-autocomplete>
       @if (form.controls.architect.hasError('required') && form.controls.architect.touched) {
-        <mat-error>Name the architect, or choose "Nobody" as the affiliation.</mat-error>
+        <mat-error>Indica l'architetto, oppure scegli "Nobody" come appartenenza.</mat-error>
       } @else if (!architectRequired()) {
-        <mat-hint>Architect must be blank if not a colony</mat-hint>
+        <mat-hint>Se il sistema non è una colonia, l'architetto resta vuoto</mat-hint>
       }
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Preferred Faction</mat-label>
+      <mat-label>Fazione preferita</mat-label>
       <mat-select formControlName="preferredFaction" (selectionChange)="onFactionChosen()">
-        <mat-option [value]="dontKnowFaction">Don't know</mat-option>
+        <mat-option [value]="dontKnowFaction">Non so</mat-option>
         @for (faction of factionOptions(); track faction) {
           <mat-option [value]="faction">{{ faction }}</mat-option>
         }
@@ -65,13 +65,13 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-stroked-button type="button" (click)="cancel()" [disabled]="sending()">Cancel</button>
+  <button mat-stroked-button type="button" (click)="cancel()" [disabled]="sending()">Annulla</button>
   <button mat-flat-button color="primary" type="button" (click)="send()" [disabled]="sending()">
     @if (sending()) {
       <mat-spinner diameter="18" class="assign-spinner"></mat-spinner>
-      Sending…
+      Invio…
     } @else {
-      {{ canRetry() ? 'Retry' : 'Send' }}
+      {{ canRetry() ? 'Riprova' : 'Invia' }}
     }
   </button>
 </mat-dialog-actions>
