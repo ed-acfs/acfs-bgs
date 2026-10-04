@@ -21,6 +21,8 @@ export const FACTION_NAME = config.faction;
 const SEARCH_URL = 'https://spansh.co.uk/api/systems/search/save';
 const RECALL_URL = 'https://spansh.co.uk/api/systems/search/recall';
 const PAGE_SIZE = 500;
+/** EDCD Tick Detector: the time of the last BGS tick, as a JSON string. */
+const TICK_URL = 'https://tick.edcd.io/api/tick';
 const USER_AGENT = 'acfs-bgs/0.1 (+https://github.com/ed-acfs/acfs-bgs)';
 const TIMEOUT_MS = 60_000;
 /** Spansh's pseudo-faction for fleet carriers, which aren't stations the BGS cares about. */
@@ -86,6 +88,20 @@ export async function fetchFactionSystems(faction = FACTION_NAME) {
   }
 }
 
+/**
+ * The last BGS tick as an ISO 8601 string, or null if the Tick Detector can't be reached —
+ * it only labels the data, so it must never stop the download.
+ */
+export async function fetchLastTick() {
+  try {
+    const tick = await request(TICK_URL);
+    return typeof tick === 'string' && !Number.isNaN(Date.parse(tick)) ? new Date(tick).toISOString() : null;
+  } catch (error) {
+    console.warn(`Tick Detector unavailable: ${error.message}`);
+    return null;
+  }
+}
+
 async function main() {
   if (process.argv.includes('--if-missing')) {
     try {
@@ -97,10 +113,11 @@ async function main() {
     }
   }
   const startedAt = Date.now();
-  const results = await fetchFactionSystems();
+  const [results, tickAt] = await Promise.all([fetchFactionSystems(), fetchLastTick()]);
   const payload = {
     faction: FACTION_NAME,
     generated_at: new Date().toISOString(),
+    tick_at: tickAt,
     source: 'spansh.co.uk',
     count: results.length,
     results,

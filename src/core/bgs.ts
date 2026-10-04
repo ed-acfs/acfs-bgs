@@ -103,6 +103,8 @@ export interface BgsDataset {
   faction: string;
   /** ISO 8601 time the dataset was downloaded from Spansh. */
   generated_at: string;
+  /** ISO 8601 time of the last BGS tick when it was downloaded (EDCD Tick Detector); null if unknown. */
+  tick_at?: string | null;
   count: number;
   results: BgsSystemRecord[];
 }

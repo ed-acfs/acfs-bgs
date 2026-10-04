@@ -55,7 +55,7 @@ function serverPage(page: number): BgsPage {
 describe('BgsTableComponent paging against a large API page size (issue #7 follow-up)', () => {
   let fixture: ComponentFixture<BgsTableComponent>;
   let component: BgsTableComponent;
-  let service: { getPage: ReturnType<typeof vi.fn>; prefetchPage: ReturnType<typeof vi.fn>; getArchitectRegistry: ReturnType<typeof vi.fn> };
+  let service: { getPage: ReturnType<typeof vi.fn>; prefetchPage: ReturnType<typeof vi.fn>; getArchitectRegistry: ReturnType<typeof vi.fn>; getDatasetInfo: ReturnType<typeof vi.fn> };
 
   /** Reaches past `protected`/`private` — these are the component's externally observable state. */
   function pageSize(): number {
@@ -70,6 +70,7 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
       getPage: vi.fn((page: number) => Promise.resolve(serverPage(page))),
       prefetchPage: vi.fn(),
       getArchitectRegistry: vi.fn().mockResolvedValue([]),
+      getDatasetInfo: vi.fn().mockResolvedValue({ generatedAt: '2026-10-04T21:28:47Z', tickAt: '2026-10-04T16:06:50Z', count: 500 }),
     };
 
     await TestBed.configureTestingModule({

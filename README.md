@@ -12,6 +12,8 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 - architetto e fazione preferita dei sistemi colonizzati;
 - distanza da un sistema a scelta: di default Wong Sher, la capitale.
 
+Il tool è pubblicato su **https://flottastellare.it/acfs-bgs/** e si aggiorna da solo ogni ora.
+
 Il progetto è in sviluppo. Le fasi, le decisioni prese e le domande aperte sono in [ROADMAP.md](ROADMAP.md). Le modifiche fatte finora sono in [CHANGELOG.md](CHANGELOG.md).
 
 ## Dati
@@ -39,9 +41,16 @@ npm run fetch-data
 |---|---|
 | `npm start` | Server di sviluppo su `http://localhost:4200`, si ricarica a ogni modifica |
 | `npm run fetch-data` | Scarica di nuovo i dati da Spansh |
-| `npm run build` | Build di produzione in `dist/canonn-bgs/browser/` |
+| `npm run build` | Build di produzione in `dist/acfs-bgs/browser/` |
+| `npm run build:pages` | Lo stesso build, per il sito pubblicato sotto `/acfs-bgs/` |
 | `npm test` | Test dell'app ([Vitest](https://vitest.dev/)) |
 | `npm run test:scripts` | Test degli script e controllo che `src/core/` non dipenda da Angular (`node --test`) |
+
+## Pubblicazione
+
+Il workflow [.github/workflows/pages.yml](.github/workflows/pages.yml) pubblica il sito su GitHub Pages a ogni push su `main`, ogni ora (con dati Spansh freschi) e a mano dalla scheda **Actions** ("Pubblica su GitHub Pages" → "Run workflow"). Il file dei dati non è nel repo: viene scaricato a ogni pubblicazione.
+
+GitHub sospende i workflow orari di un repo pubblico dopo 60 giorni senza commit. Se i dati smettono di aggiornarsi, va riattivato dalla scheda Actions.
 
 ## Configurazione
 

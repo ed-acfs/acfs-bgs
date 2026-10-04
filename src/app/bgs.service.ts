@@ -31,13 +31,13 @@ const FORM_SUBMIT_TIMEOUT_MS = 15000;
 
 /** localStorage key the architect registry is persisted under. */
 const ARCHITECTS_CACHE_KEY = `${STORAGE_PREFIX}architects-cache:v2`;
-/** How long the architect registry is cached before it's refetched. */
-const ARCHITECTS_CACHE_DURATION_MS = 2 * 60 * 60 * 1000;
+/** How long the architect registry is cached before it's refetched — short, so a new assignment shows up soon. */
+const ARCHITECTS_CACHE_DURATION_MS = 15 * 60 * 1000;
 
 /** localStorage key the priority watchlist is persisted under. */
 const WATCHLIST_CACHE_KEY = `${STORAGE_PREFIX}watchlist-cache:v1`;
 /** How long the priority watchlist is cached before it's refetched. */
-const WATCHLIST_CACHE_DURATION_MS = 2 * 60 * 60 * 1000;
+const WATCHLIST_CACHE_DURATION_MS = 15 * 60 * 1000;
 
 /**
  * Error thrown by {@link BgsService}'s HTTP helpers for non-2xx responses.
@@ -65,6 +65,15 @@ export interface TypeaheadSystem {
 export interface TypeaheadResponse {
   min_max?: TypeaheadSystem[];
   values?: string[];
+}
+
+/** The dataset's own timestamps, shown in the page header. */
+export interface DatasetInfo {
+  /** ISO 8601 time the dataset was downloaded from Spansh. */
+  generatedAt: string;
+  /** ISO 8601 time of the last BGS tick at that moment; null if unknown. */
+  tickAt: string | null;
+  count: number;
 }
 
 export interface BgsPage {
@@ -128,6 +137,12 @@ export class BgsService {
   /** Fire-and-forget prefetch for the next page; failures are silent and just retried on real navigation. */
   prefetchPage(page: number): void {
     void this.getPage(page).catch(() => {});
+  }
+
+  /** When the dataset was downloaded from Spansh, and the last tick at that moment — for the page header. */
+  async getDatasetInfo(): Promise<DatasetInfo> {
+    const dataset = await this.getDataset();
+    return { generatedAt: dataset.generated_at, tickAt: dataset.tick_at ?? null, count: dataset.results.length };
   }
 
   /** Name-suggestion + coordinate lookup, for the "sort by distance from system" search box. */
