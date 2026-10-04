@@ -1,6 +1,10 @@
 # Publishes the tool on GitHub Pages (https://flottastellare.it/acfs-bgs-tool/) with fresh Spansh
-# data: on every push to main, every hour (Spansh fills in as players fly through systems
-# after the tick), and by hand from the Actions tab.
+# data: on every push to main, every half hour (Spansh fills in over hours after the tick, as
+# players fly through systems), and by hand from the Actions tab.
+#
+# The half-hourly run downloads the data and stops there when it matches what the site already
+# has; it builds and deploys only when something changed. GitHub's cron can start several
+# minutes late, or skip a run when it's busy: the next one catches up.
 #
 # GitHub disables scheduled workflows in a public repo after 60 days without commits; if
 # the data stops updating, re-enable it from the Actions tab.
@@ -10,7 +14,7 @@ on:
   push:
     branches: ["main"]
   schedule:
-    - cron: "17 * * * *"
+    - cron: "17,47 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -26,28 +30,41 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      # Code only changes on push; the hourly refresh skips the tests.
+      # Both scripts use only Node itself, so they run before `npm ci`.
+      - name: Download the Spansh data
+        run: npm run fetch-data
+      # Only the scheduled run skips: a push or a manual run always publishes.
+      - name: Compare with the published data
+        id: check
+        if: github.event_name == 'schedule'
+        run: node scripts/data-changed.mjs
+      - if: steps.check.outputs.changed != 'false'
+        run: npm ci
+      # Code only changes on push; the scheduled refresh skips the tests.
       - if: github.event_name != 'schedule'
         run: npm run test:scripts
       - if: github.event_name != 'schedule'
         run: npm test -- --watch=false
-      - name: Download the Spansh data
-        run: npm run fetch-data
-      - run: npm run build:pages
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
+      - if: steps.check.outputs.changed != 'false'
+        run: npm run build:pages
+      - if: steps.check.outputs.changed != 'false'
+        uses: actions/configure-pages@v5
+      - if: steps.check.outputs.changed != 'false'
+        uses: actions/upload-pages-artifact@v4
         with:
           path: dist/acfs-bgs-tool/browser
 
   deploy:
     needs: build
+    if: needs.build.outputs.changed != 'false'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

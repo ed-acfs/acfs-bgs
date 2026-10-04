@@ -38,6 +38,7 @@ import { distanceLy } from '../../core/distance';
 import { exportRowsToCsv, exportRowsToJson } from '../export-download';
 import { FreshnessInfo, computeFreshness } from '../../core/freshness';
 import { PriorityAssessment, computePriorityAssessment, prioritySortKey } from '../../core/priority';
+import { computeTickCoverage, formatTickCoverage } from '../../core/tick-coverage';
 import { readYourName } from '../your-name';
 
 /**
@@ -234,15 +235,26 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly exporting = signal(false);
   protected readonly exportError = signal<string | null>(null);
 
-  /** When the dataset was downloaded and the last tick at that moment, for the line under the title. */
+  /**
+   * When the dataset was downloaded and the last tick at that moment, for the line under the
+   * title. The site is only republished when the data changes, so that's also when it last changed.
+   */
   protected readonly datasetInfo = signal<DatasetInfo | null>(null);
   protected readonly datasetSummary = computed(() => {
     const info = this.datasetInfo();
     if (!info) {
       return null;
     }
-    const downloaded = `Dati Spansh scaricati il ${UTC_TIME_FORMAT.format(Date.parse(info.generatedAt))} UTC`;
+    const downloaded = `Dati Spansh aggiornati il ${UTC_TIME_FORMAT.format(Date.parse(info.generatedAt))} UTC`;
     return info.tickAt ? `${downloaded} · ultimo tick ${UTC_TIME_FORMAT.format(Date.parse(info.tickAt))} UTC` : downloaded;
+  });
+  /** Every row, loaded once for the tick counter; {@link fullDataset} takes over once loaded, since it carries new assignments. */
+  private readonly coverageRows = signal<BgsRow[] | null>(null);
+  /** "214/389 aggiornati dall'ultimo tick · P1-P2: 18/25", or null until the rows and the tick time are known. */
+  protected readonly tickCoverageSummary = computed(() => {
+    const rows = this.fullDataset() ?? this.coverageRows();
+    const coverage = rows ? computeTickCoverage(rows, this.datasetInfo()?.tickAt ?? null, this.now()) : null;
+    return coverage ? formatTickCoverage(coverage) : null;
   });
 
   protected readonly mode = signal<Mode>('paged');
@@ -467,6 +479,12 @@ export class BgsTableComponent implements OnDestroy {
       info => this.datasetInfo.set(info),
       () => {
         // The table's own load reports the failure; the header line just stays empty.
+      },
+    );
+    this.bgsService.getAllRows().then(
+      rows => this.coverageRows.set(rows),
+      () => {
+        // Same: the counter just stays hidden.
       },
     );
     void this.loadArchitectFilterNames();

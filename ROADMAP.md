@@ -103,6 +103,8 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 - [x] Cache del registro e della Watchlist nel browser ridotta da 2 ore a 15 minuti
 - [x] Progetto Angular rinominato `acfs-bgs-tool`: il build finisce in `dist/acfs-bgs-tool/`
 - [x] Provato in locale servendo il build sotto il percorso del sito, come fa GitHub Pages
+- [x] Dalla 0.7.0 il controllo dei dati è **ogni 30 minuti** (ai minuti 17 e 47). Lo script `scripts/data-changed.mjs` confronta il download con il `bgs.json` del sito, escluso `generated_at`: se è uguale, il workflow si ferma senza build né deploy. Si pubblica solo quando Spansh ha qualcosa di nuovo
+- [x] Dalla 0.7.0, sotto il titolo, contatore dei sistemi aggiornati dopo l'ultimo tick, in totale e fra i P1-P2 (`core/tick-coverage.ts`). La colonna "Aggiornato" resta in giorni, per scelta
 
 **Fatto quando:** il sito è online e si aggiorna da solo.
 
@@ -128,10 +130,12 @@ Già dalle fasi 1–7 vale una regola: niente dati strategici nel repo. Lo Sheet
 
 ## Idee per versioni future
 
+- **Pattuglia ("Da visitare").** Dopo il tick Spansh si aggiorna solo quando un giocatore con un client EDDN (EDMC, EDDiscovery) passa nel sistema, quindi i dati arrivano nel giro di ore. L'unico modo di accelerare è mandarci qualcuno. Idea: una funzione a parte, non una colonna della tabella, con i sistemi P1-P2 ancora fermi a prima dell'ultimo tick, ordinati per priorità e distanza da Wong Sher, da girare ai piloti; anche nel report Discord (fase 7). Il dato c'è già: `core/tick-coverage.ts` sa quali sistemi sono aggiornati dopo il tick. Deciso il 5 ottobre 2026 di tenerla fuori dalla 0.7.0: rientra fra le nuove funzioni del tool ancora da progettare.
+
 - **Seconda PMF da confrontare.** Una fazione opzionale in configurazione (alleata o rivale), con una sua colonna di influenza nei sistemi in cui è presente insieme a Flotta Stellare. Solo per confronto visivo: non entra nel calcolo della priorità. Il dato c'è già, perché `minor_faction_presences` elenca tutte le fazioni del sistema. Per prepararla, nella fase 2 la configurazione prevede un campo `compareFaction`, vuoto per default.
 ## Domande aperte
 
-1. **Tick.** I Canonn non rilevano il tick: approssimano i tick trascorsi con i giorni passati da `updated_at` (`freshness.ts`). Per noi c'è `https://tick.edcd.io/api/tick` (EDCD Tick Detector), che restituisce l'ora dell'ultimo tick, è pubblico e ammette chiamate dal browser (`Access-Control-Allow-Origin: *`). Proposta: il workflow lo controlla ogni 30 minuti e aggiorna i dati quando vede un tick nuovo, più alcuni aggiornamenti nelle ore successive, perché Spansh si riempie man mano che i giocatori visitano i sistemi. Il report Discord parte una volta per tick, dopo un ritardo ancora da decidere. Da verificare: quale servizio usa il bot che oggi vi avvisa del tick su Discord.
+1. **Tick.** I Canonn non rilevano il tick: approssimano i tick trascorsi con i giorni passati da `updated_at` (`freshness.ts`). Per noi c'è `https://tick.edcd.io/api/tick` (EDCD Tick Detector), che restituisce l'ora dell'ultimo tick, è pubblico e ammette chiamate dal browser (`Access-Control-Allow-Origin: *`). Proposta: il workflow lo controlla ogni 30 minuti e aggiorna i dati quando vede un tick nuovo, più alcuni aggiornamenti nelle ore successive, perché Spansh si riempie man mano che i giocatori visitano i sistemi. Il report Discord parte una volta per tick, dopo un ritardo ancora da decidere. In parte fatto nella 0.7.0: controllo ogni 30 minuti con pubblicazione solo se i dati cambiano, e contatore dei sistemi aggiornati dopo il tick. Resta da decidere quando parte il report: idea, quando è aggiornata una certa quota dei P1-P2, oppure dopo un tempo massimo. Da verificare: quale servizio usa il bot che oggi vi avvisa del tick su Discord.
 2. ~~**Fazione preferita ricavata in automatico.**~~ Deciso nella fase 4: Flotta Stellare dove controlla almeno una stazione.
 3. **Canale Discord** di destinazione del report, e chi crea il webhook.
 4. **Freschezza del dato.** Spansh e Inara sono in ritardo rispetto al gioco (vedi i conteggi del sito). Il tool deve dirlo chiaramente e non presentare i dati come autorevoli.
