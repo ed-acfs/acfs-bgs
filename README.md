@@ -8,7 +8,7 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 - influenza di Flotta Stellare e **margine**: vantaggio sulla seconda fazione dove controlliamo, distacco da chi controlla altrove;
 - stati in corso o in arrivo: guerra, elezione, ritirata;
 - età del dato, cioè quanto tempo fa il sistema è stato aggiornato;
-- priorità di intervento, da P0 a P4;
+- priorità di intervento, da P1 (massima) a P5;
 - architetto e fazione preferita dei sistemi colonizzati;
 - distanza da un sistema a scelta: di default Wong Sher, la capitale.
 
@@ -46,6 +46,14 @@ npm run fetch-data
 ## Configurazione
 
 Fazione, capitale e indirizzi di dati, Sheet e Form sono in [src/core/config.json](src/core/config.json). Lo leggono sia l'app sia lo script dei dati.
+
+| Chiave | Significato |
+|---|---|
+| `faction`, `squadron`, `homeSystem` | Fazione (PMF), squadrone, capitale |
+| `conflictMarginPoints` | Sotto questo vantaggio (in punti) un sistema controllato è a rischio di conflitto: la colonna Margine diventa rossa |
+| `unregisteredScope` | Come la priorità tratta i sistemi non registrati: `"in-scope"` (nostri: difesa e conquista) oppure `"assumed"` (solo difesa, come i Canonn) |
+| `compareFaction` | Seconda fazione da confrontare, per una versione futura (`null`) |
+| `architectsSheetUrl`, `watchlistSheetUrl`, `architectFormAction` | Google Sheet e Form dello squadrone (`null` finché non esistono) |
 
 ## Struttura
 

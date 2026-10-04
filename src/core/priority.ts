@@ -8,11 +8,12 @@
  * implements): how old a reading is says nothing about whether the system is worth working,
  * so `needsRecon`/`reconAgeDays` below are informational only and never feed the score.
  */
-import { BgsRow, CANONN_FACTION, CDSR_FACTION } from './bgs';
+import { BgsRow } from './bgs';
+import { FACTION_NAME, UNREGISTERED_SCOPE } from './config';
 import { daysElapsed, parseUpdatedAt } from './freshness';
 import { PriorityWatchlistEntry } from './priority-watchlist';
 
-export type PriorityTier = 'P0' | 'P1' | 'P2' | 'P3' | 'P4' | 'out-of-scope' | 'not-applicable';
+export type PriorityTier = 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'out-of-scope' | 'not-applicable';
 export type PriorityScope = 'in-scope' | 'assumed' | 'out-of-scope' | 'no-preference';
 
 /** One applicable trigger, already weighted — the tooltip lists these, highest first. */
@@ -38,10 +39,10 @@ export interface PriorityAssessment {
 }
 
 const TIER_THRESHOLDS: readonly { tier: PriorityTier; min: number }[] = [
-  { tier: 'P0', min: 85 },
-  { tier: 'P1', min: 65 },
-  { tier: 'P2', min: 40 },
-  { tier: 'P3', min: 20 },
+  { tier: 'P1', min: 85 },
+  { tier: 'P2', min: 65 },
+  { tier: 'P3', min: 40 },
+  { tier: 'P4', min: 20 },
 ];
 
 export function deriveTier(score: number): PriorityTier {
@@ -50,7 +51,7 @@ export function deriveTier(score: number): PriorityTier {
       return tier;
     }
   }
-  return 'P4';
+  return 'P5';
 }
 
 /**
@@ -117,86 +118,53 @@ function factionKey(name: string): string {
   return name.trim().toLowerCase();
 }
 
-const CANONN_KEY = factionKey(CANONN_FACTION);
-const CDSR_KEY = factionKey(CDSR_FACTION);
-
-/** True only when the Architect Registry names one of our own factions explicitly — Canonn or CDSR, not an assumed lead, and not the "not a colony" default. */
-function isExplicitlyPreferred(row: BgsRow): boolean {
-  const preferred = row.preferredFaction?.trim();
-  if (!preferred) {
-    return false;
-  }
-  const key = factionKey(preferred);
-  return key === CANONN_KEY || key === CDSR_KEY;
-}
+const OWN_KEY = factionKey(FACTION_NAME);
 
 /**
- * The scope gate (FR-4): whether a system is prioritised at all, and who leads it.
- *  - Preferred faction names Canonn/CDSR → in-scope, that's the lead.
- *  - Preferred faction names anyone else, and the system isn't flagged "not a colony" → out-of-
- *    scope — a standing agreement is worse to breach than to leave unworked.
- *  - "Not a colony" → always in-scope, Canonn leads by default policy, even if a third-party
- *    Preferred Faction also got recorded on the same submission (the Assign dialog can default
- *    that field from the architect's answer in a *different* system, so a stray value here
- *    isn't a real hands-off agreement for this one). This matters: a non-colony system facing
- *    withdrawal, or sitting last place among its factions, must not be hidden behind the
- *    "hands off" badge the way a genuine third-party agreement is.
+ * The scope gate (FR-4): whether a system is prioritised at all. The lead is always the
+ * squadron's faction; the scope says how far we act on it.
+ *  - Preferred faction is ours → in-scope.
+ *  - Preferred faction is anyone else, and the system isn't flagged "not a colony" →
+ *    out-of-scope: a standing agreement is worse to breach than to leave unworked.
+ *  - "Not a colony" → always in-scope, even if a third-party Preferred Faction also got
+ *    recorded on the same submission (the Assign dialog can default that field from the
+ *    architect's answer in a *different* system, so a stray value here isn't a real
+ *    hands-off agreement). A non-colony system facing withdrawal must not be hidden behind
+ *    the "hands off" badge the way a genuine third-party agreement is.
  *  - An architect is confirmed but left the preference blank → "no-preference": someone has
- *    already looked at this system and didn't name us, so unlike the truly-unknown case below
- *    there's no reason to guess a lead from influence presence — it's simply excluded.
- *  - No registry row at all → "assumed": lead is guessed from whichever of our factions has
- *    presence (the one with more influence if both do), and the caller must restrict this
- *    scope to defensive triggers only — never rank a push for control off an assumption
- *    nobody has confirmed.
+ *    already looked and didn't name us, so it's simply excluded.
+ *  - Nothing recorded at all → `unregistered`, from `unregisteredScope` in config.json:
+ *    "in-scope" (the squadron's policy: every system we're present in is ours), or
+ *    "assumed" (Canonn's policy): the caller then restricts it to defensive triggers only —
+ *    never rank a push for control off an assumption nobody has confirmed.
  */
-export function resolveScope(row: BgsRow): { scope: PriorityScope; leadFaction: string | null } {
+export function resolveScope(
+  row: BgsRow,
+  unregistered: 'in-scope' | 'assumed' = UNREGISTERED_SCOPE,
+): { scope: PriorityScope; leadFaction: string | null } {
+  const lead = row.factionInfluence !== null ? FACTION_NAME : null;
   const preferred = row.preferredFaction?.trim();
   if (preferred) {
-    const key = factionKey(preferred);
-    if (key === CANONN_KEY) {
-      return { scope: 'in-scope', leadFaction: CANONN_FACTION };
-    }
-    if (key === CDSR_KEY) {
-      return { scope: 'in-scope', leadFaction: CDSR_FACTION };
-    }
-    if (row.notAColony) {
-      return { scope: 'in-scope', leadFaction: CANONN_FACTION };
+    if (factionKey(preferred) === OWN_KEY || row.notAColony) {
+      return { scope: 'in-scope', leadFaction: FACTION_NAME };
     }
     return { scope: 'out-of-scope', leadFaction: null };
   }
-
   if (row.notAColony) {
-    return { scope: 'in-scope', leadFaction: CANONN_FACTION };
+    return { scope: 'in-scope', leadFaction: FACTION_NAME };
   }
-
   if (row.architect !== null) {
     return { scope: 'no-preference', leadFaction: null };
   }
-
-  if (row.canonnInfluence !== null && row.cdsrInfluence !== null) {
-    return { scope: 'assumed', leadFaction: row.canonnInfluence >= row.cdsrInfluence ? CANONN_FACTION : CDSR_FACTION };
-  }
-  if (row.canonnInfluence !== null) {
-    return { scope: 'assumed', leadFaction: CANONN_FACTION };
-  }
-  if (row.cdsrInfluence !== null) {
-    return { scope: 'assumed', leadFaction: CDSR_FACTION };
-  }
-  return { scope: 'assumed', leadFaction: null };
+  return { scope: lead === null ? 'assumed' : unregistered, leadFaction: lead };
 }
 
 function influenceOf(row: BgsRow, faction: string | null): number | null {
-  if (faction === CANONN_FACTION) {
-    return row.canonnInfluence;
-  }
-  if (faction === CDSR_FACTION) {
-    return row.cdsrInfluence;
-  }
-  return null;
+  return faction === FACTION_NAME ? row.factionInfluence : null;
 }
 
 /**
- * War/election/retreat triggers involving Canonn or CDSR. Fires for a confirmed lead
+ * War/election/retreat triggers involving the squadron's faction. Fires for a confirmed lead
  * (in-scope) and for an assumed one (no architect assigned yet — a live conflict there makes
  * getting an architect assigned urgent), but never for out-of-scope or no-preference, where an
  * architect has already looked and this isn't ours to work. See {@link computePriorityAssessment}.
@@ -205,19 +173,19 @@ function conflictReasons(row: BgsRow): PriorityReason[] {
   const reasons: PriorityReason[] = [];
   if (row.retreatState === 'active' || row.retreatState === 'pending') {
     // Never weighted — it's the top of the list by construction.
-    reasons.push({ code: 'retreat', label: 'Retreat in progress', score: 100 });
+    reasons.push({ code: 'retreat', label: 'Ritirata in corso', score: 100 });
   }
   if (row.warState === 'active') {
-    reasons.push({ code: 'war-active', label: 'War active', score: 95 });
+    reasons.push({ code: 'war-active', label: 'Guerra in corso', score: 95 });
   }
   if (row.electionState === 'active') {
-    reasons.push({ code: 'election-active', label: 'Election active', score: 92 });
+    reasons.push({ code: 'election-active', label: 'Elezioni in corso', score: 92 });
   }
   if (row.warState === 'pending') {
-    reasons.push({ code: 'war-pending', label: 'War pending', score: 88 });
+    reasons.push({ code: 'war-pending', label: 'Guerra in arrivo', score: 88 });
   }
   if (row.electionState === 'pending') {
-    reasons.push({ code: 'election-pending', label: 'Election pending', score: 85 });
+    reasons.push({ code: 'election-pending', label: 'Elezioni in arrivo', score: 85 });
   }
   return reasons;
 }
@@ -227,28 +195,21 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
   const reasons: PriorityReason[] = conflictReasons(row);
 
   if (leadInfluence !== null && leadInfluence < 4) {
-    reasons.push({ code: 'lead-below-4', label: 'Lead faction below 4% influence', score: 85 * weight });
+    reasons.push({ code: 'lead-below-4', label: 'Influenza sotto il 4%', score: 85 * weight });
   }
 
   const controllerInfluence = row.factions.find(f => f.name === row.controllingFaction)?.influencePercent ?? null;
   const isController = row.controllingFaction === leadFaction;
-  // The margin that actually matters is against a real rival, not against whichever of our
-  // own two factions isn't the lead — Canonn and CDSR both holding the top two slots (e.g.
-  // 46.5% / 40%) is firmly in control, not a close race, even though 40% is "the next entry
-  // down the list".
-  const strongestRival = row.factions.find(f => f.name !== CANONN_FACTION && f.name !== CDSR_FACTION)?.influencePercent ?? null;
+  const strongestRival = row.factions.find(f => f.name !== leadFaction)?.influencePercent ?? null;
   if (isController && leadInfluence !== null && strongestRival !== null) {
     const margin = leadInfluence - strongestRival;
     if (margin < 3) {
-      reasons.push({ code: 'control-margin-under-3', label: 'Holding control by under 3%', score: 80 });
+      reasons.push({ code: 'control-margin-under-3', label: 'Controllo con meno di 3 punti di vantaggio', score: 80 });
     }
   }
 
-  if (row.canonnInfluence !== null && row.cdsrInfluence !== null && Math.abs(row.canonnInfluence - row.cdsrInfluence) < 3) {
-    reasons.push({ code: 'canonn-cdsr-close', label: 'Canonn and CDSR within 3% of each other', score: 75 });
-  }
   if (leadInfluence !== null && leadInfluence < 6) {
-    reasons.push({ code: 'lead-below-6', label: 'Lead faction below 6% influence', score: 70 * weight });
+    reasons.push({ code: 'lead-below-6', label: 'Influenza sotto il 6%', score: 70 * weight });
   }
 
   // Rank alone is a weak signal — in a 3-faction system, being last is often a perfectly
@@ -256,28 +217,26 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
   // 10%" floor as the influence triggers above, rather than firing on rank position alone.
   const leadRankIndex = row.factions.findIndex(f => f.name === leadFaction);
   if (leadRankIndex !== -1 && leadRankIndex === row.factions.length - 1 && row.factions.length > 1 && leadInfluence !== null && leadInfluence < 10) {
-    reasons.push({ code: 'lead-lowest-ranked', label: 'Lead faction is lowest-ranked in the system', score: 65 * weight });
+    reasons.push({ code: 'lead-lowest-ranked', label: 'Ultima fazione del sistema', score: 65 * weight });
   }
 
   // Being the weakest faction present in a system with 4+ factions is a withdrawal-risk
-  // signal — but only when the Architect Registry explicitly names one of our own factions
-  // (Canonn or CDSR) as preferred, or the system is flagged "not a colony" (still ours to
-  // protect from a forced withdrawal, even though nobody's building it up), not a
-  // guessed/assumed lead: getting a system we're actually responsible for out of danger comes
+  // signal — but only in a system that's ours (in-scope: preferred by us, flagged "not a
+  // colony", or unregistered under the squadron's policy), not a guessed/assumed lead: getting a system we're actually responsible for out of danger comes
   // before pushing anywhere else for control, so this outranks the work-priority triggers
-  // below and lands in P0. Not gated by the same "below 10%" floor or faction-count weighting
+  // below and lands in P1. Not gated by the same "below 10%" floor or faction-count weighting
   // as the influence triggers above, since this is about rank position itself, not a raw
   // influence reading. Restricted to 4+ factions: in a 3-faction system there are only two
   // rivals to beat, so "lowest of three" isn't a meaningful risk signal on its own.
   if (
-    (isExplicitlyPreferred(row) || row.notAColony) &&
+    scope === 'in-scope' &&
     leadRankIndex !== -1 &&
     leadRankIndex === row.factions.length - 1 &&
     row.factions.length > 3
   ) {
     reasons.push({
       code: 'lead-lowest-should-control',
-      label: 'Weakest faction here (4+ factions) — get to safety before pushing for control',
+      label: 'Ultima su 4 o più fazioni: mettersi al sicuro prima di puntare al controllo',
       score: 90,
     });
   }
@@ -285,11 +244,11 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
   if (isController && leadInfluence !== null && strongestRival !== null) {
     const margin = leadInfluence - strongestRival;
     if (margin >= 3 && margin < 7) {
-      reasons.push({ code: 'control-margin-3-7', label: 'Holding control by 3-7%', score: 55 });
+      reasons.push({ code: 'control-margin-3-7', label: 'Controllo con 3-7 punti di vantaggio', score: 55 });
     }
   }
   if (leadInfluence !== null && leadInfluence < 10) {
-    reasons.push({ code: 'lead-below-10', label: 'Lead faction below 10% influence', score: 50 * weight });
+    reasons.push({ code: 'lead-below-10', label: 'Influenza sotto il 10%', score: 50 * weight });
   }
 
   // The primary "is this worth taking" signal: not the raw gap alone, but how expensive that
@@ -301,7 +260,7 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
     const gap = controllerInfluence - leadInfluence;
     reasons.push({
       code: 'gap-to-leader',
-      label: `Should control — ${gap.toFixed(1)}% behind the leader (population-weighted)`,
+      label: `Da conquistare: ${gap.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} punti dietro chi controlla (pesato sulla popolazione)`,
       score: gapToLeaderScore(gap, row.population),
     });
   }
@@ -309,7 +268,7 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
   if (isController && leadInfluence !== null && strongestRival !== null) {
     const margin = leadInfluence - strongestRival;
     if (margin >= 7 && margin < 15) {
-      reasons.push({ code: 'control-margin-7-15', label: 'Holding control by 7-15%', score: 30 });
+      reasons.push({ code: 'control-margin-7-15', label: 'Controllo con 7-15 punti di vantaggio', score: 30 });
     }
   }
 
@@ -336,7 +295,7 @@ function watchlistReasons(row: BgsRow): PriorityReason[] {
     if (currentPosition > entry.position) {
       reasons.push({
         code: 'below-watchlist-position',
-        label: `${entry.faction} is ranked #${currentPosition}, below the required #${entry.position}`,
+        label: `${entry.faction} è ${currentPosition}ª, sotto la posizione richiesta (${entry.position}ª)`,
         score: 90,
       });
     }
@@ -347,7 +306,7 @@ function watchlistReasons(row: BgsRow): PriorityReason[] {
 /**
  * The out-of-scope override: a system is normally hands-off when the Architect Registry names
  * a third-party faction as preferred (see {@link resolveScope}) — but the Priority Watchlist
- * can also watch over that same non-Canonn/CDSR faction (e.g. an ally we've agreed to leave
+ * can also watch over that same third-party faction (e.g. an ally we've agreed to leave
  * alone unless they're in trouble). BGS work here is only allowed once that named faction has
  * actually fallen below its required position; while it's holding its position the hands-off
  * agreement still stands.
@@ -365,8 +324,12 @@ function outOfScopeWatchlistReasons(row: BgsRow): PriorityReason[] {
 const CONFLICT_REASON_CODES = new Set(['retreat', 'war-active', 'election-active', 'war-pending', 'election-pending']);
 
 /** Computes the full priority assessment for one row. `nowMs` is injectable, for tests. */
-export function computePriorityAssessment(row: BgsRow, nowMs: number = Date.now()): PriorityAssessment {
-  const { scope, leadFaction } = resolveScope(row);
+export function computePriorityAssessment(
+  row: BgsRow,
+  nowMs: number = Date.now(),
+  unregistered: 'in-scope' | 'assumed' = UNREGISTERED_SCOPE,
+): PriorityAssessment {
+  const { scope, leadFaction } = resolveScope(row, unregistered);
 
   if (scope === 'out-of-scope' || scope === 'no-preference') {
     if (scope === 'out-of-scope') {
@@ -396,8 +359,8 @@ export function computePriorityAssessment(row: BgsRow, nowMs: number = Date.now(
     // simply not a priority target, badge or no badge.
     const scopeReason: PriorityReason =
       scope === 'out-of-scope'
-        ? { code: 'out-of-scope', label: `Preferred faction is ${row.preferredFaction} — hands off`, score: 0 }
-        : { code: 'no-preference', label: 'Architect assigned, no faction preference — not a priority target', score: 0 };
+        ? { code: 'out-of-scope', label: `La fazione preferita è ${row.preferredFaction}: non intervenire`, score: 0 }
+        : { code: 'no-preference', label: 'Architetto assegnato senza fazione preferita: non è un obiettivo', score: 0 };
     return {
       tier: scope === 'out-of-scope' ? 'out-of-scope' : 'not-applicable',
       scope,
@@ -424,14 +387,14 @@ export function computePriorityAssessment(row: BgsRow, nowMs: number = Date.now(
       // conflict itself, so it has to lead the reasons list, not just tag along.
       reasons.push({
         code: 'assumed-needs-architect',
-        label: 'No architect assigned — get one assigned before working this war/election',
+        label: 'Nessun architetto assegnato: assegnarne uno prima di lavorare a questo conflitto',
         score: 101,
       });
     }
   }
   reasons = reasons.concat(watchlistReasons(row));
   if (reasons.length === 0) {
-    reasons = [{ code: 'none', label: 'Nothing applicable', score: 5 }];
+    reasons = [{ code: 'none', label: 'Niente da segnalare', score: 5 }];
   }
   reasons.sort((a, b) => b.score - a.score);
 

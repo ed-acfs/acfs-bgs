@@ -20,6 +20,13 @@ export const COMPARE_FACTION: string | null = config.compareFaction;
 /** Below this lead over the next faction (in percentage points), a controlled system is at risk of a conflict. */
 export const CONFLICT_MARGIN_POINTS: number = config.conflictMarginPoints;
 
+/**
+ * How the priority treats a system the Architect Registry says nothing about: "in-scope"
+ * counts it as ours (defend it and push for control), "assumed" only defends it until
+ * someone registers it (Canonn's policy).
+ */
+export const UNREGISTERED_SCOPE: 'in-scope' | 'assumed' = config.unregisteredScope === 'assumed' ? 'assumed' : 'in-scope';
+
 /** Prefix for every localStorage key, so the tool's entries don't collide with another app's on the same origin. */
 export const STORAGE_PREFIX: string = config.storagePrefix;
 

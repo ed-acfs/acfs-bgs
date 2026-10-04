@@ -10,9 +10,6 @@ import { isHomeSystem } from './home-systems';
 import { logger } from './logger';
 import { PriorityWatchlistEntry } from './priority-watchlist';
 
-export const CANONN_FACTION = 'Canonn';
-export const CDSR_FACTION = 'Canonn Deep Space Research';
-const CANONN_FACTION_NAMES: ReadonlySet<string> = new Set([CANONN_FACTION, CDSR_FACTION]);
 
 /**
  * BGS state names that count as "at war" / "in an election" for the State column's icons,
@@ -90,12 +87,12 @@ export interface BgsSystemRecord {
   population?: number | null;
   /** Total stations in the system, fleet carriers excluded. Higher wins a priority tie. */
   station_count?: number | null;
-  /** Every station in the system, fleet carriers excluded; those with "canonn" in their name make the system Canonn-led. */
-  assets?: CanonnAsset[] | null;
+  /** Every station in the system, fleet carriers excluded. */
+  assets?: StationRecord[] | null;
 }
 
 /** A station or installation in a system, as the dataset's `assets` array describes it. */
-export interface CanonnAsset {
+export interface StationRecord {
   name: string;
   type: string | null;
   controlling_minor_faction: string | null;
@@ -177,7 +174,7 @@ export function computeMargin(
   };
 }
 
-/** Whether a war/election affecting Canonn or CDSR is already happening or just upcoming. */
+/** Whether a war/election/retreat/expansion affecting the squadron's faction is already happening or just upcoming. */
 export type FactionStateStatus = 'active' | 'pending' | null;
 
 /** One row of the rendered table. */
@@ -188,45 +185,37 @@ export interface BgsRow {
   factionInfluence: number | null;
   /** The squadron faction's lead over, or gap to, the faction it competes with for control. */
   margin: FactionMargin | null;
-  /** Canonn faction influence, as a 0-100 percentage; null if Canonn has no presence in the system. */
-  canonnInfluence: number | null;
-  /** Canonn Deep Space Research faction influence, as a 0-100 percentage; null if absent. */
-  cdsrInfluence: number | null;
   architect: string | null;
   /** Recorded as "Nobody — the system is not a colony": shown blank rather than offering Assign again. */
   notAColony: boolean;
   /**
    * The faction this system should be worked for: the Architect Registry's Preferred Faction
-   * if one is recorded; otherwise, when the system has a station with "canonn" in its name,
-   * whichever of Canonn/CDSR has more influence here (see {@link derivePreferredFaction}).
+   * if one is recorded; otherwise the squadron's faction when it controls a station here
+   * (see {@link derivePreferredFaction}).
    */
   preferredFaction: string | null;
-  /** False when {@link preferredFaction} was derived from a Canonn-named station rather than recorded in the registry — shown grey. */
+  /** False when {@link preferredFaction} was derived from the stations rather than recorded in the registry — shown grey. */
   preferredFactionRecorded: boolean;
-  /** Whether any station in the system has "canonn" in its name (matching "Canonnia" or "Arcanonn" too). */
-  hasCanonnStation: boolean;
+  /** Whether the squadron's faction controls at least one station in the system. */
+  hasOwnStation: boolean;
   /** Stations in the system, all of them — the Priority column's tiebreak after the priority itself. Null if the API omits it. */
   stationCount: number | null;
   /** Every minor faction present in the system, sorted by influence descending (highest first). */
   factions: FactionInfluence[];
   /** The same factions with allegiance, government and active states, for the system info dialog. */
   factionDetails: FactionDetail[];
-  /** The system's stations (the API's canonn_assets), for the system info dialog. */
+  /** The system's stations, fleet carriers excluded, for the system info dialog. */
   stations: StationDetail[];
-  /** Whether Canonn or CDSR is (or is about to be) at war here — drives the State column's gun icon. */
+  /** Whether the squadron's faction is (or is about to be) at war here — drives the State column's gun icon. */
   warState: FactionStateStatus;
   /** Tooltip text for the war icon (one line per contributing faction), or null if warState is null. */
   warDetails: string | null;
-  /** True when the war's two parties are Canonn and CDSR themselves — renders the Canonn icon instead of the gun. */
-  warIsCanonnVsCanonn: boolean;
-  /** Whether Canonn or CDSR is (or is about to be) in an election here — drives the ballot-box icon. */
+  /** Whether the squadron's faction is (or is about to be) in an election here — drives the ballot-box icon. */
   electionState: FactionStateStatus;
   /** Tooltip text for the election icon, or null if electionState is null. */
   electionDetails: string | null;
-  /** True when the election's two parties are Canonn and CDSR themselves — renders the Canonn icon instead of the ballot box. */
-  electionIsCanonnVsCanonn: boolean;
   /**
-   * Whether Canonn or CDSR is (or is about to be) retreating here — drives the State
+   * Whether the squadron's faction is (or is about to be) retreating here — drives the State
    * column's warning icon. Never set for a faction in its own home system (FR-2). Unlike
    * war/election, retreat is single-faction, so there's no "vs" equivalent.
    */
@@ -234,7 +223,7 @@ export interface BgsRow {
   /** Tooltip text for the retreat icon (faction and influence, one line per faction), or null if retreatState is null. */
   retreatDetails: string | null;
   /**
-   * Whether Canonn or CDSR is (or is about to be) expanding here. Internal-only input for
+   * Whether the squadron's faction is (or is about to be) expanding here. Internal-only input for
    * the priority score's "expansion unwanted" trigger — not rendered as a State column icon.
    */
   expansionState: FactionStateStatus;
@@ -268,25 +257,16 @@ export function rowWithAssignment(row: BgsRow, submission: ArchitectSubmission):
 }
 
 /**
- * The preferred faction for a system with no Architect Registry preference: a Canonn-named
- * station makes it Canonn-led, and the lead is whichever of Canonn / Canonn Deep Space Research
- * has more influence here (Canonn on a tie, or when neither is present). Null when no station
- * is Canonn-named — the system has no preference at all.
+ * The preferred faction for a system with no Architect Registry preference: the squadron's
+ * faction when it controls at least one station here, otherwise none.
  */
-export function derivePreferredFaction(
-  row: Pick<BgsRow, 'hasCanonnStation' | 'canonnInfluence' | 'cdsrInfluence'>,
-): string | null {
-  if (!row.hasCanonnStation) {
-    return null;
-  }
-  const cdsr = row.cdsrInfluence ?? -1;
-  const canonn = row.canonnInfluence ?? -1;
-  return cdsr > canonn ? CDSR_FACTION : CANONN_FACTION;
+export function derivePreferredFaction(row: Pick<BgsRow, 'hasOwnStation'>): string | null {
+  return row.hasOwnStation ? FACTION_NAME : null;
 }
 
-/** Whether a station's name marks it as Canonn's — "canonn" anywhere in the name, any case. */
-export function isCanonnAsset(asset: CanonnAsset): boolean {
-  return /canonn/i.test(asset.name);
+/** Whether the squadron's faction controls a station. */
+export function isOwnStation(station: StationRecord): boolean {
+  return station.controlling_minor_faction === FACTION_NAME;
 }
 
 /**
@@ -334,7 +314,7 @@ export function parseArchitectsTsv(text: string): ArchitectRegistryRow[] {
  * `active_states`/`pending_states` disagree with what the modern arrays can actually
  * corroborate. This is a general "is Spansh's legacy field still drifting from the modern
  * one" signal, independent of which faction it's about — it runs for every faction in the
- * system (see {@link summarizeFactionState}), not just Canonn/CDSR, since the point is to
+ * system (see {@link summarizeFactionState}), not just ours, since the point is to
  * catch upstream data-quality regressions generally, not only where we happen to render.
  * `recovering_states` is included here (never in the render) so a resolved conflict's
  * evidence isn't lost. `severity: 'info'` is used for R9's unpaired-pending case, which the
@@ -379,29 +359,24 @@ function pendingCorroborators(presences: readonly MinorFactionPresence[], normal
   );
 }
 
-/** True when `corroborators` is exactly Canonn and CDSR — the "vs each other" case. */
-function isCanonnOnlyPair(corroborators: readonly MinorFactionPresence[]): boolean {
-  return corroborators.length === 2 && corroborators.every(c => CANONN_FACTION_NAMES.has(c.name));
-}
-
 /**
- * "Canonn vs Varati Ring" — every faction sharing the conflict state, Canonn/CDSR first,
- * so the tooltip names who's actually fighting rather than just which of our own factions
- * is involved. A lone corroborator (an unpaired pending state) renders as just its own name.
+ * "Flotta Stellare vs Earth Defense Fleet" — every faction sharing the conflict state, ours
+ * first, so the tooltip names who's actually fighting. A lone corroborator (an unpaired
+ * pending state) renders as just its own name.
  */
 function describeConflict(corroborators: readonly MinorFactionPresence[]): string {
   return [...corroborators]
     .sort((a, b) => {
-      const aIsCanonn = CANONN_FACTION_NAMES.has(a.name) ? 0 : 1;
-      const bIsCanonn = CANONN_FACTION_NAMES.has(b.name) ? 0 : 1;
-      return aIsCanonn - bIsCanonn || a.name.localeCompare(b.name);
+      const aIsOwn = a.name === FACTION_NAME ? 0 : 1;
+      const bIsOwn = b.name === FACTION_NAME ? 0 : 1;
+      return aIsOwn - bIsOwn || a.name.localeCompare(b.name);
     })
     .map(c => c.name)
     .join(' vs ');
 }
 
 /**
- * "Canonn Deep Space Research (2.1%)" — a single-faction state (retreat, expansion) has no
+ * "Flotta Stellare (2.1%)" — a single-faction state (retreat, expansion) has no
  * opposing party to name, so its detail line names the faction and its current influence
  * instead of the war/election "X vs Y" format {@link describeConflict} produces.
  */
@@ -426,7 +401,7 @@ interface StateSetConfig {
 }
 
 /**
- * Checks Canonn's and CDSR's presences for a matching state (war, election, retreat, or
+ * Checks the squadron faction's presence for a matching state (war, election, retreat, or
  * expansion — see {@link StateSetConfig}), active or pending (about to start next tick), and
  * along the way runs the R8 anomaly diagnostics for every faction in the system. Implements
  * issue #6's rules:
@@ -445,28 +420,20 @@ interface StateSetConfig {
  *    anomaly; single-faction states skip this diagnostic too, for the same reason as R3.
  *  - R10: a `pending_states` entry may be a bare string or `{state, trend}` — `trend` is
  *    never read.
- * Details are one line per distinct match, e.g. `"War: Canonn vs Varati Ring"` for a
- * two-party state, or `"Retreat: Canonn Deep Space Research (2.1%)"` for a single-faction
- * one — naming who's actually involved rather than just which of our own factions is,
- * for the icon's tooltip.
- *
- * Also reports `isCanonnVsCanonn`: true when the only two factions sharing a two-party state
- * are Canonn and CDSR themselves. We only care about matches Canonn/CDSR are a party to (see
- * the render loop's `CANONN_FACTION_NAMES` filter below); when the *other* party also turns
- * out to be Canonn/CDSR, that's a distinct case worth flagging on its own icon rather than
- * showing as an ordinary war/election against a third-party faction. Always false for a
- * single-faction state, which has no "other party" at all.
+ * Details are one line per distinct match, e.g. `"War: Flotta Stellare vs Earth Defense
+ * Fleet"` for a two-party state, or `"Retreat: Flotta Stellare (2.1%)"` for a single-faction
+ * one — naming who's actually involved, for the icon's tooltip.
  */
 function summarizeFactionState(
   systemName: string,
   snapshotTime: string | null,
   presences: readonly MinorFactionPresence[],
   config: StateSetConfig,
-): { status: FactionStateStatus; details: string | null; isCanonnVsCanonn: boolean } {
+): { status: FactionStateStatus; details: string | null } {
   const { states: conflictStates, requiresCorroboration, isSuppressed } = config;
   const describeMatch = config.describeMatch ?? describeConflict;
 
-  // R8 diagnostics: every faction, not just Canonn/CDSR. R3/R9 only apply to two-party states.
+  // R8 diagnostics: every faction, not just ours. R3/R9 only apply to two-party states.
   for (const presence of presences) {
     const rawActiveStates = presence.active_states ?? [];
     if (requiresCorroboration) {
@@ -504,18 +471,15 @@ function summarizeFactionState(
     }
   }
 
-  // Render: Canonn/CDSR only — a match we're not a party to isn't shown. Details are keyed
-  // by (state, corroborator set) and deduped, since Canonn and CDSR being on the same side
-  // of the same two-party state would otherwise produce the same "X vs Y" line twice.
+  // Render: our faction only — a match we're not a party to isn't shown. Details are keyed
+  // by (state, corroborator set) and deduped, so the same "X vs Y" line never appears twice.
   const active: string[] = [];
   const pending: string[] = [];
   const seenActive = new Set<string>();
   const seenPending = new Set<string>();
-  let activeIsCanonnVsCanonn = false;
-  let pendingIsCanonnVsCanonn = false;
 
   for (const presence of presences) {
-    if (!CANONN_FACTION_NAMES.has(presence.name) || isSuppressed?.(presence.name, systemName)) {
+    if (presence.name !== FACTION_NAME || isSuppressed?.(presence.name, systemName)) {
       continue;
     }
 
@@ -533,9 +497,6 @@ function summarizeFactionState(
         seenActive.add(key);
         active.push(`${rawState}: ${describeMatch(corroborators)}`);
       }
-      if (isCanonnOnlyPair(corroborators)) {
-        activeIsCanonnVsCanonn = true;
-      }
     }
 
     for (const entry of presence.pending_states ?? []) {
@@ -550,19 +511,16 @@ function summarizeFactionState(
         seenPending.add(key);
         pending.push(`${stateName}: ${describeMatch(corroborators)} (pending)`);
       }
-      if (isCanonnOnlyPair(corroborators)) {
-        pendingIsCanonnVsCanonn = true;
-      }
     }
   }
 
   if (active.length > 0) {
-    return { status: 'active', details: active.join('\n'), isCanonnVsCanonn: activeIsCanonnVsCanonn };
+    return { status: 'active', details: active.join('\n') };
   }
   if (pending.length > 0) {
-    return { status: 'pending', details: pending.join('\n'), isCanonnVsCanonn: pendingIsCanonnVsCanonn };
+    return { status: 'pending', details: pending.join('\n') };
   }
-  return { status: null, details: null, isCanonnVsCanonn: false };
+  return { status: null, details: null };
 }
 
 /**
@@ -576,8 +534,6 @@ export function toBgsRow(
 ): BgsRow {
   const presences = record.minor_faction_presences ?? [];
   const info = architects.get(record.name);
-  const canonnInfluence = influencePercent(presences, CANONN_FACTION);
-  const cdsrInfluence = influencePercent(presences, CDSR_FACTION);
   const snapshotTime = record.updated_at ?? null;
   const war = summarizeFactionState(record.name, snapshotTime, presences, { states: WAR_STATES, requiresCorroboration: true });
   const election = summarizeFactionState(record.name, snapshotTime, presences, { states: ELECTION_STATES, requiresCorroboration: true });
@@ -592,7 +548,7 @@ export function toBgsRow(
     requiresCorroboration: false,
     describeMatch: describeSingleFaction,
   });
-  const hasCanonnStation = (record.assets ?? []).some(isCanonnAsset);
+  const hasOwnStation = (record.assets ?? []).some(isOwnStation);
   const recordedPreference = info?.preferredFaction || null;
   const controllingFaction = record.controlling_minor_faction ?? null;
   const factions = [...presences]
@@ -603,17 +559,15 @@ export function toBgsRow(
     controllingFaction,
     factionInfluence: influencePercent(presences, FACTION_NAME),
     margin: computeMargin(factions, controllingFaction),
-    canonnInfluence,
-    cdsrInfluence,
     // Spansh's colonisation flags are unreliable, so any system without a registered
     // architect is assignable — never blocked behind a "Not a colony" indicator. A
     // registry row that itself answers "not a colony" is different: that's a confirmed
     // answer, so it's shown blank rather than inviting another Assign.
     architect: info?.architect || null,
     notAColony: info?.affiliation === AFFILIATION_NOT_A_COLONY,
-    preferredFaction: recordedPreference ?? derivePreferredFaction({ hasCanonnStation, canonnInfluence, cdsrInfluence }),
+    preferredFaction: recordedPreference ?? derivePreferredFaction({ hasOwnStation }),
     preferredFactionRecorded: recordedPreference !== null,
-    hasCanonnStation,
+    hasOwnStation,
     stationCount: record.station_count ?? null,
     factions,
     stations: (record.assets ?? []).map(asset => ({
@@ -632,10 +586,8 @@ export function toBgsRow(
       })),
     warState: war.status,
     warDetails: war.details,
-    warIsCanonnVsCanonn: war.isCanonnVsCanonn,
     electionState: election.status,
     electionDetails: election.details,
-    electionIsCanonnVsCanonn: election.isCanonnVsCanonn,
     retreatState: retreat.status,
     retreatDetails: retreat.details,
     expansionState: expansion.status,

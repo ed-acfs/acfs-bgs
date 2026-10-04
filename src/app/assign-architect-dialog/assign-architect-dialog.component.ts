@@ -8,7 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { BgsRow, CANONN_FACTION, CDSR_FACTION } from '../../core/bgs';
+import { BgsRow } from '../../core/bgs';
+import { FACTION_NAME } from '../../core/config';
 import { BgsService } from '../bgs.service';
 import {
   AFFILIATION_CANONN_MEMBER,
@@ -27,8 +28,6 @@ export interface AssignArchitectDialogData {
 
 /** The `preferredFaction` value meaning "Don't know" — sent to the form as no answer at all. */
 const DONT_KNOW_FACTION = '';
-
-const CANONN_FACTION_NAMES: ReadonlySet<string> = new Set([CANONN_FACTION, CDSR_FACTION]);
 
 const KNOWN_AFFILIATIONS: ReadonlySet<string> = new Set(AFFILIATION_OPTIONS.map(option => option.value));
 
@@ -117,16 +116,11 @@ export class AssignArchitectDialogComponent {
     findArchitectProfile(this.registry(), this.architectValue(), this.systemName),
   );
 
-  /** Canonn/CDSR, whichever has more influence in this system — the default for a Canonn architect. */
-  private readonly dominantCanonnFaction = computed(
-    () => this.data.row.factions.find(faction => CANONN_FACTION_NAMES.has(faction.name))?.name ?? null,
-  );
-
   private readonly factionDefault = computed<FactionDefault>(() => {
+    // A squadron member's colony defaults to the squadron's faction, when it's present here.
     if (this.affiliationValue() === AFFILIATION_CANONN_MEMBER) {
-      const canonn = this.dominantCanonnFaction();
-      if (canonn) {
-        return { value: canonn, note: `La fazione Canonn con più influenza in ${this.systemName}.` };
+      if (this.data.row.factions.some(faction => faction.name === FACTION_NAME)) {
+        return { value: FACTION_NAME, note: `La fazione dello squadrone, presente in ${this.systemName}.` };
       }
       return { value: DONT_KNOW_FACTION, note: null };
     }

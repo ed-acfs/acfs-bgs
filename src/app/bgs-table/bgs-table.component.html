@@ -396,34 +396,22 @@
                     >⚠️</span>
                   }
                   @if (row.warState) {
-                    @if (row.warIsCanonnVsCanonn) {
-                      <span
-                        class="bgs-state-icon bgs-state-icon--self"
-                        [class.bgs-state-icon--pending]="row.warState === 'pending'"
-                        [title]="'Canonn vs Canonn:\n' + row.warDetails"
-                      ><img src="assets/canonn.svg" alt="Canonn vs Canonn" class="bgs-state-icon-img" /></span>
-                    } @else {
-                      <span
-                        class="bgs-state-icon"
-                        [class.bgs-state-icon--pending]="row.warState === 'pending'"
-                        [title]="row.warDetails"
-                      >🔫</span>
-                    }
+                    <span
+                      class="bgs-state-icon"
+                      [class.bgs-state-icon--pending]="row.warState === 'pending'"
+                      [title]="row.warDetails"
+                      role="img"
+                      [attr.aria-label]="row.warDetails ?? 'Guerra'"
+                    >🔫</span>
                   }
                   @if (row.electionState) {
-                    @if (row.electionIsCanonnVsCanonn) {
-                      <span
-                        class="bgs-state-icon bgs-state-icon--self"
-                        [class.bgs-state-icon--pending]="row.electionState === 'pending'"
-                        [title]="'Canonn vs Canonn:\n' + row.electionDetails"
-                      ><img src="assets/canonn.svg" alt="Canonn vs Canonn" class="bgs-state-icon-img" /></span>
-                    } @else {
-                      <span
-                        class="bgs-state-icon bgs-state-icon--election"
-                        [class.bgs-state-icon--pending]="row.electionState === 'pending'"
-                        [title]="row.electionDetails"
-                      >🗳️</span>
-                    }
+                    <span
+                      class="bgs-state-icon bgs-state-icon--election"
+                      [class.bgs-state-icon--pending]="row.electionState === 'pending'"
+                      [title]="row.electionDetails"
+                      role="img"
+                      [attr.aria-label]="row.electionDetails ?? 'Elezioni'"
+                    >🗳️</span>
                   }
                   @if (!row.retreatState && !row.warState && !row.electionState) {
                     <span>—</span>

@@ -14,30 +14,26 @@ import { AssignArchitectDialogComponent } from './assign-architect-dialog.compon
 const ROW: BgsRow = {
   systemName: 'Varati',
   controllingFaction: 'Local Lads',
-  canonnInfluence: 20,
-  cdsrInfluence: 40,
   factionInfluence: null,
   margin: null,
   architect: null,
   notAColony: false,
   preferredFaction: null,
   preferredFactionRecorded: false,
-  hasCanonnStation: false,
+  hasOwnStation: false,
   factionDetails: [],
   stations: [],
   stationCount: null,
   // Highest influence first, as the service builds them.
   factions: [
     { name: 'Local Lads', influencePercent: 60 },
-    { name: 'Canonn Deep Space Research', influencePercent: 40 },
-    { name: 'Canonn', influencePercent: 20 },
+    { name: 'Flotta Stellare', influencePercent: 40 },
+    { name: 'Earth Defense Fleet', influencePercent: 20 },
   ],
   warState: null,
   warDetails: null,
-  warIsCanonnVsCanonn: false,
   electionState: null,
   electionDetails: null,
-  electionIsCanonnVsCanonn: false,
   retreatState: null,
   retreatDetails: null,
   expansionState: null,
@@ -118,9 +114,9 @@ describe('AssignArchitectDialogComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Varati');
   });
 
-  it('defaults a Canonn architect to the strongest Canonn faction in the system', async () => {
+  it('defaults a squadron architect to the squadron faction when it is present', async () => {
     await chooseAffiliation(AFFILIATION_CANONN_MEMBER);
-    expect(form().controls.preferredFaction.value).toBe('Canonn Deep Space Research');
+    expect(form().controls.preferredFaction.value).toBe('Flotta Stellare');
   });
 
   it('adopts a known architect\'s most recent answers, noting how often they chose the faction', async () => {
