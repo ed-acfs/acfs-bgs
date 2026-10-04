@@ -10,6 +10,7 @@
     "build": "ng build",
     "prebuild": "npm run generate-build-info && node scripts/fetch-bgs.mjs --if-missing",
     "watch": "ng build --watch --configuration development",
+    "pretest": "npm run generate-build-info",
     "test": "ng test",
     "test:scripts": "node --test scripts/*.test.mjs"
   },
