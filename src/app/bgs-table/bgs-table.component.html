@@ -6,6 +6,9 @@
       @if (datasetSummary(); as summary) {
         <p class="bgs-dataset-info">{{ summary }}</p>
       }
+      @if (tickCoverageSummary(); as coverage) {
+        <p class="bgs-dataset-info">{{ coverage }}</p>
+      }
     </div>
     <div class="bgs-header-actions">
       <button

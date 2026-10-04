@@ -2,6 +2,26 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.7.0] - 2026-10-05 — Controllo dei dati ogni 30 minuti e contatore del tick
+
+### Aggiornamento dei dati
+
+- Il workflow controlla i dati Spansh **ogni 30 minuti** (ai minuti 17 e 47) invece che ogni ora.
+- Nuovo script `scripts/data-changed.mjs`: confronta il download con il `bgs.json` già pubblicato, ignorando l'ora del download e l'ordine dei sistemi. Se non è cambiato niente, l'esecuzione si ferma prima di installare, compilare e pubblicare; se il sito non risponde, pubblica comunque. Push su `main` ed esecuzioni manuali pubblicano sempre.
+
+### Interfaccia
+
+- Sotto il titolo, nuovo contatore dei sistemi **aggiornati dall'ultimo tick**, in totale e fra i P1-P2, ad esempio "68/389 aggiornati dall'ultimo tick · P1-P2: 11/22". La colonna "Aggiornato" resta in giorni.
+- "Dati Spansh scaricati il…" diventa "Dati Spansh aggiornati il…": con la pubblicazione solo quando i dati cambiano, è l'ora dell'ultimo cambiamento.
+
+### Roadmap
+
+- Annotata fra le idee future la **Pattuglia** ("Da visitare"): i sistemi P1-P2 ancora fermi a prima del tick, da far visitare ai piloti per aggiornare Spansh.
+
+### Test
+
+- Nuovi test per il contatore e per il confronto dei dati. Passano 150 test dell'app e 12 degli script.
+
 ## [0.6.2] - 2026-10-04 — ACFS BGS Tool, nuovo pannello dei filtri
 
 ### Nome

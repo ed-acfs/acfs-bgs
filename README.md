@@ -12,7 +12,7 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 - architetto e fazione preferita dei sistemi colonizzati;
 - distanza da un sistema a scelta: di default Wong Sher, la capitale.
 
-Il tool è pubblicato su **https://flottastellare.it/acfs-bgs-tool/** e si aggiorna da solo ogni ora.
+Il tool è pubblicato su **https://flottastellare.it/acfs-bgs-tool/** e controlla i dati ogni 30 minuti.
 
 Il progetto è in sviluppo. Le fasi, le decisioni prese e le domande aperte sono in [ROADMAP.md](ROADMAP.md). Le modifiche fatte finora sono in [CHANGELOG.md](CHANGELOG.md).
 
@@ -20,7 +20,7 @@ Il progetto è in sviluppo. Le fasi, le decisioni prese e le domande aperte sono
 
 I dati vengono da [Spansh](https://spansh.co.uk). Spansh non accetta chiamate dirette dal browser, quindi lo script `scripts/fetch-bgs.mjs` scarica tutti i sistemi con Flotta Stellare presente e li salva in `public/data/bgs.json`. L'app legge quel file. Il file non è versionato.
 
-Spansh si aggiorna con i dati che i giocatori inviano mentre volano, quindi è sempre un po' indietro rispetto al gioco. I sistemi visitati di rado possono mostrare dati vecchi di giorni o settimane. La colonna "Aggiornato" indica l'età di ogni dato.
+Spansh si aggiorna con i dati che i giocatori inviano mentre volano, quindi è sempre un po' indietro rispetto al gioco. I sistemi visitati di rado possono mostrare dati vecchi di giorni o settimane. La colonna "Aggiornato" indica l'età di ogni dato. Sotto il titolo, un contatore dice quanti sistemi sono stati aggiornati dopo l'ultimo tick, in totale e fra i P1-P2: dopo il tick sale nel giro di ore.
 
 ## Uso in locale
 
@@ -48,9 +48,11 @@ npm run fetch-data
 
 ## Pubblicazione
 
-Il workflow [.github/workflows/pages.yml](.github/workflows/pages.yml) pubblica il sito su GitHub Pages a ogni push su `main`, ogni ora (con dati Spansh freschi) e a mano dalla scheda **Actions** ("Pubblica su GitHub Pages" → "Run workflow"). Il file dei dati non è nel repo: viene scaricato a ogni pubblicazione.
+Il workflow [.github/workflows/pages.yml](.github/workflows/pages.yml) pubblica il sito su GitHub Pages a ogni push su `main` e a mano dalla scheda **Actions** ("Pubblica su GitHub Pages" → "Run workflow"). Il file dei dati non è nel repo: viene scaricato a ogni pubblicazione.
 
-GitHub sospende i workflow orari di un repo pubblico dopo 60 giorni senza commit. Se i dati smettono di aggiornarsi, va riattivato dalla scheda Actions.
+Ogni 30 minuti (ai minuti 17 e 47) il workflow scarica i dati Spansh e li confronta con quelli del sito (`scripts/data-changed.mjs`): ricompila e pubblica solo se sono cambiati. Per questo l'ora "Dati Spansh aggiornati" sotto il titolo è quella dell'ultimo cambiamento, non dell'ultimo controllo. GitHub può far partire i cron con qualche minuto di ritardo, o saltarne uno nei momenti di carico: il successivo recupera.
+
+GitHub sospende i workflow programmati di un repo pubblico dopo 60 giorni senza commit. Se i dati smettono di aggiornarsi, va riattivato dalla scheda Actions.
 
 ## Configurazione
 
