@@ -24,6 +24,7 @@ Fase 6 di [ROADMAP.md](ROADMAP.md). Il tool va online su **https://flottastellar
 ### Registro
 
 - Inseriti nel registro i 6 sistemi che il registro Canonn assegna a Flotta Stellare (Lagoon Sector YZ-Y c6, Col 285 Sector ZV-M d7-91, Lyncis Sector CL-Y d68, Lyncis Sector NY-R b4-2, Col 285 Sector MY-Q c5-21, HIP 1773), con architetti membri ACFS.
+- Inseriti anche i 3 sistemi che il registro Canonn assegna a Canonn (Lagoon Sector AQ-X b1-2, YU-X b1-4, ZU-X b1-9), con fazione preferita Canonn: nel nostro tool sono "non intervenire", come i nostri 6 lo sono nel loro. Registrati con Flotta Stellare anche HIP 30129 e Col 285 Sector MY-Q c5-22, che controlliamo e dove il registro Canonn indica solo l'architetto.
 - Lyncis Sector CL-Y d68, perso contro Canonn alle elezioni del 4 ottobre 2026, è in Watchlist in prima posizione: resta P1 finché non torniamo primi.
 
 ### Test
