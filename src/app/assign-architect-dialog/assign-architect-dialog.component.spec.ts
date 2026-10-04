@@ -1,13 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { BgsRow, CanonnBgsService } from '../canonn-bgs.service';
+import { BgsRow } from '../../core/bgs';
+import { BgsService } from '../bgs.service';
 import {
   AFFILIATION_CANONN_MEMBER,
   AFFILIATION_NOT_A_COLONY,
   AFFILIATION_NOT_MEMBER,
   AFFILIATION_UNKNOWN,
-} from '../data/architect-form';
-import { ArchitectRegistryRow } from '../data/architect-registry';
+} from '../../core/architect-form';
+import { ArchitectRegistryRow } from '../../core/architect-registry';
 import { AssignArchitectDialogComponent } from './assign-architect-dialog.component';
 
 const ROW: BgsRow = {
@@ -86,7 +87,7 @@ describe('AssignArchitectDialogComponent', () => {
 
   beforeEach(async () => {
     localStorage.clear();
-    localStorage.setItem('canonn-bgs:your-name:v1', 'LCU No Fool Like One');
+    localStorage.setItem('acfs-bgs:your-name:v1', 'LCU No Fool Like One');
     dialogRef = { close: vi.fn(), disableClose: false };
     service = {
       getArchitectRegistry: vi.fn().mockResolvedValue(REGISTRY),
@@ -99,7 +100,7 @@ describe('AssignArchitectDialogComponent', () => {
       providers: [
         { provide: MatDialogRef, useValue: dialogRef },
         { provide: MAT_DIALOG_DATA, useValue: { row: ROW } },
-        { provide: CanonnBgsService, useValue: service },
+        { provide: BgsService, useValue: service },
       ],
     }).compileComponents();
 

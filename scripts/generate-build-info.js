@@ -7,7 +7,7 @@ const dest = path.resolve(repoRoot, 'src/app/build-info.ts');
 
 /**
  * Identifies the current build so a persisted (localStorage) cache can be tied to it —
- * see BUILD_ID's usage in canonn-bgs.service.ts. The short git SHA is stable across a
+ * see BUILD_ID's usage in bgs.service.ts. The short git SHA is stable across a
  * deploy and changes on every new commit; falls back to a timestamp if git isn't available.
  */
 function resolveBuildId() {

@@ -1,0 +1,13 @@
+{
+  "squadron": "Alto Comando Flotta Stellare",
+  "faction": "Flotta Stellare",
+  "homeSystem": "Wong Sher",
+  "compareFaction": null,
+  "conflictMarginPoints": 5,
+  "storagePrefix": "acfs-bgs:",
+  "dataUrl": "data/bgs.json",
+  "typeaheadUrl": "https://us-central1-canonn-api-236217.cloudfunctions.net/query/typeahead",
+  "architectsSheetUrl": null,
+  "watchlistSheetUrl": null,
+  "architectFormAction": null
+}

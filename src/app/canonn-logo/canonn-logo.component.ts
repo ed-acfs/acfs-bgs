@@ -2,7 +2,7 @@ import {
   Component, ChangeDetectionStrategy, ElementRef, Injector, OnDestroy,
   afterNextRender, effect, inject, input, signal, viewChild,
 } from '@angular/core';
-import { logger } from '../data/logger';
+import { logger } from '../../core/logger';
 
 /**
  * Per-cookie orbit geometry, in the SVG's global coordinate space. Each "cookie"

@@ -2,7 +2,7 @@
  * The Priority Watchlist: a hand-curated sheet of systems Canonn cares about keeping (or
  * taking) above a specific rank, with a note explaining why. Parsed the same way as the
  * Architect Registry (tab-separated, header row first, columns matched by name) — see
- * `architect-registry.ts` and `CanonnBgsService`'s sheet-fetch fast path.
+ * `architect-registry.ts` and `BgsService`'s sheet-fetch fast path.
  */
 
 /** One row of the Priority Watchlist sheet. */

@@ -2,7 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { BgsRow } from '../canonn-bgs.service';
+import { BgsRow } from '../../core/bgs';
 
 /** The system whose info the dialog shows. */
 export interface PriorityWatchlistDialogData {

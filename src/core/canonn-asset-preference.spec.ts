@@ -1,4 +1,4 @@
-import { CDSR_FACTION, CANONN_FACTION, derivePreferredFaction, isCanonnAsset } from './canonn-bgs.service';
+import { CDSR_FACTION, CANONN_FACTION, derivePreferredFaction, isCanonnAsset } from './bgs';
 
 describe('isCanonnAsset', () => {
   it('matches "canonn" anywhere in the station name, in any case', () => {

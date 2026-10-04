@@ -1,4 +1,4 @@
-import { BgsRow } from '../canonn-bgs.service';
+import { BgsRow } from './bgs';
 import { exportFilename, rowsToCsv, toExportRecord } from './export';
 
 /** A minimal, fully-populated row — tests override only the fields they care about. */
@@ -106,8 +106,8 @@ describe('toExportRecord', () => {
 
 describe('exportFilename', () => {
   it('embeds the date and requested extension', () => {
-    expect(exportFilename('json', NOW)).toBe('canonn-colony-operations-2026-08-07.json');
-    expect(exportFilename('csv', NOW)).toBe('canonn-colony-operations-2026-08-07.csv');
+    expect(exportFilename('json', NOW)).toBe('acfs-bgs-2026-08-07.json');
+    expect(exportFilename('csv', NOW)).toBe('acfs-bgs-2026-08-07.csv');
   });
 });
 

@@ -13,8 +13,10 @@
 import { access, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import config from '../src/core/config.json' with { type: 'json' };
 
-export const FACTION_NAME = 'Flotta Stellare';
+/** The squadron's faction, from the same `src/core/config.json` the app reads. */
+export const FACTION_NAME = config.faction;
 
 const SEARCH_URL = 'https://spansh.co.uk/api/systems/search/save';
 const RECALL_URL = 'https://spansh.co.uk/api/systems/search/recall';
