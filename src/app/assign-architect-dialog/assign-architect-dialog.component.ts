@@ -13,6 +13,7 @@ import { FACTION_NAME } from '../../core/config';
 import { BgsService } from '../bgs.service';
 import {
   AFFILIATION_SQUADRON_MEMBER,
+  AFFILIATION_NOT_MEMBER,
   AFFILIATION_NOT_A_COLONY,
   AFFILIATION_OPTIONS,
   AFFILIATION_UNKNOWN,
@@ -165,8 +166,18 @@ export class AssignArchitectDialogComponent {
     return fallback.value === this.factionValue() ? fallback.note : null;
   });
 
-  /** The form requires an architect name, except when the answer is "nobody" (see {@link submission}). */
-  protected readonly architectRequired = computed(() => this.affiliationValue() !== AFFILIATION_NOT_A_COLONY);
+  protected readonly affiliationIsNotAColony = computed(() => this.affiliationValue() === AFFILIATION_NOT_A_COLONY);
+
+  /**
+   * The form requires an architect name only when the answer says who they are (member or not):
+   * "Don't know" leaves it optional, so a preferred faction can be recorded for a system whose
+   * architect nobody knows, and "nobody" clears it (see {@link submission}). The Google Form
+   * itself never requires it.
+   */
+  protected readonly architectRequired = computed(() => {
+    const affiliation = this.affiliationValue();
+    return affiliation === AFFILIATION_SQUADRON_MEMBER || affiliation === AFFILIATION_NOT_MEMBER;
+  });
 
   constructor() {
     this.form.controls.yourName.setValue(readYourName());

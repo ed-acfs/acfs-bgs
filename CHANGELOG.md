@@ -2,6 +2,17 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.9.3] - 2026-10-06 — Fazione preferita senza architetto
+
+### Registro
+
+- Nel dialog "Assegna" il nome dell'architetto è obbligatorio solo se l'appartenenza dice chi è ("L'architetto è un membro ACFS" o "Non è un membro ACFS"). Con "Non so" si può lasciare vuoto, così si registra la fazione preferita di un sistema di cui nessuno conosce l'architetto. Prima era obbligatorio per tutte le risposte tranne "Nessuno: il sistema non è una colonia", anche se il Google Form non lo richiede.
+- Il messaggio di errore suggerisce "Non so" invece di "Nobody", che nel menu non compare.
+
+### Test
+
+- Nuovi test del dialog: invio con la sola fazione preferita, nome obbligatorio con le due risposte sull'appartenenza. Passano 209 test dell'app.
+
 ## [0.9.2] - 2026-10-05 — Watchlist in cima
 
 ### Tabella

@@ -154,6 +154,30 @@ describe('AssignArchitectDialogComponent', () => {
     expect(dialogRef.close).toHaveBeenCalledWith(submission);
   });
 
+  it('sends only a preferred faction when the architect is unknown', async () => {
+    form().controls.preferredFaction.setValue('Flotta Stellare');
+    component['onFactionChosen']();
+    await fixture.whenStable();
+    await component['send']();
+
+    expect(service.submitAssignment.mock.calls[0][0]).toEqual({
+      yourName: 'LCU No Fool Like One',
+      systemName: 'Varati',
+      architect: '',
+      affiliation: AFFILIATION_UNKNOWN,
+      preferredFaction: 'Flotta Stellare',
+    });
+  });
+
+  it('requires the architect name once the answer says whether they are a member', async () => {
+    for (const affiliation of [AFFILIATION_SQUADRON_MEMBER, AFFILIATION_NOT_MEMBER]) {
+      await chooseAffiliation(affiliation);
+      expect(form().controls.architect.hasError('required')).toBe(true);
+    }
+    await component['send']();
+    expect(service.submitAssignment).not.toHaveBeenCalled();
+  });
+
   it('keeps the dialog open with the typed values when the submission fails', async () => {
     service.submitAssignment.mockRejectedValue(new Error('offline'));
     form().controls.architect.setValue('Brand New CMDR');
