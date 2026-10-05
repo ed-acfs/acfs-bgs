@@ -91,6 +91,13 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 - [x] Risposte di appartenenza ACFS, con etichette italiane nel dialog Assegna; intestazione `ACFS Architect` nel parser
 - [x] Prova reale: un invio con gli stessi campi dell'app compare nel foglio pubblicato dopo circa 15 secondi e viene letto dai parser dell'app (riga "PROVA - cancellare questa riga", da cancellare dal foglio)
 - [ ] Opzionale: inserire nel nostro registro i 6 sistemi che il registro Canonn assegna a Flotta Stellare
+- [ ] Formattare la scheda `Watchlist` del foglio (richiesta del 6 ottobre 2026, serve il connettore Google Sheets: Drive da solo non modifica le celle):
+  - tabella A–D più leggibile: intestazione in grassetto, colorata e bloccata; righe alterne; bordi leggeri; larghezze su misura; testo a capo in `Details`; `Position` centrata, con convalida "intero ≥ 1"
+  - spiegazione dei quattro campi in una tabellina **a destra** (colonne F–G, staccata da una colonna vuota), non come note sulle intestazioni. Non disturba il parser: cerca le colonne per nome nella prima riga e la prima occorrenza è quella in A–D; le righe senza `System`, `Faction` o `Position` vengono saltate. Testo:
+    - **System**: nome del sistema, scritto esattamente come in gioco o su Spansh
+    - **Faction**: la fazione da seguire, di solito Flotta Stellare o un alleato da proteggere
+    - **Position**: la posizione peggiore che accettiamo per quella fazione nel sistema (1 = prima). Se scende sotto, il sistema sale di priorità nel tool
+    - **Details**: il motivo per cui il sistema è in Watchlist. Compare nella scheda del sistema e nell'export
 
 **Fatto quando:** un'assegnazione fatta dal dialog compare nella tabella al ricaricamento successivo. Raggiunto il 4 ottobre 2026 per la catena Form → foglio → app; l'invio dal dialog nel browser va provato una volta dal sito pubblicato.
 
