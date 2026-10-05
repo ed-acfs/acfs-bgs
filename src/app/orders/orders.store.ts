@@ -88,6 +88,10 @@ export class OrdersStore {
     this.pushItem(draft);
   }
 
+  addDraftItems(drafts: readonly OrderItem[]): void {
+    this.setItems([...this.itemsSignal(), ...drafts]);
+  }
+
   updateItem(id: string, patch: Partial<OrderItem>): void {
     this.setItems(this.itemsSignal().map(item => (item.id === id ? { ...item, ...patch } : item)));
   }

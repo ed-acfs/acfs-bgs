@@ -18,7 +18,8 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 - Nuovi stati 🟡 (`:yellow_circle:`, risultato insoddisfacente: nessun punto segnato ieri, influenza sotto il 49%) e 🔴 (`:red_circle:`, risultato negativo: punto perso, influenza sotto il 39,9%; se è grave si abbina a 🚨).
 - Una riga di influenza aggiunta dalla tabella ha già lo stato del semaforo dell'influenza (🟢, 🟡 o 🔴), da correggere a mano se serve.
 - Con ✅ o ❌ la riga passa da sola nelle **Operazioni concluse** (e torna indietro se si toglie la spunta). I due stati si escludono a vicenda.
-- **Note & informazioni** non si riempie più da sola con le Expansion dei sistemi aggiunti dalla tabella: è una sezione di testo libero. Ci finiscono invece le elezioni e le guerre in **Pending**, con punteggio "Draw; 0-0" e 🆕; togliendo la spunta Pending tornano fra le Operazioni.
+- **Note & informazioni** raccoglie testo libero ("+ Nota libera") e tutto ciò che è in **Pending**: le guerre e le elezioni con punteggio "Draw; 0-0" e 🆕 (togliendo la spunta Pending tornano fra le Operazioni) e le Expansion, con il pulsante **+ Expansion** (riga "Pending Expansion da ? - Sistema di arrivo: ?" da completare). Il pulsante **Precompila con i pending** aggiunge dai dati tutte le guerre e le elezioni in pending, senza doppioni. Le Expansion non si ricavano dai dati: Spansh mostra l'Expansion in pending in quasi tutti i nostri sistemi (189 su 389), quindi "Aggiungi agli ordini" non le considera più e propone una spinta d'influenza.
+- Le quattro sezioni dell'editor sono sempre visibili, ciascuna con il suo colore (arancione, azzurro, giallo, verde) e il numero di righe.
 - Il punteggio di un conflitto si scrive sempre dal nostro punto di vista, con i nostri giorni prima (es. "Close Defeat; 0-2").
 
 ## [0.8.0] - 2026-10-05 — Ordini Ufficiali e titolo 1.0

@@ -64,8 +64,75 @@ h2 {
   width: 96px;
 }
 
+/* Each report section gets its own colour on the left edge and in its title, so the four
+   blocks are told apart at a glance. */
 .orders-section {
+  --section-color: var(--color-accent);
   margin-bottom: 28px;
+  padding: 12px 12px 4px 16px;
+  border-left: 4px solid var(--section-color);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--section-color) 6%, transparent);
+
+  h2 {
+    color: var(--section-color);
+  }
+
+  .orders-item {
+    border-color: color-mix(in srgb, var(--section-color) 35%, transparent);
+  }
+}
+
+.orders-section--operazioni {
+  --section-color: var(--color-accent);
+}
+
+.orders-section--cantieri {
+  --section-color: var(--color-info, #4dabf7);
+}
+
+.orders-section--note {
+  --section-color: var(--color-warning, #fc3);
+}
+
+.orders-section--concluse {
+  --section-color: var(--color-success, #51cf66);
+}
+
+.orders-section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 8px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.orders-section-count {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.orders-section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.orders-section-message,
+.orders-section-empty {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.orders-section-empty {
+  margin: 0 0 8px;
 }
 
 .orders-item {

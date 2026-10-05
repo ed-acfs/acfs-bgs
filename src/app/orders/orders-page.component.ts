@@ -11,7 +11,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { BgsService } from '../bgs.service';
 import { HelpDialogComponent } from '../help-dialog/help-dialog.component';
 import { findOrderType, ORDER_STATUSES, ORDER_TRENDS, ORDER_TYPES } from '../../core/order-types';
-import { formatOrdersDate, OrderItem, OrderSection, parseIsoDay, setOrderPending, toggleOrderStatus } from '../../core/orders';
+import {
+  formatOrdersDate,
+  OrderItem,
+  OrderSection,
+  parseIsoDay,
+  pendingExpansionTemplate,
+  pendingItemsFromRows,
+  setOrderPending,
+  toggleOrderStatus,
+} from '../../core/orders';
 import { OrdersStore } from './orders.store';
 
 /** Same cadence as the main table's distance search — see `bgs-table.component.ts`. */
@@ -69,6 +78,9 @@ export class OrdersPageComponent {
   protected readonly systemSuggestions = signal<string[]>([]);
 
   protected readonly copyConfirmed = signal(false);
+  /** Outcome of the last "Precompila con i pending", shown next to the button. */
+  protected readonly prefillMessage = signal<string | null>(null);
+  protected readonly prefilling = signal(false);
 
   /** The picked day as it appears in the report, in-game ("06/10/3312"). */
   protected readonly inGameDate = computed(() => {
@@ -172,6 +184,33 @@ export class OrdersPageComponent {
 
   protected setPending(item: OrderItem, pending: boolean): void {
     this.store.replaceItem(setOrderPending(item, pending));
+  }
+
+  /** Adds every pending war and election in the dataset to "Note & informazioni" (see {@link pendingItemsFromRows}). */
+  protected async prefillPending(): Promise<void> {
+    if (this.prefilling()) {
+      return;
+    }
+    this.prefilling.set(true);
+    this.prefillMessage.set(null);
+    try {
+      const rows = await this.bgsService.getAllRows();
+      const drafts = pendingItemsFromRows(rows, this.store.items());
+      this.store.addDraftItems(drafts);
+      this.prefillMessage.set(drafts.length > 0 ? `Aggiunte ${drafts.length} righe in pending.` : 'Nessun nuovo pending nei dati.');
+    } catch {
+      this.prefillMessage.set('Dati dei sistemi non disponibili: riprova più tardi.');
+    } finally {
+      this.prefilling.set(false);
+    }
+  }
+
+  protected addExpansionNote(): void {
+    this.store.addDraftItem(pendingExpansionTemplate());
+  }
+
+  protected addFreeNote(): void {
+    this.store.addItem('note', 'note');
   }
 
   protected clearAll(): void {

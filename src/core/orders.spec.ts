@@ -1,3 +1,4 @@
+import { BgsRow } from './bgs';
 import {
   createOrderItem,
   draftItemFromRow,
@@ -6,6 +7,8 @@ import {
   OrdersDraft,
   renderOrderItem,
   parseIsoDay,
+  pendingExpansionTemplate,
+  pendingItemsFromRows,
   renderOrdersMarkdown,
   resolveOrdersDay,
   setOrderPending,
@@ -349,9 +352,8 @@ describe('draftItemFromRow', () => {
     expect(renderOrderItem(draft)).toBe(':ballot_box: **Ross 878** (Draw; 0-0) :new:\nPending Election per ACFS > ');
   });
 
-  it('never sends an expansion to the notes on its own: it falls back to an influence push', () => {
-    const expanding = { ...baseRow, expansionState: 'pending' as const };
-    const draft = draftItemFromRow(expanding);
+  it('ignores a pending expansion, which Spansh repeats in nearly every system: an influence push', () => {
+    const draft = draftItemFromRow({ ...baseRow, expansionState: 'pending' } as Parameters<typeof draftItemFromRow>[0]);
     expect(draft.typeKey).toBe('influence');
     expect(draft.section).toBe('operazioni');
   });
@@ -372,6 +374,42 @@ describe('draftItemFromRow', () => {
   it('leaves the score blank when the faction has no presence at all', () => {
     const draft = draftItemFromRow({ ...baseRow, factionInfluence: null });
     expect(draft.score).toBe('');
+  });
+});
+
+describe('pendingItemsFromRows', () => {
+  const row = (systemName: string, states: Partial<Pick<BgsRow, 'warState' | 'electionState' | 'expansionState'>>) => ({
+    systemName,
+    factionInfluence: 30,
+    warState: null,
+    electionState: null,
+    expansionState: null,
+    ...states,
+  });
+
+  it('collects pending wars and elections alphabetically, in the notes, and no expansions', () => {
+    const items = pendingItemsFromRows(
+      [
+        row('Fular', { expansionState: 'pending' }),
+        row('Ross 878', { warState: 'pending' }),
+        row('Crowfor', { electionState: 'pending' }),
+        row('Betel', { warState: 'active', expansionState: 'active' }),
+      ],
+      [],
+    );
+    expect(items.map(item => `${item.typeKey} ${item.system}`)).toEqual(['election Crowfor', 'war Ross 878']);
+    expect(items.every(item => item.section === 'note')).toBe(true);
+  });
+
+  it('skips what is already in the orders', () => {
+    const existing = [{ ...createOrderItem('operazioni', 'war'), system: 'Ross 878' }];
+    expect(pendingItemsFromRows([row('Ross 878', { warState: 'pending' })], existing)).toEqual([]);
+  });
+});
+
+describe('pendingExpansionTemplate', () => {
+  it('is a pending expansion line to complete by hand', () => {
+    expect(renderOrderItem(pendingExpansionTemplate())).toBe(':Expansion: Pending Expansion da **?** - Sistema di arrivo: **?** :new:');
   });
 });
 

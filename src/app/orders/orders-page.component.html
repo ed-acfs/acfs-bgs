@@ -77,9 +77,29 @@
     </section>
 
     @for (section of sectionOptions; track section.value) {
-      @if (itemsForSection(section.value).length > 0) {
-        <section class="orders-section">
-          <h2>{{ section.label }}</h2>
+      <section class="orders-section" [class]="'orders-section orders-section--' + section.value">
+        <div class="orders-section-header">
+          <h2>{{ section.label }} <span class="orders-section-count">{{ itemsForSection(section.value).length }}</span></h2>
+          @if (section.value === 'note') {
+            <div class="orders-section-actions">
+              <button mat-stroked-button type="button" [disabled]="prefilling()" (click)="prefillPending()">Precompila con i pending</button>
+              <button mat-stroked-button type="button" (click)="addExpansionNote()">+ Expansion</button>
+              <button mat-stroked-button type="button" (click)="addFreeNote()">+ Nota libera</button>
+              @if (prefillMessage(); as message) {
+                <span class="orders-section-message">{{ message }}</span>
+              }
+            </div>
+          }
+        </div>
+        @if (itemsForSection(section.value).length === 0) {
+          <p class="orders-section-empty">
+            @switch (section.value) {
+              @case ('note') { Testo libero, le guerre e le elezioni in pending, le Expansion. }
+              @case ('concluse') { Le righe con ✅ o ❌ arrivano qui da sole. }
+              @default { Nessuna riga. }
+            }
+          </p>
+        }
           @for (item of itemsForSection(section.value); track item.id) {
             <div class="orders-item">
               <div class="orders-item-row">
@@ -166,8 +186,7 @@
               </mat-form-field>
             </div>
           }
-        </section>
-      }
+      </section>
     }
 
     <section class="orders-preview">

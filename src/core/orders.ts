@@ -304,17 +304,33 @@ export function setOrderPending(item: OrderItem, pending: boolean): OrderItem {
   };
 }
 
+type DraftRow = Pick<BgsRow, 'systemName' | 'factionInfluence' | 'warState' | 'electionState'>;
+
+/**
+ * A "Pending Expansion" line for "Note & informazioni", with origin and destination to fill in.
+ * Never derived from the dataset: Spansh repeats a faction's pending Expansion in nearly every
+ * system it's present in (189 of 389 on 5 October 2026), so the data can't tell where it starts.
+ */
+export function pendingExpansionTemplate(): OrderItem {
+  return {
+    ...createOrderItem('note', 'expansion'),
+    pending: true,
+    statusKeys: ['new'],
+    detail: 'Pending Expansion da **?** - Sistema di arrivo: **?**',
+  };
+}
+
 /**
  * A starting point for "Aggiungi agli ordini" on a table row: guesses the type from the row's
- * war or election (active or pending), falling back to an influence push with its current
- * percentage prefilled and the influence traffic light as its status (🟢/🟡/🔴, see
- * `semaphore.ts`). Active operations land in 'operazioni' at priority 1 — the user sorts
- * them from there; a pending conflict lands in 'note' (see {@link setOrderPending}). Nothing
- * else goes to 'note' on its own: that section is mostly free text. The outcome text (`detail`)
- * is left for the user to write, since it depends on who's attacking whom, which the dataset
- * doesn't say.
+ * war or election, falling back to an influence push with its current percentage
+ * prefilled and the influence traffic light as its status (🟢/🟡/🔴, see `semaphore.ts`).
+ * Active operations land in 'operazioni' at priority 1 — the user sorts them from there.
+ * A war or election still pending lands in 'note' with "Draw; 0-0" (see {@link setOrderPending}).
+ * Expansions are ignored (see {@link pendingExpansionTemplate}). The outcome text
+ * (`detail`) is left for the user to write, since it depends on who's attacking whom, which the
+ * dataset doesn't say.
  */
-export function draftItemFromRow(row: Pick<BgsRow, 'systemName' | 'factionInfluence' | 'warState' | 'electionState'>): OrderItem {
+export function draftItemFromRow(row: DraftRow): OrderItem {
   const conflict = row.warState ? { typeKey: 'war', state: row.warState } : row.electionState ? { typeKey: 'election', state: row.electionState } : null;
   if (conflict) {
     const item = { ...createOrderItem('operazioni', conflict.typeKey), system: row.systemName };
@@ -326,4 +342,31 @@ export function draftItemFromRow(row: Pick<BgsRow, 'systemName' | 'factionInflue
     score: row.factionInfluence !== null ? `${row.factionInfluence.toFixed(1)}%` : '',
     statusKeys: row.factionInfluence !== null ? [SEMAPHORE_STATUS_KEY[influenceSemaphore(row.factionInfluence)]] : [],
   };
+}
+
+/**
+ * Prefills "Note & informazioni" with every pending war and election of our faction in the
+ * dataset, alphabetically, skipping any system and type already in the orders. Expansions are
+ * left out on purpose (see {@link pendingExpansionTemplate}).
+ */
+export function pendingItemsFromRows(rows: readonly DraftRow[], existing: readonly OrderItem[]): OrderItem[] {
+  const taken = new Set(existing.map(item => `${item.typeKey}|${item.system}`));
+  const conflicts: OrderItem[] = [];
+  const sorted = [...rows].sort((a, b) => a.systemName.localeCompare(b.systemName));
+  const add = (item: OrderItem) => {
+    const key = `${item.typeKey}|${item.system}`;
+    if (!taken.has(key)) {
+      taken.add(key);
+      conflicts.push(item);
+    }
+  };
+  for (const row of sorted) {
+    if (row.warState === 'pending') {
+      add(setOrderPending({ ...createOrderItem('operazioni', 'war'), system: row.systemName }, true));
+    }
+    if (row.electionState === 'pending') {
+      add(setOrderPending({ ...createOrderItem('operazioni', 'election'), system: row.systemName }, true));
+    }
+  }
+  return conflicts;
 }
