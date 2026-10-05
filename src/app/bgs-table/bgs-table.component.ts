@@ -445,22 +445,11 @@ export class BgsTableComponent implements OnDestroy {
   });
 
   /**
-   * The system the Distance column (and its tooltip, and the search box) is currently
-   * measured from — always "the first system in the list": the first-ever-loaded system in
-   * paged mode, the searched system in distance mode (which may not itself be in the
-   * dataset, so the first *row* isn't necessarily 0.00 ly away), and whichever system
-   * currently tops the column sort in column mode.
+   * The system the Distance column is measured from: the last one searched in the "Distanza
+   * da" box, or the home system until a search is made. It stays put when the table is then
+   * sorted by another column, so the distances keep meaning the same thing.
    */
-  protected readonly anchor = computed<AnchorPoint | null>(() => {
-    switch (this.mode()) {
-      case 'distance':
-        return this.selectedAnchor();
-      case 'column':
-        return this.sortedRows()?.[0] ?? null;
-      default:
-        return this.defaultAnchor();
-    }
-  });
+  protected readonly anchor = computed<AnchorPoint | null>(() => this.selectedAnchor() ?? this.defaultAnchor());
   protected readonly anchorName = computed(() => this.anchor()?.systemName ?? null);
 
   /** The rows for the currently-visible page, regardless of mode — a client-side slice either way. */
@@ -805,6 +794,29 @@ export class BgsTableComponent implements OnDestroy {
   /** The Margine traffic light, only for systems we control (elsewhere the cell is the gap to the controller). */
   protected marginLight(row: BgsRow): Semaphore | null {
     return row.margin?.controlled ? marginSemaphore(row.margin.points) : null;
+  }
+
+  /** The Distance cell's text: light-years from {@link anchor}, Italian style ("12,3 ly"). */
+  protected distanceLabel(row: BgsRow): string {
+    const anchor = this.anchor();
+    if (!anchor) {
+      return '—';
+    }
+    const ly = distanceLy(anchor, row);
+    return `${ly.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ly`;
+  }
+
+  protected distanceTitle(row: BgsRow): string {
+    const anchor = this.anchor();
+    return anchor ? `Distanza in linea retta da ${anchor.systemName}` : '';
+  }
+
+  /** Sorts by distance from the system the Distance column is measured from (same as the search button). */
+  protected sortByDistance(): void {
+    const anchor = this.anchor();
+    if (anchor) {
+      this.selectAnchorPoint({ systemName: anchor.systemName, x: anchor.x, y: anchor.y, z: anchor.z });
+    }
   }
 
   /** The Margin cell's text: signed points, Italian style ("+12,4", "−3,0"). */

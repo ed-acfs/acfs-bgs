@@ -295,7 +295,7 @@
 
   th,
   td {
-    padding: 10px 14px;
+    padding: 10px 10px;
     text-align: left;
     white-space: nowrap;
   }
@@ -757,4 +757,11 @@
     width: 72px;
     height: 72px;
   }
+}
+
+.bgs-col-distance {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-subtle);
 }
