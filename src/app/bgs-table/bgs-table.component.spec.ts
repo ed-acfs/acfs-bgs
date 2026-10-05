@@ -149,6 +149,21 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     expect(freshComponent['visibleRows']().length).toBe(100);
     expect(freshComponent['visibleRows']()[0].systemName).toBe('System 0');
   });
+
+  it('opens and closes the legend panel from the header button', async () => {
+    const host: HTMLElement = fixture.nativeElement;
+    const legendButton = host.querySelector<HTMLButtonElement>('[aria-controls="bgs-legend"]')!;
+    expect(host.querySelector('#bgs-legend')).toBeNull();
+
+    legendButton.click();
+    await fixture.whenStable();
+    expect(host.querySelector('#bgs-legend')).not.toBeNull();
+    expect(legendButton.getAttribute('aria-expanded')).toBe('true');
+
+    legendButton.click();
+    await fixture.whenStable();
+    expect(host.querySelector('#bgs-legend')).toBeNull();
+  });
 });
 
 describe('comparePriorityRows', () => {
