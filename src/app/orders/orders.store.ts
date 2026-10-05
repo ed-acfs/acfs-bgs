@@ -7,11 +7,12 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { STORAGE_PREFIX } from '../../core/config';
 import { checkOrdersPassphrase } from '../../core/orders-access';
-import { createOrderItem, OrderItem, OrdersDraft, renderOrdersMarkdown } from '../../core/orders';
+import { createOrderItem, OrderItem, OrdersDraft, parseIsoDay, renderOrdersMarkdown, resolveOrdersDay } from '../../core/orders';
 
 const ITEMS_KEY = `${STORAGE_PREFIX}orders-items:v1`;
 const META_KEY = `${STORAGE_PREFIX}orders-meta:v1`;
 const UNLOCKED_KEY = `${STORAGE_PREFIX}orders-unlocked:v1`;
+const DAY_KEY = `${STORAGE_PREFIX}orders-day:v1`;
 
 interface OrdersMeta {
   mention: string;
@@ -47,14 +48,18 @@ export class OrdersStore {
   private readonly itemsSignal = signal<OrderItem[]>(readJson(ITEMS_KEY, []));
   private readonly metaSignal = signal<OrdersMeta>(readJson(META_KEY, DEFAULT_META));
   private readonly unlockedSignal = signal<boolean>(readJson(UNLOCKED_KEY, false));
+  /** `YYYY-MM-DD`: the day the orders are for — tomorrow unless the user picked another (see {@link resolveOrdersDay}). */
+  private readonly daySignal = signal<string>(resolveOrdersDay(readJson<string | null>(DAY_KEY, null), new Date()));
 
   readonly items = this.itemsSignal.asReadonly();
   readonly meta = this.metaSignal.asReadonly();
   readonly unlocked = this.unlockedSignal.asReadonly();
+  readonly day = this.daySignal.asReadonly();
 
-  /** The full report, ready to copy — see `core/orders.ts`. Uses the real date at render time. */
+  /** The full report, ready to copy — see `core/orders.ts`. */
   readonly markdown = computed(() => {
-    const draft: OrdersDraft = { date: new Date(), items: this.itemsSignal(), ...this.metaSignal() };
+    const date = parseIsoDay(this.daySignal()) ?? new Date();
+    const draft: OrdersDraft = { date, items: this.itemsSignal(), ...this.metaSignal() };
     return renderOrdersMarkdown(draft);
   });
 
@@ -98,6 +103,13 @@ export class OrdersStore {
 
   clearAll(): void {
     this.setItems([]);
+  }
+
+  /** Sets the day the orders are for; an empty or invalid value goes back to the default (tomorrow). */
+  setDay(value: string): void {
+    const day = parseIsoDay(value) ? value : resolveOrdersDay(null, new Date());
+    this.daySignal.set(day);
+    writeJson(DAY_KEY, day);
   }
 
   updateMeta(patch: Partial<OrdersMeta>): void {

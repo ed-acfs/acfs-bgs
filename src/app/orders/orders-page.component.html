@@ -22,6 +22,11 @@
   } @else {
     <section class="orders-meta">
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Ordini del</mat-label>
+        <input matInput type="date" [value]="store.day()" (change)="store.setDay($any($event.target).value)" />
+        <mat-hint>{{ inGameDate() }}</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Menzione</mat-label>
         <input matInput [value]="store.meta().mention" (change)="store.updateMeta({ mention: $any($event.target).value })" />
       </mat-form-field>

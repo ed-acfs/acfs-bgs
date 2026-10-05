@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { BgsService } from '../bgs.service';
 import { HelpDialogComponent } from '../help-dialog/help-dialog.component';
 import { findOrderType, ORDER_STATUSES, ORDER_TRENDS, ORDER_TYPES } from '../../core/order-types';
-import { OrderItem, OrderSection, setOrderPending, toggleOrderStatus } from '../../core/orders';
+import { formatOrdersDate, OrderItem, OrderSection, parseIsoDay, setOrderPending, toggleOrderStatus } from '../../core/orders';
 import { OrdersStore } from './orders.store';
 
 /** Same cadence as the main table's distance search — see `bgs-table.component.ts`. */
@@ -69,6 +69,12 @@ export class OrdersPageComponent {
   protected readonly systemSuggestions = signal<string[]>([]);
 
   protected readonly copyConfirmed = signal(false);
+
+  /** The picked day as it appears in the report, in-game ("06/10/3312"). */
+  protected readonly inGameDate = computed(() => {
+    const date = parseIsoDay(this.store.day());
+    return date ? `In gioco: ${formatOrdersDate(date)}` : '';
+  });
 
   private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   private lastSuggestionQuery: string | null = null;

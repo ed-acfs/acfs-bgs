@@ -12,6 +12,7 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
 ### Ordini Ufficiali
 
+- Si sceglie la **data degli ordini**: per default è domani (di solito gli ordini si scrivono oggi per domani), con la data di gioco mostrata sotto il campo. Una data scelta resta finché non è passata.
 - I pulsanti di stato erano scritti in nero su sfondo scuro e non si leggevano: ora hanno il colore del testo e lo stato attivo è evidenziato.
 - Nell'editor stati, tendenze e tipi si vedono come emoji (🆕 🟢 🚨 ✅ ❌, ⬆️ ⬇️ ↔️, 🗳️ ⚔️ 📊 🏗️) invece che come codici Discord. Il testo da copiare usa ancora i codici, che servono per le emoji del server (`:RedAlert:`, `:Expansion:`).
 - Nuovi stati 🟡 (`:yellow_circle:`, risultato insoddisfacente: nessun punto segnato ieri, influenza sotto il 49%) e 🔴 (`:red_circle:`, risultato negativo: punto perso, influenza sotto il 39,9%; se è grave si abbina a 🚨).

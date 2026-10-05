@@ -5,7 +5,9 @@ import {
   OrderItem,
   OrdersDraft,
   renderOrderItem,
+  parseIsoDay,
   renderOrdersMarkdown,
+  resolveOrdersDay,
   setOrderPending,
   toggleOrderStatus,
 } from './orders';
@@ -32,6 +34,34 @@ describe('formatOrdersDate', () => {
 
   it('pads single-digit days and months', () => {
     expect(formatOrdersDate(new Date(2026, 0, 1))).toBe('01/01/3312');
+  });
+});
+
+describe('resolveOrdersDay', () => {
+  const now = new Date(2026, 9, 5, 21, 30);
+
+  it('defaults to tomorrow', () => {
+    expect(resolveOrdersDay(null, now)).toBe('2026-10-06');
+  });
+
+  it('keeps a picked day from today on', () => {
+    expect(resolveOrdersDay('2026-10-05', now)).toBe('2026-10-05');
+    expect(resolveOrdersDay('2026-10-08', now)).toBe('2026-10-08');
+  });
+
+  it('drops a picked day in the past, or one that is not a date, for tomorrow', () => {
+    expect(resolveOrdersDay('2026-10-04', now)).toBe('2026-10-06');
+    expect(resolveOrdersDay('ieri', now)).toBe('2026-10-06');
+  });
+
+  it('rolls over the end of the month', () => {
+    expect(resolveOrdersDay(null, new Date(2026, 9, 31))).toBe('2026-11-01');
+  });
+});
+
+describe('parseIsoDay', () => {
+  it('reads a day as local midnight, so the in-game date shows the same day', () => {
+    expect(formatOrdersDate(parseIsoDay('2026-10-06')!)).toBe('06/10/3312');
   });
 });
 

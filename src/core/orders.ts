@@ -46,7 +46,7 @@ export interface OrderItem {
 
 /** Everything about one day's report besides the operation lines themselves. */
 export interface OrdersDraft {
-  /** The real-world date the report is composed on; rendered as the in-game date (see {@link formatOrdersDate}). */
+  /** The real-world day the orders are for (usually tomorrow, see {@link resolveOrdersDay}); rendered as the in-game date (see {@link formatOrdersDate}). */
   date: Date;
   /** The role or name pinged at the top (e.g. "@Membro Flotta"). Editable per report, not fixed in config. */
   mention: string;
@@ -97,6 +97,37 @@ export function formatOrdersDate(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear() + IN_GAME_YEAR_OFFSET;
   return `${day}/${month}/${year}`;
+}
+
+/** A calendar day as `YYYY-MM-DD` (local time), the format of an `<input type="date">`. */
+export function toIsoDay(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/** The local-midnight Date for a `YYYY-MM-DD` day, or null if the text isn't one. */
+export function parseIsoDay(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) {
+    return null;
+  }
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * The day the orders are for. The squadron usually writes today's report for tomorrow, so
+ * that's the default; a day the user picked is kept until it's in the past, so a choice left
+ * over from an earlier session never dates a new report backwards.
+ */
+export function resolveOrdersDay(picked: string | null, now: Date): string {
+  const today = toIsoDay(now);
+  if (picked && parseIsoDay(picked) && picked >= today) {
+    return picked;
+  }
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  return toIsoDay(tomorrow);
 }
 
 function renderStatusSuffix(statusKeys: readonly string[]): string {
