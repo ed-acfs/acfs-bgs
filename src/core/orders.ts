@@ -286,6 +286,11 @@ export function toggleOrderStatus(item: OrderItem, key: string, statusOrder: rea
  */
 export function setOrderPending(item: OrderItem, pending: boolean): OrderItem {
   const updated = { ...item, pending };
+  if (item.typeKey === 'expansion') {
+    // A note-style line: the "Pending" lives in the text the squadron writes, so swap it there.
+    const detail = pending ? item.detail.replace(/^Expansion\b/, 'Pending Expansion') : item.detail.replace(/^Pending Expansion\b/, 'Expansion');
+    return { ...updated, detail };
+  }
   if (item.section === 'concluse' || findOrderType(item.typeKey)?.style !== 'operation') {
     return updated;
   }
@@ -311,13 +316,47 @@ type DraftRow = Pick<BgsRow, 'systemName' | 'factionInfluence' | 'warState' | 'e
  * Never derived from the dataset: Spansh repeats a faction's pending Expansion in nearly every
  * system it's present in (189 of 389 on 5 October 2026), so the data can't tell where it starts.
  */
-export function pendingExpansionTemplate(): OrderItem {
+export function pendingExpansionTemplate(origin = ''): OrderItem {
   return {
     ...createOrderItem('note', 'expansion'),
+    system: origin,
     pending: true,
     statusKeys: ['new'],
-    detail: 'Pending Expansion da **?** - Sistema di arrivo: **?**',
+    detail: `Pending Expansion da **${origin || '?'}** - Sistema di arrivo: **?**`,
   };
+}
+
+/**
+ * The text a 'note'-style line starts from when it gets a type and maybe a system: the
+ * expansion sentence for an expansion, the bold system name for a free note. Note-style lines
+ * have no separate system field in the report, so the system has to go into the text.
+ */
+function noteDetailFor(typeKey: string, system: string): Pick<OrderItem, 'detail' | 'pending' | 'statusKeys'> | null {
+  if (typeKey === 'expansion') {
+    const { detail, pending, statusKeys } = pendingExpansionTemplate(system);
+    return { detail, pending, statusKeys };
+  }
+  if (findOrderType(typeKey)?.style === 'note' && system) {
+    return { detail: `**${system}** `, pending: false, statusKeys: [] };
+  }
+  return null;
+}
+
+/** A new line from the editor's "Aggiungi riga" bar: section, type and an optional system. */
+export function createOrderItemFromBar(section: OrderSection, typeKey: string, system: string): OrderItem {
+  const item = { ...createOrderItem(section, typeKey), system };
+  const note = noteDetailFor(typeKey, system);
+  return note ? { ...item, ...note } : item;
+}
+
+/**
+ * Changes a line's type. A line with no text yet that becomes an expansion or a free note gets
+ * that type's starting text (see {@link noteDetailFor}), using the system already filled in.
+ */
+export function changeOrderType(item: OrderItem, typeKey: string): OrderItem {
+  const updated = { ...item, typeKey };
+  const note = item.detail.trim() === '' ? noteDetailFor(typeKey, item.system) : null;
+  return note ? { ...updated, ...note, statusKeys: note.statusKeys.length > 0 ? note.statusKeys : item.statusKeys } : updated;
 }
 
 /**

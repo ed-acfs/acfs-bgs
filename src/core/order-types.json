@@ -17,7 +17,7 @@
     { "key": "election", "label": "Elezione", "icon": ":ballot_box:", "display": "🗳️", "style": "operation", "verb": "Election", "pendingDurationDays": 1 },
     { "key": "war", "label": "Guerra", "icon": ":crossed_swords:", "display": "⚔️", "style": "operation", "verb": "War", "pendingDurationDays": 1 },
     { "key": "influence", "label": "Spinta influenza", "icon": ":bar_chart:", "display": "📊", "style": "operation", "verb": "Inf" },
-    { "key": "construction", "label": "Cantiere", "icon": ":construction_site:", "display": "🏗️", "style": "plain" },
+    { "key": "construction", "label": "Cantiere", "icon": "🏗️", "display": "🏗️", "style": "plain" },
     { "key": "expansion", "label": "Expansion da monitorare", "icon": ":Expansion:", "display": "🌐", "style": "note", "pendingDurationDays": 3 },
     { "key": "note", "label": "Nota libera", "icon": "", "display": "", "style": "note" }
   ]

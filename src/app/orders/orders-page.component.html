@@ -44,7 +44,7 @@
     <section class="orders-add-bar">
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Sezione</mat-label>
-        <mat-select [value]="newItemSection()" (selectionChange)="newItemSection.set($event.value)">
+        <mat-select [value]="newItemSection()" (selectionChange)="chooseNewItemSection($event.value)">
           @for (option of sectionOptions; track option.value) {
             <mat-option [value]="option.value">{{ option.label }}</mat-option>
           }
@@ -113,7 +113,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
                   <mat-label>Tipo</mat-label>
-                  <mat-select [value]="item.typeKey" (selectionChange)="updateItem(item.id, { typeKey: $event.value })">
+                  <mat-select [value]="item.typeKey" (selectionChange)="changeType(item, $event.value)">
                     @for (type of orderTypes; track type.key) {
                       <mat-option [value]="type.key">{{ type.display }} {{ type.label }}</mat-option>
                     }
@@ -153,15 +153,15 @@
                       }
                     </mat-select>
                   </mat-form-field>
-                  @if (findOrderType(item.typeKey)?.pendingDurationDays) {
-                    <mat-checkbox [checked]="item.pending" (change)="setPending(item, $event.checked)">
-                      Pending (dura {{ findOrderType(item.typeKey)?.pendingDurationDays }}g)
-                    </mat-checkbox>
-                  }
                 </div>
               }
 
               <div class="orders-item-row orders-status-row">
+                @if (findOrderType(item.typeKey)?.pendingDurationDays) {
+                  <mat-checkbox [checked]="item.pending" (change)="setPending(item, $event.checked)">
+                    Pending (dura {{ findOrderType(item.typeKey)?.pendingDurationDays }}g)
+                  </mat-checkbox>
+                }
                 <span class="orders-field-label">Stato:</span>
                 @for (status of statuses; track status.key) {
                   <button

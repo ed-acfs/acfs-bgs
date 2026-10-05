@@ -11,7 +11,7 @@ export type OrderRenderStyle = 'operation' | 'plain' | 'note';
 export interface OrderType {
   key: string;
   label: string;
-  /** Discord emoji shorthand (e.g. `:ballot_box:`), or '' for a plain note with no icon. */
+  /** Discord emoji shorthand (e.g. `:ballot_box:`) or the emoji itself (🏗️), or '' for a plain note with no icon. */
   icon: string;
   /**
    * The same icon as a Unicode emoji, for the editor's selectors — `icon` stays the Discord

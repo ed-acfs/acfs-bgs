@@ -12,6 +12,8 @@ import { BgsService } from '../bgs.service';
 import { HelpDialogComponent } from '../help-dialog/help-dialog.component';
 import { findOrderType, ORDER_STATUSES, ORDER_TRENDS, ORDER_TYPES } from '../../core/order-types';
 import {
+  changeOrderType,
+  createOrderItemFromBar,
   formatOrdersDate,
   OrderItem,
   OrderSection,
@@ -26,6 +28,13 @@ import { OrdersStore } from './orders.store';
 /** Same cadence as the main table's distance search — see `bgs-table.component.ts`. */
 const SUGGESTION_DEBOUNCE_MS = 300;
 const SUGGESTION_MIN_LENGTH = 3;
+
+/** The type the "Aggiungi riga" bar switches to when a section is picked (none for "concluse": keep the current one). */
+const DEFAULT_TYPE_BY_SECTION: Partial<Record<OrderSection, string>> = {
+  operazioni: 'election',
+  cantieri: 'construction',
+  note: 'note',
+};
 
 const SECTION_OPTIONS: { value: OrderSection; label: string }[] = [
   { value: 'operazioni', label: 'Operazioni in corso' },
@@ -155,12 +164,17 @@ export class OrdersPageComponent {
     }
   }
 
+  protected chooseNewItemSection(section: OrderSection): void {
+    this.newItemSection.set(section);
+    const type = DEFAULT_TYPE_BY_SECTION[section];
+    if (type) {
+      this.newItemType.set(type);
+    }
+  }
+
   protected addItem(): void {
     const system = this.systemSearchControl.value.trim();
-    const created = this.store.addItem(this.newItemSection(), this.newItemType());
-    if (system) {
-      this.store.updateItem(created.id, { system });
-    }
+    this.store.addDraftItem(createOrderItemFromBar(this.newItemSection(), this.newItemType(), system));
     this.systemSearchControl.setValue('');
     this.systemSuggestions.set([]);
   }
@@ -180,6 +194,10 @@ export class OrdersPageComponent {
   protected toggleStatus(item: OrderItem, key: string): void {
     const statusOrder = this.statuses.map(status => status.key);
     this.store.replaceItem(toggleOrderStatus(item, key, statusOrder));
+  }
+
+  protected changeType(item: OrderItem, typeKey: string): void {
+    this.store.replaceItem(changeOrderType(item, typeKey));
   }
 
   protected setPending(item: OrderItem, pending: boolean): void {

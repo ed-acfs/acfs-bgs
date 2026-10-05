@@ -1,6 +1,8 @@
 import { BgsRow } from './bgs';
 import {
+  changeOrderType,
   createOrderItem,
+  createOrderItemFromBar,
   draftItemFromRow,
   formatOrdersDate,
   OrderItem,
@@ -151,7 +153,7 @@ describe('renderOrderItem', () => {
         detail: 'Completare _Gauss Vision_ (Dodec Station)',
       }),
     );
-    expect(line).toBe(':construction_site: **Lyncis Sector CL-Y d68** :white_check_mark:\nCompletare _Gauss Vision_ (Dodec Station)');
+    expect(line).toBe('🏗️ **Lyncis Sector CL-Y d68** :white_check_mark:\nCompletare _Gauss Vision_ (Dodec Station)');
   });
 
   it('renders a "note" type as a single line, icon and status inline with the detail', () => {
@@ -302,7 +304,7 @@ describe('renderOrdersMarkdown', () => {
           '',
           ':ballot_box: **Lyncis Sector CL-Y d68** :x:\nElection per ACFS > **DIFESA del sistema**',
           '',
-          ':construction_site: **Lyncis Sector CL-Y d68** :white_check_mark:\nCompletare _Gauss Vision_ (Dodec Station)',
+          '🏗️ **Lyncis Sector CL-Y d68** :white_check_mark:\nCompletare _Gauss Vision_ (Dodec Station)',
           '',
           ':crossed_swords: **Ross 878** :white_check_mark:\nWar per ACFS > **difesa** di _Sturt Horizons_',
           '------',
@@ -404,6 +406,43 @@ describe('pendingItemsFromRows', () => {
   it('skips what is already in the orders', () => {
     const existing = [{ ...createOrderItem('operazioni', 'war'), system: 'Ross 878' }];
     expect(pendingItemsFromRows([row('Ross 878', { warState: 'pending' })], existing)).toEqual([]);
+  });
+});
+
+describe('createOrderItemFromBar', () => {
+  it('turns an expansion with a system into the full pending line', () => {
+    const item = createOrderItemFromBar('note', 'expansion', 'Fular');
+    expect(item).toMatchObject({ pending: true, system: 'Fular', statusKeys: ['new'] });
+    expect(renderOrderItem(item)).toBe(':Expansion: Pending Expansion da **Fular** - Sistema di arrivo: **?** :new:');
+  });
+
+  it('puts the system of a free note into its text', () => {
+    expect(createOrderItemFromBar('note', 'note', 'Fular').detail).toBe('**Fular** ');
+  });
+
+  it('keeps the system in its own field for an operation', () => {
+    expect(createOrderItemFromBar('operazioni', 'election', 'Fular')).toMatchObject({ system: 'Fular', detail: '' });
+  });
+});
+
+describe('changeOrderType', () => {
+  it('prefills an empty line that becomes an expansion', () => {
+    const blank = { ...createOrderItem('note', 'note'), system: 'Fular' };
+    expect(changeOrderType(blank, 'expansion').detail).toBe('Pending Expansion da **Fular** - Sistema di arrivo: **?**');
+  });
+
+  it('leaves text already written alone', () => {
+    const written = { ...createOrderItem('note', 'note'), detail: 'Qualcosa' };
+    expect(changeOrderType(written, 'expansion').detail).toBe('Qualcosa');
+  });
+});
+
+describe('setOrderPending on an expansion', () => {
+  it('swaps "Pending Expansion" and "Expansion" at the start of the text', () => {
+    const pending = createOrderItemFromBar('note', 'expansion', 'Fular');
+    const active = setOrderPending(pending, false);
+    expect(active.detail).toBe('Expansion da **Fular** - Sistema di arrivo: **?**');
+    expect(setOrderPending(active, true).detail).toBe(pending.detail);
   });
 });
 
