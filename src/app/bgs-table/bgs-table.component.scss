@@ -758,3 +758,10 @@
     height: 72px;
   }
 }
+
+.bgs-col-distance {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-subtle);
+}

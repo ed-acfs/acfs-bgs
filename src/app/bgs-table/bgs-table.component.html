@@ -288,6 +288,7 @@
         <h2 class="bgs-legend-title">Sistema e Architetto</h2>
         <ul>
           <li><fa-icon class="bgs-legend-link" [icon]="faCopy" aria-hidden="true"></fa-icon> copia il nome; il nome apre Inara</li>
+          <li><span class="bgs-legend-muted">12,3 ly</span> distanza dal sistema del box "Distanza da"</li>
           <li><fa-icon class="bgs-legend-link" [icon]="faCircleInfo" aria-hidden="true"></fa-icon> dettagli del sistema; <fa-icon class="bgs-legend-accent" [icon]="faCircleInfo" aria-hidden="true"></fa-icon> in arancione: nella Watchlist</li>
           <li><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon> aggiungi agli Ordini Ufficiali</li>
           <li><fa-icon class="bgs-legend-muted" [icon]="faPen" aria-hidden="true"></fa-icon> modifica l'assegnazione dell'architetto</li>
@@ -308,6 +309,20 @@
         <thead>
           <tr>
             <th>Sistema</th>
+            <th class="bgs-col-distance">
+              <button
+                type="button"
+                class="bgs-sort-header"
+                (click)="sortByDistance()"
+                [disabled]="loading() || !anchor()"
+                [title]="'Ordina per distanza da ' + (anchorName() ?? 'il sistema del box di ricerca')"
+              >
+                Distanza
+                @if (mode() === 'distance') {
+                  <span class="bgs-sort-indicator">▲</span>
+                }
+              </button>
+            </th>
             <th class="bgs-col-freshness">
               <button
                 type="button"
@@ -426,7 +441,7 @@
         <tbody>
           @if (loadProgress(); as progress) {
             <tr class="bgs-row-progress">
-              <td colspan="10">
+              <td colspan="11">
                 <div class="bgs-progress">
                   <div class="bgs-progress-label">
                     Caricamento di tutti i sistemi per ordinarli… {{ progress.loaded }} / {{ progress.total }}
@@ -444,6 +459,7 @@
             @for (skeletonRow of skeletonRows; track skeletonRow) {
               <tr class="bgs-row-skeleton" aria-hidden="true">
                 <td><span class="skeleton skeleton-line skeleton-w80"></span></td>
+                <td><span class="skeleton skeleton-line skeleton-w40"></span></td>
                 <td><span class="skeleton skeleton-line skeleton-w40"></span></td>
                 <td><span class="skeleton" style="display: block; width: 80%; height: 28px;"></span></td>
                 <td><span class="skeleton skeleton-line skeleton-w40"></span></td>
@@ -495,6 +511,7 @@
                     <fa-icon [icon]="faClipboardList"></fa-icon>
                   </button>
                 </td>
+                <td class="bgs-col-distance" [title]="distanceTitle(row)">{{ distanceLabel(row) }}</td>
                 <td class="bgs-col-freshness">
                   @let freshness = freshnessFor(row);
                   <span
