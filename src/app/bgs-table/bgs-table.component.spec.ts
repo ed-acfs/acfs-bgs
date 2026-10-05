@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { BgsRow } from '../../core/bgs';
 import { BgsPage, BgsService } from '../bgs.service';
@@ -80,6 +81,7 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
       providers: [
         { provide: BgsService, useValue: service },
         { provide: MatDialog, useValue: {} },
+        provideRouter([]),
       ],
     }).compileComponents();
 

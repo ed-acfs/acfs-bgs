@@ -1,0 +1,173 @@
+<div class="orders-container">
+  <div class="orders-title-row">
+    <h1>Ordini Ufficiali</h1>
+    <button mat-stroked-button type="button" (click)="openHelp()">Come funziona?</button>
+  </div>
+
+  @if (!store.unlocked()) {
+    <section class="orders-gate">
+      <p>Area riservata: inserisci la passphrase dello squadrone.</p>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Passphrase</mat-label>
+        <input matInput type="password" [formControl]="passphraseControl" (keyup.enter)="unlock()" />
+      </mat-form-field>
+      <button mat-flat-button type="button" [disabled]="unlocking()" (click)="unlock()">Entra</button>
+      @if (unlockError(); as err) {
+        <p class="orders-error" role="alert">{{ err }}</p>
+      }
+    </section>
+  } @else {
+    <section class="orders-meta">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Menzione</mat-label>
+        <input matInput [value]="store.meta().mention" (change)="store.updateMeta({ mention: $any($event.target).value })" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="orders-meta-wide">
+        <mat-label>Nota finale</mat-label>
+        <input matInput [value]="store.meta().footerNote" (change)="store.updateMeta({ footerNote: $any($event.target).value })" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Firma</mat-label>
+        <input matInput [value]="store.meta().signature" (change)="store.updateMeta({ signature: $any($event.target).value })" />
+      </mat-form-field>
+      <button mat-stroked-button type="button" (click)="lock()">Blocca</button>
+    </section>
+
+    <section class="orders-add-bar">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Sezione</mat-label>
+        <mat-select [value]="newItemSection()" (selectionChange)="newItemSection.set($event.value)">
+          @for (option of sectionOptions; track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Tipo</mat-label>
+        <mat-select [value]="newItemType()" (selectionChange)="newItemType.set($event.value)">
+          @for (type of orderTypes; track type.key) {
+            <mat-option [value]="type.key">{{ type.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="orders-meta-wide">
+        <mat-label>Sistema (opzionale, cerca in tutta la galassia)</mat-label>
+        <input
+          matInput
+          [formControl]="systemSearchControl"
+          [matAutocomplete]="systemAuto"
+          (input)="onSystemSearchInput()"
+          placeholder="Nome sistema…"
+        />
+        <mat-autocomplete #systemAuto="matAutocomplete">
+          @for (system of systemSuggestions(); track system) {
+            <mat-option [value]="system">{{ system }}</mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+      <button mat-flat-button type="button" (click)="addItem()">Aggiungi riga</button>
+    </section>
+
+    @for (section of sectionOptions; track section.value) {
+      @if (itemsForSection(section.value).length > 0) {
+        <section class="orders-section">
+          <h2>{{ section.label }}</h2>
+          @for (item of itemsForSection(section.value); track item.id) {
+            <div class="orders-item">
+              <div class="orders-item-row">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Sezione</mat-label>
+                  <mat-select [value]="item.section" (selectionChange)="updateItem(item.id, { section: $event.value })">
+                    @for (option of sectionOptions; track option.value) {
+                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Tipo</mat-label>
+                  <mat-select [value]="item.typeKey" (selectionChange)="updateItem(item.id, { typeKey: $event.value })">
+                    @for (type of orderTypes; track type.key) {
+                      <mat-option [value]="type.key">{{ type.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                @if (item.section === 'operazioni') {
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="orders-priority-field">
+                    <mat-label>Priorità</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      min="1"
+                      [value]="item.priority"
+                      (change)="updateItem(item.id, { priority: Number($any($event.target).value) || 1 })"
+                    />
+                  </mat-form-field>
+                }
+                <button mat-button type="button" (click)="removeItem(item.id)" class="orders-remove">Rimuovi</button>
+              </div>
+
+              @if (findOrderType(item.typeKey)?.style !== 'note') {
+                <div class="orders-item-row">
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="orders-meta-wide">
+                    <mat-label>Sistema</mat-label>
+                    <input matInput [value]="item.system" (change)="updateItem(item.id, { system: $any($event.target).value })" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Punteggio (es. 43.6% o Victory; 2-0)</mat-label>
+                    <input matInput [value]="item.score" (change)="updateItem(item.id, { score: $any($event.target).value })" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Tendenza</mat-label>
+                    <mat-select [value]="item.trend" (selectionChange)="updateItem(item.id, { trend: $event.value })">
+                      <mat-option [value]="null">—</mat-option>
+                      @for (trend of trends; track trend.key) {
+                        <mat-option [value]="trend.key">{{ trend.emoji }} {{ trend.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  @if (findOrderType(item.typeKey)?.pendingDurationDays) {
+                    <mat-checkbox [checked]="item.pending" (change)="updateItem(item.id, { pending: $event.checked })">
+                      Pending (dura {{ findOrderType(item.typeKey)?.pendingDurationDays }}g)
+                    </mat-checkbox>
+                  }
+                </div>
+              }
+
+              <div class="orders-item-row orders-status-row">
+                <span class="orders-field-label">Stato:</span>
+                @for (status of statuses; track status.key) {
+                  <button
+                    type="button"
+                    class="orders-status-chip"
+                    [class.orders-status-chip--active]="item.statusKeys.includes(status.key)"
+                    (click)="toggleStatus(item, status.key)"
+                    [title]="status.label"
+                  >{{ status.emoji }}</button>
+                }
+              </div>
+
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="orders-detail-field">
+                <mat-label>{{ findOrderType(item.typeKey)?.style === 'note' ? 'Testo della nota' : 'Dettaglio (dopo "per ACFS >")' }}</mat-label>
+                <textarea
+                  matInput
+                  rows="2"
+                  [value]="item.detail"
+                  (change)="updateItem(item.id, { detail: $any($event.target).value })"
+                ></textarea>
+              </mat-form-field>
+            </div>
+          }
+        </section>
+      }
+    }
+
+    <section class="orders-preview">
+      <h2>Anteprima Markdown</h2>
+      <textarea class="orders-preview-text" readonly rows="16">{{ store.markdown() }}</textarea>
+      <div class="orders-preview-actions">
+        <button mat-flat-button type="button" (click)="copyMarkdown()">{{ copyConfirmed() ? 'Copiato!' : 'Copia' }}</button>
+        <button mat-stroked-button type="button" (click)="clearAll()">Svuota tutto</button>
+      </div>
+    </section>
+  }
+</div>
