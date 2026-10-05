@@ -15,6 +15,17 @@
         <fa-icon [icon]="faCircleQuestion" aria-hidden="true"></fa-icon>
         Guida
       </button>
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="toggleLegend()"
+        [attr.aria-expanded]="legendOpen()"
+        aria-controls="bgs-legend"
+        aria-label="Legenda della tabella"
+      >
+        <fa-icon [icon]="faListUl" aria-hidden="true"></fa-icon>
+        Legenda
+      </button>
       <a mat-stroked-button routerLink="/ordini" aria-label="Ordini Ufficiali">
         <fa-icon [icon]="faClipboardList" aria-hidden="true"></fa-icon>
         Ordini
@@ -210,6 +221,71 @@
       </div>
     </div>
   </section>
+
+  @if (legendOpen()) {
+    <section id="bgs-legend" class="bgs-legend" aria-label="Legenda">
+      <div class="bgs-legend-group">
+        <h2 class="bgs-legend-title">Aggiornato</h2>
+        <p class="bgs-legend-note">Età del dato Spansh, in giorni (circa un tick al giorno).</p>
+        <ul>
+          <li><span class="bgs-freshness-pill bgs-freshness-pill--current"><span class="bgs-freshness-dot" aria-hidden="true"></span>oggi</span> aggiornato oggi</li>
+          <li><span class="bgs-freshness-pill bgs-freshness-pill--oneTick"><span class="bgs-freshness-dot" aria-hidden="true"></span>1g</span> indietro di un tick</li>
+          <li><span class="bgs-freshness-pill bgs-freshness-pill--days"><span class="bgs-freshness-dot" aria-hidden="true"></span>4g</span> indietro di 2-6 giorni</li>
+          <li><span class="bgs-freshness-pill bgs-freshness-pill--weeks"><span class="bgs-freshness-dot" aria-hidden="true"></span>3s</span> settimane (s) o anni (a)</li>
+        </ul>
+      </div>
+
+      <div class="bgs-legend-group">
+        <h2 class="bgs-legend-title">Fazioni e Stato</h2>
+        <ul>
+          <li>
+            <span class="bgs-faction-chart bgs-legend-chart" aria-hidden="true">
+              <span class="bgs-faction-bar" style="height: 55%"></span>
+              <span class="bgs-faction-bar bgs-faction-bar--own" style="height: 30%"></span>
+              <span class="bgs-faction-bar" style="height: 15%"></span>
+            </span>
+            influenza delle fazioni, in arancione {{ factionName }}
+          </li>
+          <li><span class="bgs-state-icon" aria-hidden="true">⚔️</span> guerra di {{ factionName }}</li>
+          <li><span class="bgs-state-icon bgs-state-icon--election" aria-hidden="true">🗳️</span> elezione di {{ factionName }}</li>
+          <li><span class="bgs-state-icon bgs-state-icon--retreat" aria-hidden="true">⚠️</span> ritirata di {{ factionName }}</li>
+          <li><span class="bgs-state-icon bgs-state-icon--pending" aria-hidden="true">⚔️</span> in grigio: in arrivo (pending)</li>
+        </ul>
+      </div>
+
+      <div class="bgs-legend-group">
+        <h2 class="bgs-legend-title">Priorità</h2>
+        <p class="bgs-legend-note">Dove lavorare per primi. Il tooltip spiega il perché.</p>
+        <ul>
+          <li><span class="bgs-priority-pill bgs-priority-pill--P1">P1</span> urgente</li>
+          <li><span class="bgs-priority-pill bgs-priority-pill--P2">P2</span> <span class="bgs-priority-pill bgs-priority-pill--P3">P3</span> da seguire</li>
+          <li><span class="bgs-priority-pill bgs-priority-pill--P4">P4</span> <span class="bgs-priority-pill bgs-priority-pill--P5">P5</span> tranquillo</li>
+          <li><span class="bgs-priority-pill bgs-priority-pill--out-of-scope">⛔</span> fazione preferita di un altro: accordo da rispettare</li>
+        </ul>
+      </div>
+
+      <div class="bgs-legend-group">
+        <h2 class="bgs-legend-title">Influenza e Margine</h2>
+        <ul>
+          <li><span class="bgs-legend-sample bgs-legend-sample--accent">42,5%</span> influenza di {{ factionName }}</li>
+          <li><span class="bgs-legend-sample bgs-legend-sample--success">+12,3</span> controlliamo, vantaggio sicuro</li>
+          <li><span class="bgs-legend-sample bgs-legend-sample--danger">+3,1</span> controlliamo, vantaggio sotto {{ conflictMarginPoints }} punti: rischio conflitto</li>
+          <li><span class="bgs-legend-sample bgs-legend-sample--muted">−8,4</span> non controlliamo: distacco da chi controlla</li>
+        </ul>
+      </div>
+
+      <div class="bgs-legend-group">
+        <h2 class="bgs-legend-title">Sistema e Architetto</h2>
+        <ul>
+          <li><fa-icon class="bgs-legend-link" [icon]="faCopy" aria-hidden="true"></fa-icon> copia il nome; il nome apre Inara</li>
+          <li><fa-icon class="bgs-legend-link" [icon]="faCircleInfo" aria-hidden="true"></fa-icon> dettagli del sistema; <fa-icon class="bgs-legend-accent" [icon]="faCircleInfo" aria-hidden="true"></fa-icon> in arancione: nella Watchlist</li>
+          <li><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon> aggiungi agli Ordini Ufficiali</li>
+          <li><fa-icon class="bgs-legend-muted" [icon]="faPen" aria-hidden="true"></fa-icon> modifica l'assegnazione dell'architetto</li>
+          <li><span class="bgs-legend-muted">{{ factionName }}</span> fazione preferita in grigio: ricavata dalle stazioni, non registrata</li>
+        </ul>
+      </div>
+    </section>
+  }
 
   @if (errorMessage(); as message) {
     <div class="bgs-error">
@@ -454,7 +530,7 @@
                       [title]="row.warDetails"
                       role="img"
                       [attr.aria-label]="row.warDetails ?? 'Guerra'"
-                    >🔫</span>
+                    >⚔️</span>
                   }
                   @if (row.electionState) {
                     <span

@@ -18,6 +18,7 @@ import {
   faCircleInfo,
   faCircleQuestion,
   faClipboardList,
+  faListUl,
   faPen,
   faCopy,
   faDownload,
@@ -218,9 +219,12 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly faPen = faPen;
   protected readonly faClipboardList = faClipboardList;
   protected readonly faCircleQuestion = faCircleQuestion;
+  protected readonly faListUl = faListUl;
   /** The squadron's faction, named in the ACFS column header's tooltip and highlighted orange in the Factions chart. */
   protected readonly factionName = FACTION_NAME;
   protected readonly encodeURIComponent = encodeURIComponent;
+  /** Margin threshold named in the legend. */
+  protected readonly conflictMarginPoints = CONFLICT_MARGIN_POINTS;
   /** Placeholder rows shown while data is still loading. */
   protected readonly skeletonRows = Array.from({ length: 12 }, (_, i) => i);
 
@@ -308,6 +312,8 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
   /** Rows shown per display page until the user picks a different size — deliberately small so a big API page (issue #7) doesn't dump hundreds of rows onto the screen at once. */
   protected readonly pageSize = signal<number>(PAGE_SIZE_OPTIONS[0]);
+  /** Whether the legend panel above the table is open. */
+  protected readonly legendOpen = signal(false);
   protected readonly warElectionOnly = signal(false);
   /** FR-5: "needs recon" pairs naturally with the Distance sort — stale systems near me. */
   protected readonly needsReconOnly = signal(false);
@@ -853,6 +859,10 @@ export class BgsTableComponent implements OnDestroy {
    */
   protected addToOrders(row: BgsRow): void {
     this.ordersStore.addDraftItem(draftItemFromRow(row));
+  }
+
+  protected toggleLegend(): void {
+    this.legendOpen.update(open => !open);
   }
 
   protected openHelpDialog(): void {

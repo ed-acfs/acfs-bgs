@@ -189,6 +189,86 @@
   width: 76px;
 }
 
+// Legend panel, toggled from the header. Its samples reuse the table's own classes so they
+// can never drift from what the rows show.
+.bgs-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px 24px;
+  margin-top: 16px;
+  padding: 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-muted);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--color-text-2);
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+}
+
+.bgs-legend-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.bgs-legend-note {
+  margin: 2px 0 0;
+  color: var(--color-text-muted);
+}
+
+.bgs-legend-chart {
+  height: 18px;
+  width: 36px;
+}
+
+.bgs-legend-sample {
+  min-width: 46px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.bgs-legend-sample--accent {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.bgs-legend-sample--success {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.bgs-legend-sample--danger {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.bgs-legend-sample--muted,
+.bgs-legend-muted {
+  color: var(--color-text-muted);
+}
+
+.bgs-legend-link {
+  color: var(--color-link);
+}
+
+.bgs-legend-accent {
+  color: var(--color-accent);
+}
+
 .bgs-error {
   background-color: var(--color-surface);
   border: 1px solid var(--color-danger);
