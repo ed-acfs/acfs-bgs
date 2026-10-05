@@ -35,6 +35,12 @@ Questo file esiste dal 5 ottobre 2026: la memoria locale di Claude accumulata pr
 - Niente dati strategici nel repo, che è pubblico: accordi con altre fazioni, fazioni preferite e motivazioni della Watchlist stanno solo nel foglio Google.
 - Spansh è in ritardo rispetto al gioco: il tool deve mostrare la freschezza del dato, non presentarlo come autorevole.
 
+## Come funziona il BGS (spiegato dall'utente)
+
+- **Stati globali**: l'Expansion vale per la fazione intera e compare come stato in *tutti* i sistemi in cui la PMF è presente (Spansh la mostra infatti in pending in quasi tutti i nostri sistemi). Si espande da **un solo** sistema, deciso dal tick dopo 3 giorni di pending. Per questo il tool non ricava dai dati da dove parte un'Expansion: negli Ordini si scrive a mano.
+- **Stati locali**: elezioni e guerre (e altri stati che il tool per ora non segue) valgono solo nel sistema in cui si attivano. Questi si possono ricavare dai dati sistema per sistema.
+- **Punteggio di un conflitto**: si scrive sempre dal nostro punto di vista, i nostri giorni vinti per primi (es. "Close Defeat; 0-2"). Un conflitto in pending si annuncia in "Note & informazioni" con "(Draw; 0-0) 🆕".
+
 ## Note tecniche (da fare su ogni PC)
 
 - `git config core.autocrlf input` in questo repo (sta in `.git/config`, quindi non viaggia col repo): senza, i file tornano in CRLF a ogni cambio di branch.
