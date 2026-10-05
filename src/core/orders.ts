@@ -198,26 +198,94 @@ export function createOrderItem(section: OrderSection, typeKey: string): OrderIt
   };
 }
 
+/** The score of a conflict that hasn't started yet: nobody has won a day. */
+export const PENDING_CONFLICT_SCORE = 'Draw; 0-0';
+
+/** Status keys that mean the operation is over; they belong in the 'concluse' section. */
+const CONCLUDED_STATUS_KEYS: readonly string[] = ['done', 'failed'];
+
+function isPendingConflict(item: OrderItem): boolean {
+  return item.pending && findOrderType(item.typeKey)?.style === 'operation';
+}
+
 /**
- * A starting point for "Aggiungi agli ordini" on a table row: guesses the type from whatever
- * active-or-pending state the row has (war, then election, then expansion), falling back to
- * an influence push with its current percentage prefilled. Always lands in the 'operazioni'
- * section at priority 1 — the user sorts it from there. The outcome text (`detail`) is left
- * for the user to write, since it depends on who's attacking whom, which the dataset doesn't say.
+ * Where an item belongs when it isn't concluded: a war or election still pending goes under
+ * "Note & informazioni" (the squadron announces it there the day before it starts), a
+ * construction under "Cantieri aperti", a free note under "Note", everything else under
+ * "Operazioni" (keeping its priority, or 1 if it never had one).
  */
-export function draftItemFromRow(row: Pick<BgsRow, 'systemName' | 'factionInfluence' | 'warState' | 'electionState' | 'expansionState'>): OrderItem {
-  if (row.warState) {
-    return { ...createOrderItem('operazioni', 'war'), system: row.systemName, pending: row.warState === 'pending' };
+function openSectionPatch(item: OrderItem): Pick<OrderItem, 'section' | 'priority'> {
+  if (isPendingConflict(item)) {
+    return { section: 'note', priority: item.priority };
   }
-  if (row.electionState) {
-    return { ...createOrderItem('operazioni', 'election'), system: row.systemName, pending: row.electionState === 'pending' };
+  const style = findOrderType(item.typeKey)?.style;
+  if (style === 'plain') {
+    return { section: 'cantieri', priority: item.priority };
   }
-  if (row.expansionState) {
+  if (style === 'note') {
+    return { section: 'note', priority: item.priority };
+  }
+  return { section: 'operazioni', priority: item.priority ?? 1 };
+}
+
+/**
+ * Turns a status flag on or off. Flags keep the fixed order of `order-types.json` whatever the
+ * click order. "Concluso" and "Concluso senza successo" exclude each other and move the item
+ * to "Operazioni concluse"; taking the last of them off moves it back where it came from.
+ */
+export function toggleOrderStatus(item: OrderItem, key: string, statusOrder: readonly string[]): OrderItem {
+  const present = item.statusKeys.includes(key);
+  let next = present ? item.statusKeys.filter(k => k !== key) : [...item.statusKeys, key];
+  if (!present && CONCLUDED_STATUS_KEYS.includes(key)) {
+    next = next.filter(k => k === key || !CONCLUDED_STATUS_KEYS.includes(k));
+  }
+  const statusKeys = statusOrder.filter(k => next.includes(k));
+  const updated = { ...item, statusKeys };
+  if (statusKeys.some(k => CONCLUDED_STATUS_KEYS.includes(k))) {
+    return { ...updated, section: 'concluse' };
+  }
+  return item.section === 'concluse' ? { ...updated, ...openSectionPatch(updated) } : updated;
+}
+
+/**
+ * Marks a war or election as pending (not started yet) or active. A pending conflict moves to
+ * "Note & informazioni" with the score "Draw; 0-0" and the 🆕 flag, unless those were already
+ * filled in; once it starts it moves back to "Operazioni". Concluded items stay where they are.
+ */
+export function setOrderPending(item: OrderItem, pending: boolean): OrderItem {
+  const updated = { ...item, pending };
+  if (item.section === 'concluse' || findOrderType(item.typeKey)?.style !== 'operation') {
+    return updated;
+  }
+  if (pending) {
     return {
-      ...createOrderItem('note', 'expansion'),
-      statusKeys: ['new'],
-      detail: `Pending Expansion da **${row.systemName}** - Sistema di arrivo: **?**`,
+      ...updated,
+      ...openSectionPatch(updated),
+      score: item.score || PENDING_CONFLICT_SCORE,
+      statusKeys: item.statusKeys.includes('new') ? item.statusKeys : ['new', ...item.statusKeys],
     };
+  }
+  return {
+    ...updated,
+    ...openSectionPatch(updated),
+    score: item.score === PENDING_CONFLICT_SCORE ? '' : item.score,
+  };
+}
+
+/**
+ * A starting point for "Aggiungi agli ordini" on a table row: guesses the type from the row's
+ * war or election (active or pending), falling back to an influence push with its current
+ * percentage prefilled. Active operations land in 'operazioni' at priority 1 — the user sorts
+ * them from there; a pending conflict lands in 'note' (see {@link setOrderPending}). Nothing
+ * else goes to 'note' on its own: that section is mostly free text. The outcome text (`detail`)
+ * is left for the user to write, since it depends on who's attacking whom, which the dataset
+ * doesn't say.
+ */
+export function draftItemFromRow(row: Pick<BgsRow, 'systemName' | 'factionInfluence' | 'warState' | 'electionState'>): OrderItem {
+  const conflict = row.warState ? { typeKey: 'war', state: row.warState } : row.electionState ? { typeKey: 'election', state: row.electionState } : null;
+  if (conflict) {
+    const item = { ...createOrderItem('operazioni', conflict.typeKey), system: row.systemName };
+    return conflict.state === 'pending' ? setOrderPending(item, true) : item;
   }
   return {
     ...createOrderItem('operazioni', 'influence'),

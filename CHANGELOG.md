@@ -9,6 +9,14 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 - Nella colonna Stato la guerra si indica con ⚔️, la stessa icona degli Ordini Ufficiali, invece che con 🔫.
 - Nuovo pulsante **Legenda** nell'intestazione: apre sopra la tabella un pannello che spiega colori e icone (età del dato, stati, priorità, influenza e margine, icone del sistema e dell'architetto). Gli esempi usano gli stessi stili della tabella.
 
+### Ordini Ufficiali
+
+- I pulsanti di stato erano scritti in nero su sfondo scuro e non si leggevano: ora hanno il colore del testo e lo stato attivo è evidenziato.
+- Nell'editor stati, tendenze e tipi si vedono come emoji (🆕 🟢 🚨 ✅ ❌, ⬆️ ⬇️ ↔️, 🗳️ ⚔️ 📊 🏗️) invece che come codici Discord. Il testo da copiare usa ancora i codici, che servono per le emoji del server (`:RedAlert:`, `:Expansion:`).
+- Con ✅ o ❌ la riga passa da sola nelle **Operazioni concluse** (e torna indietro se si toglie la spunta). I due stati si escludono a vicenda.
+- **Note & informazioni** non si riempie più da sola con le Expansion dei sistemi aggiunti dalla tabella: è una sezione di testo libero. Ci finiscono invece le elezioni e le guerre in **Pending**, con punteggio "Draw; 0-0" e 🆕; togliendo la spunta Pending tornano fra le Operazioni.
+- Il punteggio di un conflitto si scrive sempre dal nostro punto di vista, con i nostri giorni prima (es. "Close Defeat; 0-2").
+
 ## [0.8.0] - 2026-10-05 — Ordini Ufficiali e titolo 1.0
 
 ### Ordini Ufficiali

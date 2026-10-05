@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { BgsService } from '../bgs.service';
 import { HelpDialogComponent } from '../help-dialog/help-dialog.component';
 import { findOrderType, ORDER_STATUSES, ORDER_TRENDS, ORDER_TYPES } from '../../core/order-types';
-import { OrderItem, OrderSection } from '../../core/orders';
+import { OrderItem, OrderSection, setOrderPending, toggleOrderStatus } from '../../core/orders';
 import { OrdersStore } from './orders.store';
 
 /** Same cadence as the main table's distance search — see `bgs-table.component.ts`. */
@@ -160,12 +160,12 @@ export class OrdersPageComponent {
   }
 
   protected toggleStatus(item: OrderItem, key: string): void {
-    const present = item.statusKeys.includes(key);
-    const next = present ? item.statusKeys.filter(k => k !== key) : [...item.statusKeys, key];
-    // Keep a fixed order (new, ok, urgent, done, failed) regardless of click order, so the
-    // rendered line always lists them the same way (see `ORDER_STATUSES` in order-types.json).
-    const ordered = this.statuses.map(status => status.key).filter(key => next.includes(key));
-    this.store.updateItem(item.id, { statusKeys: ordered });
+    const statusOrder = this.statuses.map(status => status.key);
+    this.store.replaceItem(toggleOrderStatus(item, key, statusOrder));
+  }
+
+  protected setPending(item: OrderItem, pending: boolean): void {
+    this.store.replaceItem(setOrderPending(item, pending));
   }
 
   protected clearAll(): void {

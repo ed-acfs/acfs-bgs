@@ -49,7 +49,7 @@
         <mat-label>Tipo</mat-label>
         <mat-select [value]="newItemType()" (selectionChange)="newItemType.set($event.value)">
           @for (type of orderTypes; track type.key) {
-            <mat-option [value]="type.key">{{ type.label }}</mat-option>
+            <mat-option [value]="type.key">{{ type.display }} {{ type.label }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -90,7 +90,7 @@
                   <mat-label>Tipo</mat-label>
                   <mat-select [value]="item.typeKey" (selectionChange)="updateItem(item.id, { typeKey: $event.value })">
                     @for (type of orderTypes; track type.key) {
-                      <mat-option [value]="type.key">{{ type.label }}</mat-option>
+                      <mat-option [value]="type.key">{{ type.display }} {{ type.label }}</mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
@@ -124,12 +124,12 @@
                     <mat-select [value]="item.trend" (selectionChange)="updateItem(item.id, { trend: $event.value })">
                       <mat-option [value]="null">—</mat-option>
                       @for (trend of trends; track trend.key) {
-                        <mat-option [value]="trend.key">{{ trend.emoji }} {{ trend.label }}</mat-option>
+                        <mat-option [value]="trend.key">{{ trend.display }} {{ trend.label }}</mat-option>
                       }
                     </mat-select>
                   </mat-form-field>
                   @if (findOrderType(item.typeKey)?.pendingDurationDays) {
-                    <mat-checkbox [checked]="item.pending" (change)="updateItem(item.id, { pending: $event.checked })">
+                    <mat-checkbox [checked]="item.pending" (change)="setPending(item, $event.checked)">
                       Pending (dura {{ findOrderType(item.typeKey)?.pendingDurationDays }}g)
                     </mat-checkbox>
                   }
@@ -144,8 +144,9 @@
                     class="orders-status-chip"
                     [class.orders-status-chip--active]="item.statusKeys.includes(status.key)"
                     (click)="toggleStatus(item, status.key)"
-                    [title]="status.label"
-                  >{{ status.emoji }}</button>
+                    [title]="status.label + ' (' + status.emoji + ')'"
+                    [attr.aria-label]="status.label"
+                  >{{ status.display }}</button>
                 }
               </div>
 

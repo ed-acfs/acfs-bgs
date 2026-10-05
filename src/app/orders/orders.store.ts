@@ -87,6 +87,11 @@ export class OrdersStore {
     this.setItems(this.itemsSignal().map(item => (item.id === id ? { ...item, ...patch } : item)));
   }
 
+  /** Swaps in a whole new version of an item (same id) — for changes computed in `core/orders.ts`. */
+  replaceItem(next: OrderItem): void {
+    this.setItems(this.itemsSignal().map(item => (item.id === next.id ? next : item)));
+  }
+
   removeItem(id: string): void {
     this.setItems(this.itemsSignal().filter(item => item.id !== id));
   }
