@@ -8,6 +8,9 @@ import config from './config.json';
 /** The squadron the tool is for. */
 export const SQUADRON_NAME: string = config.squadron;
 
+/** The squadron's short tag, as used in the Ordini Ufficiali report ("Election per ACFS > …"). */
+export const SQUADRON_TAG: string = config.squadronTag;
+
 /** The squadron's minor faction (PMF): the one the dataset is downloaded for and the table is about. */
 export const FACTION_NAME: string = config.faction;
 
@@ -51,3 +54,12 @@ export const WATCHLIST_SHEET_URL: string | null = config.watchlistSheetUrl;
  * to submit until then.
  */
 export const ARCHITECT_FORM_ACTION: string | null = config.architectFormAction;
+
+/**
+ * SHA-256 hex digest of the Ordini Ufficiali page's shared passphrase. This is a deterrent,
+ * not real access control — it's a public static site, so anyone can read this hash out of
+ * the published bundle and brute-force a weak passphrase offline. Good enough to keep casual
+ * visitors out until phase 8 (Cloudflare Access) lands. The placeholder passphrase is
+ * "cambiami" ("change me") — replace this hash before sharing the link.
+ */
+export const ORDERS_PASSPHRASE_HASH: string = config.ordersPassphraseHash;

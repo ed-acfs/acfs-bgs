@@ -1,0 +1,30 @@
+<h2 mat-dialog-title class="info-title">Guida rapida</h2>
+
+<mat-dialog-content>
+  <section class="info-card">
+    <h3 class="info-heading">La tabella</h3>
+    <p>Un sistema per riga: fazione di controllo, influenza di Flotta Stellare (ACFS), Margine (vantaggio o distacco da chi controlla), Priorità, Stato (guerre, elezioni), Aggiornato (età del dato) e Architetto.</p>
+    <p>La ricerca in alto ordina per distanza da un sistema a scelta. I filtri rapidi restringono a guerre/elezioni, sistemi da aggiornare, solo controllati o solo con architetto ACFS.</p>
+    <p>L'icona <strong>ⓘ</strong> apre i dettagli del sistema (fazioni presenti, stazioni, eventuale voce in Watchlist). L'icona <strong>📋</strong> aggiunge il sistema agli Ordini Ufficiali — vedi sotto.</p>
+  </section>
+
+  <section class="info-card">
+    <h3 class="info-heading">Assegnare un architetto</h3>
+    <p>Il pulsante <strong>Assegna</strong> (o la matita, se già registrato) apre il modulo per registrare chi segue il sistema e la fazione preferita. La risposta finisce nel foglio dello squadrone e compare in tabella entro 15 minuti.</p>
+  </section>
+
+  <section class="info-card">
+    <h3 class="info-heading">Ordini Ufficiali</h3>
+    <p>La pagina <strong>Ordini</strong> compone il report giornaliero da incollare su Discord — area riservata, passphrase dello squadrone.</p>
+    <p><strong>Aggiungere una riga:</strong> dal pulsante 📋 su una riga della tabella (precompila sistema e tipo dallo stato attuale), oppure dalla barra in alto nella pagina Ordini, cercando un sistema anche se non è fra quelli di Flotta Stellare.</p>
+    <p><strong>Sezione:</strong> in quale blocco del report finisce la riga — Operazioni in corso (raggruppate per priorità), Cantieri aperti, Note & informazioni, Operazioni concluse. Si può cambiare in qualsiasi momento, ad esempio per spostare un'operazione da "in corso" a "conclusa" il giorno dopo.</p>
+    <p><strong>Tipo:</strong> decide l'icona e la frase — Elezione, Guerra, Spinta influenza, Cantiere, Expansion da monitorare, Nota libera.</p>
+    <p><strong>Punteggio, Tendenza, Pending, Stato:</strong> campi opzionali mostrati accanto al nome del sistema — rispettivamente il testo fra parentesi (es. "43.6%" o "Victory; 2-0"), la freccia di andamento (↑ ↓ ↔ per un cambio di 0-1%), la spunta "Pending" per un'elezione o guerra non ancora attiva (o un'expansion non ancora conclusa), e le emoji di stato (🆕 🟢 🔴 ✅ ❌ — se ne può scegliere più di una).</p>
+    <p><strong>Dettaglio:</strong> il testo libero dopo "per ACFS &gt;" (o l'intera riga per una nota) — grassetto e corsivo si scrivono a mano in Markdown, come <code>**conquista**</code> o <code>di _Apgar City_</code>, perché la formulazione cambia troppo da caso a caso per automatizzarla del tutto.</p>
+    <p><strong>Anteprima:</strong> il testo è pronto per Discord in basso — <strong>Copia</strong> lo mette negli appunti. La data si genera da sola nel calendario di gioco (l'anno reale più 1286).</p>
+  </section>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button color="primary" type="button" mat-dialog-close>Chiudi</button>
+</mat-dialog-actions>

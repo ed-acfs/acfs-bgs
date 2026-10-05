@@ -11,6 +11,14 @@
       }
     </div>
     <div class="bgs-header-actions">
+      <button mat-stroked-button type="button" (click)="openHelpDialog()" aria-label="Guida rapida">
+        <fa-icon [icon]="faCircleQuestion" aria-hidden="true"></fa-icon>
+        Guida
+      </button>
+      <a mat-stroked-button routerLink="/ordini" aria-label="Ordini Ufficiali">
+        <fa-icon [icon]="faClipboardList" aria-hidden="true"></fa-icon>
+        Ordini
+      </a>
       <button
         mat-stroked-button
         type="button"
@@ -390,6 +398,15 @@
                     (click)="openWatchlistDialog(row)"
                   >
                     <fa-icon [icon]="faCircleInfo"></fa-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="bgs-info-button"
+                    [title]="'Aggiungi ' + row.systemName + ' agli ordini'"
+                    [attr.aria-label]="'Aggiungi ' + row.systemName + ' agli ordini'"
+                    (click)="addToOrders(row)"
+                  >
+                    <fa-icon [icon]="faClipboardList"></fa-icon>
                   </button>
                 </td>
                 <td class="bgs-col-freshness">

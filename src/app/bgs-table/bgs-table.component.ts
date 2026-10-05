@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, computed, 
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,6 +16,8 @@ import {
   faChevronLeft,
   faChevronRight,
   faCircleInfo,
+  faCircleQuestion,
+  faClipboardList,
   faPen,
   faCopy,
   faDownload,
@@ -22,6 +25,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { BgsRow, rowWithAssignment } from '../../core/bgs';
 import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM } from '../../core/config';
+import { draftItemFromRow } from '../../core/orders';
+import { HelpDialogComponent } from '../help-dialog/help-dialog.component';
+import { OrdersStore } from '../orders/orders.store';
 import { BgsService, DatasetInfo, TypeaheadSystem } from '../bgs.service';
 import {
   AssignArchitectDialogComponent,
@@ -183,6 +189,7 @@ function toAnchorPoint(system: TypeaheadSystem): AnchorPoint {
   imports: [
     DecimalPipe,
     ReactiveFormsModule,
+    RouterLink,
     MatAutocompleteModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -199,6 +206,7 @@ function toAnchorPoint(system: TypeaheadSystem): AnchorPoint {
 export class BgsTableComponent implements OnDestroy {
   private readonly bgsService = inject(BgsService);
   private readonly dialog = inject(MatDialog);
+  private readonly ordersStore = inject(OrdersStore);
 
   protected readonly faChevronLeft = faChevronLeft;
   protected readonly faChevronRight = faChevronRight;
@@ -208,6 +216,8 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly faDownload = faDownload;
   protected readonly faCircleInfo = faCircleInfo;
   protected readonly faPen = faPen;
+  protected readonly faClipboardList = faClipboardList;
+  protected readonly faCircleQuestion = faCircleQuestion;
   /** The squadron's faction, named in the ACFS column header's tooltip and highlighted orange in the Factions chart. */
   protected readonly factionName = FACTION_NAME;
   protected readonly encodeURIComponent = encodeURIComponent;
@@ -834,6 +844,23 @@ export class BgsTableComponent implements OnDestroy {
           this.applyAssignment(submission);
         }
       });
+  }
+
+  /**
+   * Starts an Ordini Ufficiali draft for this system — see {@link draftItemFromRow} for how
+   * the type is guessed from the row's current state. Lands in the cart at /ordini, behind
+   * its own passphrase gate if not already unlocked this session.
+   */
+  protected addToOrders(row: BgsRow): void {
+    this.ordersStore.addDraftItem(draftItemFromRow(row));
+  }
+
+  protected openHelpDialog(): void {
+    this.dialog.open(HelpDialogComponent, {
+      autoFocus: 'first-tabbable',
+      restoreFocus: true,
+      maxWidth: 'min(1168px, 90vw)',
+    });
   }
 
   /** Hover/aria text for a row's info button: the Priority Watchlist reason if listed, otherwise plain system info. */
