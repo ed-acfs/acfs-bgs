@@ -5,6 +5,10 @@
   "homeSystem": "Wong Sher",
   "compareFaction": null,
   "conflictMarginPoints": 5,
+  "semaphores": {
+    "influence": { "green": 50, "yellow": 40 },
+    "margin": { "green": 30, "yellow": 18 }
+  },
   "unregisteredScope": "in-scope",
   "storagePrefix": "acfs-bgs:",
   "dataUrl": "data/bgs.json",

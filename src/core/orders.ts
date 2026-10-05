@@ -7,6 +7,7 @@
 import { BgsRow } from './bgs';
 import { findOrderType, findStatusEmoji, findTrendEmoji, OrderRenderStyle } from './order-types';
 import { SQUADRON_TAG } from './config';
+import { influenceSemaphore, SEMAPHORE_STATUS_KEY } from './semaphore';
 
 /** Which block of the report an item belongs to. */
 export type OrderSection = 'operazioni' | 'cantieri' | 'note' | 'concluse';
@@ -275,7 +276,8 @@ export function setOrderPending(item: OrderItem, pending: boolean): OrderItem {
 /**
  * A starting point for "Aggiungi agli ordini" on a table row: guesses the type from the row's
  * war or election (active or pending), falling back to an influence push with its current
- * percentage prefilled. Active operations land in 'operazioni' at priority 1 — the user sorts
+ * percentage prefilled and the influence traffic light as its status (🟢/🟡/🔴, see
+ * `semaphore.ts`). Active operations land in 'operazioni' at priority 1 — the user sorts
  * them from there; a pending conflict lands in 'note' (see {@link setOrderPending}). Nothing
  * else goes to 'note' on its own: that section is mostly free text. The outcome text (`detail`)
  * is left for the user to write, since it depends on who's attacking whom, which the dataset
@@ -291,5 +293,6 @@ export function draftItemFromRow(row: Pick<BgsRow, 'systemName' | 'factionInflue
     ...createOrderItem('operazioni', 'influence'),
     system: row.systemName,
     score: row.factionInfluence !== null ? `${row.factionInfluence.toFixed(1)}%` : '',
+    statusKeys: row.factionInfluence !== null ? [SEMAPHORE_STATUS_KEY[influenceSemaphore(row.factionInfluence)]] : [],
   };
 }

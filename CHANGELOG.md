@@ -7,6 +7,7 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 ### Interfaccia
 
 - Nella colonna Stato la guerra si indica con ⚔️, la stessa icona degli Ordini Ufficiali, invece che con 🔫.
+- **Semafori dello squadrone** sulle colonne ACFS e Margine, nei sistemi che controlliamo (`core/semaphore.ts`, soglie in `config.json`): influenza 🟢 dal 50%, 🟡 da 40,0 a 49,9%, 🔴 sotto il 40%; Margine 🟢 da 30 punti, 🟡 da 18 a 29,9, 🔴 sotto 18. Almeno un verde: sistema tranquillo; almeno un rosso: da seguire. Il vantaggio sotto i 5 punti (rischio di conflitto per il controllo) resta segnalato a parte, con ⚠️ e in grassetto. Dove non controlliamo l'influenza resta arancione e il Margine grigio.
 - Nuovo pulsante **Legenda** nell'intestazione: apre sopra la tabella un pannello che spiega colori e icone (età del dato, stati, priorità, influenza e margine, icone del sistema e dell'architetto). Gli esempi usano gli stessi stili della tabella.
 
 ### Ordini Ufficiali
@@ -14,6 +15,7 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 - I pulsanti di stato erano scritti in nero su sfondo scuro e non si leggevano: ora hanno il colore del testo e lo stato attivo è evidenziato.
 - Nell'editor stati, tendenze e tipi si vedono come emoji (🆕 🟢 🚨 ✅ ❌, ⬆️ ⬇️ ↔️, 🗳️ ⚔️ 📊 🏗️) invece che come codici Discord. Il testo da copiare usa ancora i codici, che servono per le emoji del server (`:RedAlert:`, `:Expansion:`).
 - Nuovi stati 🟡 (`:yellow_circle:`, risultato insoddisfacente: nessun punto segnato ieri, influenza sotto il 49%) e 🔴 (`:red_circle:`, risultato negativo: punto perso, influenza sotto il 39,9%; se è grave si abbina a 🚨).
+- Una riga di influenza aggiunta dalla tabella ha già lo stato del semaforo dell'influenza (🟢, 🟡 o 🔴), da correggere a mano se serve.
 - Con ✅ o ❌ la riga passa da sola nelle **Operazioni concluse** (e torna indietro se si toglie la spunta). I due stati si escludono a vicenda.
 - **Note & informazioni** non si riempie più da sola con le Expansion dei sistemi aggiunti dalla tabella: è una sezione di testo libero. Ci finiscono invece le elezioni e le guerre in **Pending**, con punteggio "Draw; 0-0" e 🆕; togliendo la spunta Pending tornano fra le Operazioni.
 - Il punteggio di un conflitto si scrive sempre dal nostro punto di vista, con i nostri giorni prima (es. "Close Defeat; 0-2").

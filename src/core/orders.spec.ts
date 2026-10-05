@@ -332,6 +332,13 @@ describe('draftItemFromRow', () => {
     expect(draft.score).toBe('43.6%');
   });
 
+  it('presets the influence traffic light as the status', () => {
+    expect(draftItemFromRow(baseRow).statusKeys).toEqual(['warning']);
+    expect(draftItemFromRow({ ...baseRow, factionInfluence: 55 }).statusKeys).toEqual(['ok']);
+    expect(draftItemFromRow({ ...baseRow, factionInfluence: 12 }).statusKeys).toEqual(['bad']);
+    expect(draftItemFromRow({ ...baseRow, factionInfluence: null }).statusKeys).toEqual([]);
+  });
+
   it('leaves the score blank when the faction has no presence at all', () => {
     const draft = draftItemFromRow({ ...baseRow, factionInfluence: null });
     expect(draft.score).toBe('');

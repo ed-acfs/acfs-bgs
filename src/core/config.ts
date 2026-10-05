@@ -23,6 +23,18 @@ export const COMPARE_FACTION: string | null = config.compareFaction;
 /** Below this lead over the next faction (in percentage points), a controlled system is at risk of a conflict. */
 export const CONFLICT_MARGIN_POINTS: number = config.conflictMarginPoints;
 
+/** Lower bounds of a traffic light: at or above `green` it's green, at or above `yellow` yellow, red below. */
+export interface SemaphoreThreshold {
+  green: number;
+  yellow: number;
+}
+
+/**
+ * The squadron's two traffic lights for a controlled system (see `semaphore.ts`): influence in
+ * percent and the lead over the second faction in points.
+ */
+export const SEMAPHORE_THRESHOLDS: { influence: SemaphoreThreshold; margin: SemaphoreThreshold } = config.semaphores;
+
 /**
  * How the priority treats a system the Architect Registry says nothing about: "in-scope"
  * counts it as ours (defend it and push for control), "assumed" only defends it until
