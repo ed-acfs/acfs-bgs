@@ -2,6 +2,26 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.8.0] - 2026-10-05 — Ordini Ufficiali e titolo 1.0
+
+### Ordini Ufficiali
+
+- Nuova pagina **`/ordini`**, dietro passphrase condivisa (deterrente, non vera protezione, finché non arriva la fase 8): compone il report giornaliero delle operazioni, con le stesse sezioni e la stessa formattazione del messaggio che lo squadrone già posta su Discord (Operazioni per priorità, Cantieri Aperti, Note & Informazioni, Operazioni Concluse).
+- Tipi di attività (Elezione, Guerra, Spinta influenza, Cantiere, Expansion da monitorare, Nota libera) definiti in `core/order-types.json`, non nel codice: per aggiungerne uno nuovo basta modificare il file.
+- La data del report è quella di gioco (anno reale + 1286, come fa già lo squadrone a mano), calcolata da sola.
+- Nuovo flag **"Pending"** per un'elezione o una guerra non ancora attiva (dura 1 giorno fino al tick successivo) o un'expansion non ancora conclusa (fino a 3 giorni); nuova freccia di tendenza **stabile** (↔) per un cambiamento di 0-1%.
+- Pulsante **"Aggiungi agli ordini"** su ogni riga della tabella: precompila sistema e tipo dallo stato attuale (guerra, elezione, expansion, o l'influenza corrente se nessuno dei tre è in corso).
+- Il carrello resta solo nel browser (`localStorage`): non si sincronizza fra i due computer dell'utente (vedi `CLAUDE.md`).
+- Nuovo pulsante **Guida** (anche nella pagina Ordini, "Come funziona?"): apre una breve spiegazione del tool e di come comporre gli ordini.
+
+### Titolo
+
+- Il tool si presenta come **"ACFS BGS Tool 1.0"** (titolo della pagina e intestazione), per segnare l'avvicinamento alla produzione.
+
+### Test
+
+- Nuovi test per il modello e il rendering degli ordini (`core/orders.spec.ts`, `core/orders-access.spec.ts`). Passano 175 test dell'app.
+
 ## [0.7.0] - 2026-10-05 — Controllo dei dati ogni 30 minuti e contatore del tick
 
 ### Aggiornamento dei dati

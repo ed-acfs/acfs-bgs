@@ -1,7 +1,10 @@
 <div class="orders-container">
   <div class="orders-title-row">
     <h1>Ordini Ufficiali</h1>
-    <button mat-stroked-button type="button" (click)="openHelp()">Come funziona?</button>
+    <div class="orders-title-actions">
+      <a mat-stroked-button routerLink="/">&larr; Torna alla tabella</a>
+      <button mat-stroked-button type="button" (click)="openHelp()">Come funziona?</button>
+    </div>
   </div>
 
   @if (!store.unlocked()) {

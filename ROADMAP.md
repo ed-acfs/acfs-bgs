@@ -128,6 +128,22 @@ Da proteggere sono **lo Sheet e le sue note**, non i dati Spansh (chiunque può 
 
 Già dalle fasi 1–7 vale una regola: niente dati strategici nel repo. Lo Sheet si legge per URL configurabile, così passare alla fase 8 non richiede di riscrivere l'app.
 
+### 9. Ordini Ufficiali
+
+Nata da un'idea dell'utente il 5 ottobre 2026, non prevista nelle fasi originarie: comporre nel tool il report giornaliero che lo squadrone scrive a mano su Discord ("ordini ufficiali"), invece di scriverlo da zero ogni volta.
+
+- [x] Pagina `/ordini`, dietro passphrase condivisa (`core/orders-access.ts`, hash in `config.json`): deterrente, non vera protezione, finché non arriva la fase 8
+- [x] `core/orders.ts` + `core/order-types.json`: modello e rendering Markdown dello stesso formato già in uso su Discord (sezioni, priorità, icone, stati), con la data di gioco calcolata da sola e il flag "Pending" per uno stato non ancora attivo
+- [x] Pulsante "Aggiungi agli ordini" su ogni riga della tabella, con sistema e tipo precompilati dallo stato attuale
+- [x] Ricerca sistemi nella pagina Ordini con lo stesso intermediario tipo Spansh della ricerca per distanza, quindi funziona anche per sistemi non presenti nel tool
+- [x] Guida rapida in-app (pulsante "Guida" / "Come funziona?")
+- [ ] Passphrase reale al posto del placeholder (`cambiami`) prima di condividere il link allo squadrone
+- [ ] Vista di sola lettura separata dall'editor (per ora l'anteprima Markdown nella stessa pagina copre il caso d'uso, ma non è "bella" da leggere su mobile)
+- [ ] Il carrello non si sincronizza fra i due PC dell'utente (solo `localStorage`, vedi `CLAUDE.md`): da rivedere se diventa un problema nell'uso quotidiano
+- [ ] Collegamento con la fase 7 (report Discord automatico) e con l'idea "Pattuglia": oggi sono due strumenti separati, uno manuale (Ordini) e uno da costruire (webhook automatico)
+
+**Fatto quando:** comporre e copiare gli ordini del giorno richiede meno lavoro che scriverli a mano. Da provare nell'uso reale prima di togliere la passphrase placeholder.
+
 ## Idee per versioni future
 
 - **Pattuglia ("Da visitare").** Dopo il tick Spansh si aggiorna solo quando un giocatore con un client EDDN (EDMC, EDDiscovery) passa nel sistema, quindi i dati arrivano nel giro di ore. L'unico modo di accelerare è mandarci qualcuno. Idea: una funzione a parte, non una colonna della tabella, con i sistemi P1-P2 ancora fermi a prima dell'ultimo tick, ordinati per priorità e distanza da Wong Sher, da girare ai piloti; anche nel report Discord (fase 7). Il dato c'è già: `core/tick-coverage.ts` sa quali sistemi sono aggiornati dopo il tick. Deciso il 5 ottobre 2026 di tenerla fuori dalla 0.7.0: rientra fra le nuove funzioni del tool ancora da progettare.

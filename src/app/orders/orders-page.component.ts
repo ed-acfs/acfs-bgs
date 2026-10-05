@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -34,6 +35,7 @@ const SECTION_OPTIONS: { value: OrderSection; label: string }[] = [
   selector: 'app-orders-page',
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     MatAutocompleteModule,
     MatButtonModule,
     MatCheckboxModule,
