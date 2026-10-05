@@ -21,7 +21,6 @@ const ROW: BgsRow = {
   notAColony: false,
   preferredFaction: null,
   preferredFactionRecorded: false,
-  hasOwnStation: false,
   factionDetails: [],
   stations: [],
   stationCount: null,

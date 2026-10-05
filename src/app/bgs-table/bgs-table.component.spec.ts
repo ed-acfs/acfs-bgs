@@ -16,7 +16,6 @@ function row(systemName: string): BgsRow {
     notAColony: false,
     preferredFaction: null,
     preferredFactionRecorded: false,
-    hasOwnStation: false,
     factionDetails: [],
     stations: [],
     stationCount: null,

@@ -198,10 +198,8 @@ export interface BgsRow {
    * (see {@link derivePreferredFaction}).
    */
   preferredFaction: string | null;
-  /** False when {@link preferredFaction} was derived from the stations rather than recorded in the registry — shown grey. */
+  /** False when {@link preferredFaction} was derived from system control rather than recorded in the registry — shown grey. */
   preferredFactionRecorded: boolean;
-  /** Whether the squadron's faction controls at least one station in the system. */
-  hasOwnStation: boolean;
   /** Stations in the system, all of them — the Priority column's tiebreak after the priority itself. Null if the API omits it. */
   stationCount: number | null;
   /** Every minor faction present in the system, sorted by influence descending (highest first). */
@@ -263,15 +261,10 @@ export function rowWithAssignment(row: BgsRow, submission: ArchitectSubmission):
 
 /**
  * The preferred faction for a system with no Architect Registry preference: the squadron's
- * faction when it controls at least one station here, otherwise none.
+ * faction when it already controls the system, otherwise none.
  */
-export function derivePreferredFaction(row: Pick<BgsRow, 'hasOwnStation'>): string | null {
-  return row.hasOwnStation ? FACTION_NAME : null;
-}
-
-/** Whether the squadron's faction controls a station. */
-export function isOwnStation(station: StationRecord): boolean {
-  return station.controlling_minor_faction === FACTION_NAME;
+export function derivePreferredFaction(row: Pick<BgsRow, 'controllingFaction'>): string | null {
+  return row.controllingFaction === FACTION_NAME ? FACTION_NAME : null;
 }
 
 /**
@@ -553,7 +546,6 @@ export function toBgsRow(
     requiresCorroboration: false,
     describeMatch: describeSingleFaction,
   });
-  const hasOwnStation = (record.assets ?? []).some(isOwnStation);
   const recordedPreference = info?.preferredFaction || null;
   const controllingFaction = record.controlling_minor_faction ?? null;
   const factions = [...presences]
@@ -571,9 +563,8 @@ export function toBgsRow(
     architect: info?.architect || null,
     architectAffiliation: info?.affiliation || null,
     notAColony: info?.affiliation === AFFILIATION_NOT_A_COLONY,
-    preferredFaction: recordedPreference ?? derivePreferredFaction({ hasOwnStation }),
+    preferredFaction: recordedPreference ?? derivePreferredFaction({ controllingFaction }),
     preferredFactionRecorded: recordedPreference !== null,
-    hasOwnStation,
     stationCount: record.station_count ?? null,
     factions,
     stations: (record.assets ?? []).map(asset => ({
