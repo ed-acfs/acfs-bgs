@@ -39,9 +39,11 @@
         }
       </mat-autocomplete>
       @if (form.controls.architect.hasError('required') && form.controls.architect.touched) {
-        <mat-error>Indica l'architetto, oppure scegli "Nobody" come appartenenza.</mat-error>
-      } @else if (!architectRequired()) {
+        <mat-error>Indica l'architetto, oppure scegli "Non so" come appartenenza.</mat-error>
+      } @else if (affiliationIsNotAColony()) {
         <mat-hint>Se il sistema non è una colonia, l'architetto resta vuoto</mat-hint>
+      } @else if (!architectRequired()) {
+        <mat-hint>Facoltativo: lascialo vuoto se non sai chi è</mat-hint>
       }
     </mat-form-field>
 
