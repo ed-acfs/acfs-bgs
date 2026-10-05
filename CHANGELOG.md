@@ -2,6 +2,12 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [Non rilasciato]
+
+### Tabella
+
+- I sistemi della **Watchlist** sono sempre in cima, poi tutti gli altri nell'ordine di Spansh (dal più aggiornato). Prima l'ordine era solo quello di Spansh, e un sistema della Watchlist poteva finire in fondo. Cliccando un'intestazione si ordina comunque per quella colonna.
+
 ## [0.9.1] - 2026-10-05 — Colonna Distanza
 
 ### Tabella

@@ -69,7 +69,8 @@ describe('BgsService dataset loading', () => {
     const beyond = await service.getPage(1);
 
     expect(rows.length).toBe(TOTAL_SYSTEMS);
-    expect(rows[0].systemName).toBe('System 0');
+    // System 1 is on the watchlist (see WATCHLIST_TSV), so it comes first; then the file's order.
+    expect(rows.slice(0, 2).map(row => row.systemName)).toEqual(['System 1', 'System 0']);
     expect(beyond.rows).toEqual([]);
     expect(fetchMock.mock.calls.filter(([url]) => url === BGS_DATA_URL)).toHaveLength(1);
   });

@@ -12,7 +12,7 @@ import {
   WATCHLIST_SHEET_URL,
 } from '../core/config';
 import { logger } from '../core/logger';
-import { PriorityWatchlistEntry, buildWatchlistMap, parseWatchlistTsv } from '../core/priority-watchlist';
+import { PriorityWatchlistEntry, buildWatchlistMap, parseWatchlistTsv, watchlistFirst } from '../core/priority-watchlist';
 
 /**
  * The published sheets ({@link ARCHITECTS_SHEET_URL}, {@link WATCHLIST_SHEET_URL}) are
@@ -240,7 +240,8 @@ export class BgsService {
     const [dataset, architects, watchlist] = await Promise.all([this.getDataset(), this.getArchitectInfo(), this.getWatchlist()]);
     return {
       page,
-      rows: page === 0 ? dataset.results.map(record => toBgsRow(record, architects, watchlist)) : [],
+      // Watchlist systems on top, then Spansh's order (most recently updated first).
+      rows: page === 0 ? watchlistFirst(dataset.results.map(record => toBgsRow(record, architects, watchlist))) : [],
       totalCount: dataset.results.length,
       totalPages: 1,
     };
