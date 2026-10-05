@@ -1,4 +1,4 @@
-import { buildWatchlistMap, parseWatchlistTsv } from './priority-watchlist';
+import { buildWatchlistMap, parseWatchlistTsv, watchlistFirst } from './priority-watchlist';
 
 describe('parseWatchlistTsv', () => {
   it('parses rows by column name, trimming whitespace', () => {
@@ -47,5 +47,20 @@ describe('buildWatchlistMap', () => {
     ]);
     expect(map.get('Haiden')).toEqual([{ systemName: 'Haiden', faction: 'Flotta Stellare', position: 1, details: 'C' }]);
     expect(map.get('Nonexistent')).toBeUndefined();
+  });
+});
+
+describe('watchlistFirst', () => {
+  const entry = { systemName: 'x', faction: 'Flotta Stellare', position: 1, details: '' };
+  const row = (name: string, watched: boolean) => ({ name, watchlist: watched ? [entry] : [] });
+
+  it('puts watched systems first, keeping the original order within both groups', () => {
+    const rows = [row('A', false), row('B', true), row('C', false), row('D', true)];
+    expect(watchlistFirst(rows).map(r => r.name)).toEqual(['B', 'D', 'A', 'C']);
+  });
+
+  it('leaves the order alone when nothing is watched', () => {
+    const rows = [row('A', false), row('B', false)];
+    expect(watchlistFirst(rows).map(r => r.name)).toEqual(['A', 'B']);
   });
 });
