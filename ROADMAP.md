@@ -105,6 +105,7 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 - [x] Provato in locale servendo il build sotto il percorso del sito, come fa GitHub Pages
 - [x] Dalla 0.7.0 il controllo dei dati è **ogni 30 minuti** (ai minuti 17 e 47). Lo script `scripts/data-changed.mjs` confronta il download con il `bgs.json` del sito, escluso `generated_at`: se è uguale, il workflow si ferma senza build né deploy. Si pubblica solo quando Spansh ha qualcosa di nuovo
 - [x] Dalla 0.7.0, sotto il titolo, contatore dei sistemi aggiornati dopo l'ultimo tick, in totale e fra i P1-P2 (`core/tick-coverage.ts`). La colonna "Aggiornato" resta in giorni, per scelta
+- [x] Verificato il 5 ottobre 2026: le esecuzioni programmate senza dati nuovi stampano "Same data as the site" e saltano il deploy; quelle con dati nuovi pubblicano. Però GitHub ne ha eseguite solo 3 in tutta la giornata invece di 48: se servono aggiornamenti più regolari (per esempio per il report della fase 7), valutare un innesco esterno (`workflow_dispatch` da un cron esterno o da un Worker)
 
 **Fatto quando:** il sito è online e si aggiorna da solo.
 
