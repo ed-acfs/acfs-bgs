@@ -1,6 +1,6 @@
 {
   "name": "acfs-bgs-tool",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "scripts": {
     "ng": "ng",
     "fetch-data": "node scripts/fetch-bgs.mjs",

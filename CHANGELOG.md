@@ -2,7 +2,7 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [Non rilasciato]
+## [0.9.0] - 2026-10-05 — Semafori, legenda e editor degli ordini
 
 ### Interfaccia
 
