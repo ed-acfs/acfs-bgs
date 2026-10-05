@@ -12,6 +12,7 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
 ### Ordini Ufficiali
 
+- Il link diretto a https://flottastellare.it/acfs-bgs-tool/ordini dava 404 (si arrivava alla pagina solo dal pulsante della tabella): ora il build per il sito copia `index.html` in `404.html` (`scripts/spa-fallback.mjs`), così GitHub Pages carica l'app e il router apre la pagina giusta.
 - Si sceglie la **data degli ordini**: per default è domani (di solito gli ordini si scrivono oggi per domani), con la data di gioco mostrata sotto il campo. Una data scelta resta finché non è passata.
 - I pulsanti di stato erano scritti in nero su sfondo scuro e non si leggevano: ora hanno il colore del testo e lo stato attivo è evidenziato.
 - Nell'editor stati, tendenze e tipi si vedono come emoji (🆕 🟢 🚨 ✅ ❌, ⬆️ ⬇️ ↔️, 🗳️ ⚔️ 📊 🏗️) invece che come codici Discord. Il testo da copiare usa ancora i codici, che servono per le emoji del server (`:RedAlert:`, `:Expansion:`).
