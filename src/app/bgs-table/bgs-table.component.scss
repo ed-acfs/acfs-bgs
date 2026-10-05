@@ -381,20 +381,34 @@
   font-weight: 600;
 }
 
-/* Margin: a comfortable lead (green), a lead thin enough to risk a conflict (red), or the
-   gap to the controlling faction in a system we don't hold (muted). */
+/* The squadron's traffic lights (core/semaphore.ts) on influence and Margine in systems we
+   control; a lead under the conflict threshold is also bold. Elsewhere the Margine is the gap
+   to the controlling faction (muted). */
 .bgs-col-margin {
   font-variant-numeric: tabular-nums;
 }
 
-.bgs-table td.bgs-margin--lead {
+.bgs-light--green,
+.bgs-table td.bgs-light--green {
   color: var(--color-success);
   font-weight: 600;
 }
 
-.bgs-table td.bgs-margin--risk {
+.bgs-light--yellow,
+.bgs-table td.bgs-light--yellow {
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
+.bgs-light--red,
+.bgs-table td.bgs-light--red {
   color: var(--color-danger);
-  font-weight: 700;
+  font-weight: 600;
+}
+
+.bgs-margin--risk,
+.bgs-table td.bgs-margin--risk {
+  font-weight: 800;
 }
 
 .bgs-table td.bgs-margin--gap {

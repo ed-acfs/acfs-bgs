@@ -11,8 +11,14 @@ export type OrderRenderStyle = 'operation' | 'plain' | 'note';
 export interface OrderType {
   key: string;
   label: string;
-  /** Discord emoji shorthand (e.g. `:ballot_box:`), or '' for a plain note with no icon. */
+  /** Discord emoji shorthand (e.g. `:ballot_box:`) or the emoji itself (🏗️), or '' for a plain note with no icon. */
   icon: string;
+  /**
+   * The same icon as a Unicode emoji, for the editor's selectors — `icon` stays the Discord
+   * shorthand that goes into the copied report. Server-only emoji (`:Expansion:`) get the
+   * closest Unicode lookalike.
+   */
+  display: string;
   /**
    * 'operation': two lines, system + status then "{verb} per {tag} > {detail}".
    * 'plain': two lines like 'operation', but the second line is just {detail} (no verb prefix) —
@@ -34,7 +40,10 @@ export interface OrderType {
 
 export interface OrderFlag {
   key: string;
+  /** Discord shorthand written into the report (e.g. `:arrow_down:`, or a server emoji like `:RedAlert:`). */
   emoji: string;
+  /** Unicode emoji shown in the editor instead of the shorthand (closest lookalike for server emoji). */
+  display: string;
   label: string;
 }
 

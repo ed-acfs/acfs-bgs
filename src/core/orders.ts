@@ -7,6 +7,7 @@
 import { BgsRow } from './bgs';
 import { findOrderType, findStatusEmoji, findTrendEmoji, OrderRenderStyle } from './order-types';
 import { SQUADRON_TAG } from './config';
+import { influenceSemaphore, SEMAPHORE_STATUS_KEY } from './semaphore';
 
 /** Which block of the report an item belongs to. */
 export type OrderSection = 'operazioni' | 'cantieri' | 'note' | 'concluse';
@@ -45,7 +46,7 @@ export interface OrderItem {
 
 /** Everything about one day's report besides the operation lines themselves. */
 export interface OrdersDraft {
-  /** The real-world date the report is composed on; rendered as the in-game date (see {@link formatOrdersDate}). */
+  /** The real-world day the orders are for (usually tomorrow, see {@link resolveOrdersDay}); rendered as the in-game date (see {@link formatOrdersDate}). */
   date: Date;
   /** The role or name pinged at the top (e.g. "@Membro Flotta"). Editable per report, not fixed in config. */
   mention: string;
@@ -96,6 +97,37 @@ export function formatOrdersDate(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear() + IN_GAME_YEAR_OFFSET;
   return `${day}/${month}/${year}`;
+}
+
+/** A calendar day as `YYYY-MM-DD` (local time), the format of an `<input type="date">`. */
+export function toIsoDay(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/** The local-midnight Date for a `YYYY-MM-DD` day, or null if the text isn't one. */
+export function parseIsoDay(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) {
+    return null;
+  }
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * The day the orders are for. The squadron usually writes today's report for tomorrow, so
+ * that's the default; a day the user picked is kept until it's in the past, so a choice left
+ * over from an earlier session never dates a new report backwards.
+ */
+export function resolveOrdersDay(picked: string | null, now: Date): string {
+  const today = toIsoDay(now);
+  if (picked && parseIsoDay(picked) && picked >= today) {
+    return picked;
+  }
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  return toIsoDay(tomorrow);
 }
 
 function renderStatusSuffix(statusKeys: readonly string[]): string {
@@ -198,30 +230,182 @@ export function createOrderItem(section: OrderSection, typeKey: string): OrderIt
   };
 }
 
+/** The score of a conflict that hasn't started yet: nobody has won a day. */
+export const PENDING_CONFLICT_SCORE = 'Draw; 0-0';
+
+/** Status keys that mean the operation is over; they belong in the 'concluse' section. */
+const CONCLUDED_STATUS_KEYS: readonly string[] = ['done', 'failed'];
+
+function isPendingConflict(item: OrderItem): boolean {
+  return item.pending && findOrderType(item.typeKey)?.style === 'operation';
+}
+
 /**
- * A starting point for "Aggiungi agli ordini" on a table row: guesses the type from whatever
- * active-or-pending state the row has (war, then election, then expansion), falling back to
- * an influence push with its current percentage prefilled. Always lands in the 'operazioni'
- * section at priority 1 — the user sorts it from there. The outcome text (`detail`) is left
- * for the user to write, since it depends on who's attacking whom, which the dataset doesn't say.
+ * Where an item belongs when it isn't concluded: a war or election still pending goes under
+ * "Note & informazioni" (the squadron announces it there the day before it starts), a
+ * construction under "Cantieri aperti", a free note under "Note", everything else under
+ * "Operazioni" (keeping its priority, or 1 if it never had one).
  */
-export function draftItemFromRow(row: Pick<BgsRow, 'systemName' | 'factionInfluence' | 'warState' | 'electionState' | 'expansionState'>): OrderItem {
-  if (row.warState) {
-    return { ...createOrderItem('operazioni', 'war'), system: row.systemName, pending: row.warState === 'pending' };
+function openSectionPatch(item: OrderItem): Pick<OrderItem, 'section' | 'priority'> {
+  if (isPendingConflict(item)) {
+    return { section: 'note', priority: item.priority };
   }
-  if (row.electionState) {
-    return { ...createOrderItem('operazioni', 'election'), system: row.systemName, pending: row.electionState === 'pending' };
+  const style = findOrderType(item.typeKey)?.style;
+  if (style === 'plain') {
+    return { section: 'cantieri', priority: item.priority };
   }
-  if (row.expansionState) {
+  if (style === 'note') {
+    return { section: 'note', priority: item.priority };
+  }
+  return { section: 'operazioni', priority: item.priority ?? 1 };
+}
+
+/**
+ * Turns a status flag on or off. Flags keep the fixed order of `order-types.json` whatever the
+ * click order. "Concluso" and "Concluso senza successo" exclude each other and move the item
+ * to "Operazioni concluse"; taking the last of them off moves it back where it came from.
+ */
+export function toggleOrderStatus(item: OrderItem, key: string, statusOrder: readonly string[]): OrderItem {
+  const present = item.statusKeys.includes(key);
+  let next = present ? item.statusKeys.filter(k => k !== key) : [...item.statusKeys, key];
+  if (!present && CONCLUDED_STATUS_KEYS.includes(key)) {
+    next = next.filter(k => k === key || !CONCLUDED_STATUS_KEYS.includes(k));
+  }
+  const statusKeys = statusOrder.filter(k => next.includes(k));
+  const updated = { ...item, statusKeys };
+  if (statusKeys.some(k => CONCLUDED_STATUS_KEYS.includes(k))) {
+    return { ...updated, section: 'concluse' };
+  }
+  return item.section === 'concluse' ? { ...updated, ...openSectionPatch(updated) } : updated;
+}
+
+/**
+ * Marks a war or election as pending (not started yet) or active. A pending conflict moves to
+ * "Note & informazioni" with the score "Draw; 0-0" and the 🆕 flag, unless those were already
+ * filled in; once it starts it moves back to "Operazioni". Concluded items stay where they are.
+ */
+export function setOrderPending(item: OrderItem, pending: boolean): OrderItem {
+  const updated = { ...item, pending };
+  if (item.typeKey === 'expansion') {
+    // A note-style line: the "Pending" lives in the text the squadron writes, so swap it there.
+    const detail = pending ? item.detail.replace(/^Expansion\b/, 'Pending Expansion') : item.detail.replace(/^Pending Expansion\b/, 'Expansion');
+    return { ...updated, detail };
+  }
+  if (item.section === 'concluse' || findOrderType(item.typeKey)?.style !== 'operation') {
+    return updated;
+  }
+  if (pending) {
     return {
-      ...createOrderItem('note', 'expansion'),
-      statusKeys: ['new'],
-      detail: `Pending Expansion da **${row.systemName}** - Sistema di arrivo: **?**`,
+      ...updated,
+      ...openSectionPatch(updated),
+      score: item.score || PENDING_CONFLICT_SCORE,
+      statusKeys: item.statusKeys.includes('new') ? item.statusKeys : ['new', ...item.statusKeys],
     };
+  }
+  return {
+    ...updated,
+    ...openSectionPatch(updated),
+    score: item.score === PENDING_CONFLICT_SCORE ? '' : item.score,
+  };
+}
+
+type DraftRow = Pick<BgsRow, 'systemName' | 'factionInfluence' | 'warState' | 'electionState'>;
+
+/**
+ * A "Pending Expansion" line for "Note & informazioni", with origin and destination to fill in.
+ * Never derived from the dataset: Spansh repeats a faction's pending Expansion in nearly every
+ * system it's present in (189 of 389 on 5 October 2026), so the data can't tell where it starts.
+ */
+export function pendingExpansionTemplate(origin = ''): OrderItem {
+  return {
+    ...createOrderItem('note', 'expansion'),
+    system: origin,
+    pending: true,
+    statusKeys: ['new'],
+    detail: `Pending Expansion da **${origin || '?'}** - Sistema di arrivo: **?**`,
+  };
+}
+
+/**
+ * The text a 'note'-style line starts from when it gets a type and maybe a system: the
+ * expansion sentence for an expansion, the bold system name for a free note. Note-style lines
+ * have no separate system field in the report, so the system has to go into the text.
+ */
+function noteDetailFor(typeKey: string, system: string): Pick<OrderItem, 'detail' | 'pending' | 'statusKeys'> | null {
+  if (typeKey === 'expansion') {
+    const { detail, pending, statusKeys } = pendingExpansionTemplate(system);
+    return { detail, pending, statusKeys };
+  }
+  if (findOrderType(typeKey)?.style === 'note' && system) {
+    return { detail: `**${system}** `, pending: false, statusKeys: [] };
+  }
+  return null;
+}
+
+/** A new line from the editor's "Aggiungi riga" bar: section, type and an optional system. */
+export function createOrderItemFromBar(section: OrderSection, typeKey: string, system: string): OrderItem {
+  const item = { ...createOrderItem(section, typeKey), system };
+  const note = noteDetailFor(typeKey, system);
+  return note ? { ...item, ...note } : item;
+}
+
+/**
+ * Changes a line's type. A line with no text yet that becomes an expansion or a free note gets
+ * that type's starting text (see {@link noteDetailFor}), using the system already filled in.
+ */
+export function changeOrderType(item: OrderItem, typeKey: string): OrderItem {
+  const updated = { ...item, typeKey };
+  const note = item.detail.trim() === '' ? noteDetailFor(typeKey, item.system) : null;
+  return note ? { ...updated, ...note, statusKeys: note.statusKeys.length > 0 ? note.statusKeys : item.statusKeys } : updated;
+}
+
+/**
+ * A starting point for "Aggiungi agli ordini" on a table row: guesses the type from the row's
+ * war or election, falling back to an influence push with its current percentage
+ * prefilled and the influence traffic light as its status (🟢/🟡/🔴, see `semaphore.ts`).
+ * Active operations land in 'operazioni' at priority 1 — the user sorts them from there.
+ * A war or election still pending lands in 'note' with "Draw; 0-0" (see {@link setOrderPending}).
+ * Expansions are ignored (see {@link pendingExpansionTemplate}). The outcome text
+ * (`detail`) is left for the user to write, since it depends on who's attacking whom, which the
+ * dataset doesn't say.
+ */
+export function draftItemFromRow(row: DraftRow): OrderItem {
+  const conflict = row.warState ? { typeKey: 'war', state: row.warState } : row.electionState ? { typeKey: 'election', state: row.electionState } : null;
+  if (conflict) {
+    const item = { ...createOrderItem('operazioni', conflict.typeKey), system: row.systemName };
+    return conflict.state === 'pending' ? setOrderPending(item, true) : item;
   }
   return {
     ...createOrderItem('operazioni', 'influence'),
     system: row.systemName,
     score: row.factionInfluence !== null ? `${row.factionInfluence.toFixed(1)}%` : '',
+    statusKeys: row.factionInfluence !== null ? [SEMAPHORE_STATUS_KEY[influenceSemaphore(row.factionInfluence)]] : [],
   };
+}
+
+/**
+ * Prefills "Note & informazioni" with every pending war and election of our faction in the
+ * dataset, alphabetically, skipping any system and type already in the orders. Expansions are
+ * left out on purpose (see {@link pendingExpansionTemplate}).
+ */
+export function pendingItemsFromRows(rows: readonly DraftRow[], existing: readonly OrderItem[]): OrderItem[] {
+  const taken = new Set(existing.map(item => `${item.typeKey}|${item.system}`));
+  const conflicts: OrderItem[] = [];
+  const sorted = [...rows].sort((a, b) => a.systemName.localeCompare(b.systemName));
+  const add = (item: OrderItem) => {
+    const key = `${item.typeKey}|${item.system}`;
+    if (!taken.has(key)) {
+      taken.add(key);
+      conflicts.push(item);
+    }
+  };
+  for (const row of sorted) {
+    if (row.warState === 'pending') {
+      add(setOrderPending({ ...createOrderItem('operazioni', 'war'), system: row.systemName }, true));
+    }
+    if (row.electionState === 'pending') {
+      add(setOrderPending({ ...createOrderItem('operazioni', 'election'), system: row.systemName }, true));
+    }
+  }
+  return conflicts;
 }

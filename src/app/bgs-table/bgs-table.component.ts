@@ -25,7 +25,8 @@ import {
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
 import { BgsRow, rowWithAssignment } from '../../core/bgs';
-import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM } from '../../core/config';
+import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM, SEMAPHORE_THRESHOLDS } from '../../core/config';
+import { influenceSemaphore, marginSemaphore, Semaphore } from '../../core/semaphore';
 import { draftItemFromRow } from '../../core/orders';
 import { HelpDialogComponent } from '../help-dialog/help-dialog.component';
 import { OrdersStore } from '../orders/orders.store';
@@ -225,6 +226,7 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly encodeURIComponent = encodeURIComponent;
   /** Margin threshold named in the legend. */
   protected readonly conflictMarginPoints = CONFLICT_MARGIN_POINTS;
+  protected readonly semaphoreThresholds = SEMAPHORE_THRESHOLDS;
   /** Placeholder rows shown while data is still loading. */
   protected readonly skeletonRows = Array.from({ length: 12 }, (_, i) => i);
 
@@ -792,6 +794,19 @@ export class BgsTableComponent implements OnDestroy {
     return row.margin !== null && row.margin.controlled && row.margin.points < CONFLICT_MARGIN_POINTS;
   }
 
+  /**
+   * The influence traffic light, only for systems we control: elsewhere a low influence is
+   * expected and colouring it red would just be noise.
+   */
+  protected influenceLight(row: BgsRow): Semaphore | null {
+    return row.factionInfluence !== null && row.margin?.controlled ? influenceSemaphore(row.factionInfluence) : null;
+  }
+
+  /** The Margine traffic light, only for systems we control (elsewhere the cell is the gap to the controller). */
+  protected marginLight(row: BgsRow): Semaphore | null {
+    return row.margin?.controlled ? marginSemaphore(row.margin.points) : null;
+  }
+
   /** The Margin cell's text: signed points, Italian style ("+12,4", "−3,0"). */
   protected marginLabel(row: BgsRow): string {
     if (!row.margin) {
@@ -799,7 +814,8 @@ export class BgsTableComponent implements OnDestroy {
     }
     const points = row.margin.points;
     const magnitude = Math.abs(points).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-    return `${points < 0 ? '−' : '+'}${magnitude}`;
+    const warning = this.marginAtRisk(row) ? '⚠️ ' : '';
+    return `${warning}${points < 0 ? '−' : '+'}${magnitude}`;
   }
 
   /** Hover text for the Margin cell: who we're measured against, and what the number means. */

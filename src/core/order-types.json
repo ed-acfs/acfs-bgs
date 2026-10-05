@@ -1,22 +1,24 @@
 {
   "statuses": [
-    { "key": "new", "emoji": ":new:", "label": "Nuovo" },
-    { "key": "ok", "emoji": ":green_circle:", "label": "Favorevole" },
-    { "key": "urgent", "emoji": ":RedAlert:", "label": "Urgente" },
-    { "key": "done", "emoji": ":white_check_mark:", "label": "Concluso con successo" },
-    { "key": "failed", "emoji": ":x:", "label": "Concluso senza successo" }
+    { "key": "new", "emoji": ":new:", "display": "🆕", "label": "Nuovo" },
+    { "key": "ok", "emoji": ":green_circle:", "display": "🟢", "label": "Favorevole" },
+    { "key": "warning", "emoji": ":yellow_circle:", "display": "🟡", "label": "Insoddisfacente (es. nessun punto ieri, influenza sotto il 49%)" },
+    { "key": "bad", "emoji": ":red_circle:", "display": "🔴", "label": "Negativo (es. punto perso, influenza sotto il 39,9%)" },
+    { "key": "urgent", "emoji": ":RedAlert:", "display": "🚨", "label": "Urgente" },
+    { "key": "done", "emoji": ":white_check_mark:", "display": "✅", "label": "Concluso con successo" },
+    { "key": "failed", "emoji": ":x:", "display": "❌", "label": "Concluso senza successo" }
   ],
   "trends": [
-    { "key": "up", "emoji": ":arrow_up:", "label": "In salita" },
-    { "key": "down", "emoji": ":arrow_down:", "label": "In calo" },
-    { "key": "stable", "emoji": ":left_right_arrow:", "label": "Stabile (0-1%)" }
+    { "key": "up", "emoji": ":arrow_up:", "display": "⬆️", "label": "In salita" },
+    { "key": "down", "emoji": ":arrow_down:", "display": "⬇️", "label": "In calo" },
+    { "key": "stable", "emoji": ":left_right_arrow:", "display": "↔️", "label": "Stabile (0-1%)" }
   ],
   "types": [
-    { "key": "election", "label": "Elezione", "icon": ":ballot_box:", "style": "operation", "verb": "Election", "pendingDurationDays": 1 },
-    { "key": "war", "label": "Guerra", "icon": ":crossed_swords:", "style": "operation", "verb": "War", "pendingDurationDays": 1 },
-    { "key": "influence", "label": "Spinta influenza", "icon": ":bar_chart:", "style": "operation", "verb": "Inf" },
-    { "key": "construction", "label": "Cantiere", "icon": ":construction_site:", "style": "plain" },
-    { "key": "expansion", "label": "Expansion da monitorare", "icon": ":Expansion:", "style": "note", "pendingDurationDays": 3 },
-    { "key": "note", "label": "Nota libera", "icon": "", "style": "note" }
+    { "key": "election", "label": "Elezione", "icon": ":ballot_box:", "display": "🗳️", "style": "operation", "verb": "Election", "pendingDurationDays": 1 },
+    { "key": "war", "label": "Guerra", "icon": ":crossed_swords:", "display": "⚔️", "style": "operation", "verb": "War", "pendingDurationDays": 1 },
+    { "key": "influence", "label": "Spinta influenza", "icon": ":bar_chart:", "display": "📊", "style": "operation", "verb": "Inf" },
+    { "key": "construction", "label": "Cantiere", "icon": "🏗️", "display": "🏗️", "style": "plain" },
+    { "key": "expansion", "label": "Expansion da monitorare", "icon": ":Expansion:", "display": "🌐", "style": "note", "pendingDurationDays": 3 },
+    { "key": "note", "label": "Nota libera", "icon": "", "display": "", "style": "note" }
   ]
 }

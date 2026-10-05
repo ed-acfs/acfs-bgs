@@ -2,12 +2,28 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [Non rilasciato]
+## [0.9.0] - 2026-10-05 — Semafori, legenda e editor degli ordini
 
 ### Interfaccia
 
 - Nella colonna Stato la guerra si indica con ⚔️, la stessa icona degli Ordini Ufficiali, invece che con 🔫.
+- **Semafori dello squadrone** sulle colonne ACFS e Margine, nei sistemi che controlliamo (`core/semaphore.ts`, soglie in `config.json`): influenza 🟢 dal 50%, 🟡 da 40,0 a 49,9%, 🔴 sotto il 40%; Margine 🟢 da 30 punti, 🟡 da 18 a 29,9, 🔴 sotto 18. Almeno un verde: sistema tranquillo; almeno un rosso: da seguire. Il vantaggio sotto i 5 punti (rischio di conflitto per il controllo) resta segnalato a parte, con ⚠️ e in grassetto. Dove non controlliamo l'influenza resta arancione e il Margine grigio.
 - Nuovo pulsante **Legenda** nell'intestazione: apre sopra la tabella un pannello che spiega colori e icone (età del dato, stati, priorità, influenza e margine, icone del sistema e dell'architetto). Gli esempi usano gli stessi stili della tabella.
+
+### Ordini Ufficiali
+
+- Il link diretto a https://flottastellare.it/acfs-bgs-tool/ordini dava 404 (si arrivava alla pagina solo dal pulsante della tabella): ora il build per il sito copia `index.html` in `404.html` (`scripts/spa-fallback.mjs`), così GitHub Pages carica l'app e il router apre la pagina giusta.
+- Si sceglie la **data degli ordini**: per default è domani (di solito gli ordini si scrivono oggi per domani), con la data di gioco mostrata sotto il campo. Una data scelta resta finché non è passata.
+- I pulsanti di stato erano scritti in nero su sfondo scuro e non si leggevano: ora hanno il colore del testo e lo stato attivo è evidenziato.
+- Nell'editor stati, tendenze e tipi si vedono come emoji (🆕 🟢 🚨 ✅ ❌, ⬆️ ⬇️ ↔️, 🗳️ ⚔️ 📊 🏗️) invece che come codici Discord. Il testo da copiare usa ancora i codici, che servono per le emoji del server (`:RedAlert:`, `:Expansion:`).
+- Nuovi stati 🟡 (`:yellow_circle:`, risultato insoddisfacente: nessun punto segnato ieri, influenza sotto il 49%) e 🔴 (`:red_circle:`, risultato negativo: punto perso, influenza sotto il 39,9%; se è grave si abbina a 🚨).
+- Una riga di influenza aggiunta dalla tabella ha già lo stato del semaforo dell'influenza (🟢, 🟡 o 🔴), da correggere a mano se serve.
+- Con ✅ o ❌ la riga passa da sola nelle **Operazioni concluse** (e torna indietro se si toglie la spunta). I due stati si escludono a vicenda.
+- **Note & informazioni** raccoglie testo libero ("+ Nota libera") e tutto ciò che è in **Pending**: le guerre e le elezioni con punteggio "Draw; 0-0" e 🆕 (togliendo la spunta Pending tornano fra le Operazioni) e le Expansion, con il pulsante **+ Expansion** (riga "Pending Expansion da ? - Sistema di arrivo: ?" da completare). Il pulsante **Precompila con i pending** aggiunge dai dati tutte le guerre e le elezioni in pending, senza doppioni. Le Expansion non si ricavano dai dati: Spansh mostra l'Expansion in pending in quasi tutti i nostri sistemi (189 su 389), quindi "Aggiungi agli ordini" non le considera più e propone una spinta d'influenza.
+- Con "Aggiungi riga", un'Expansion con un sistema scelto diventa subito "Pending Expansion da **sistema** - Sistema di arrivo: **?**" 🆕, con la spunta Pending; una Nota libera con un sistema parte dal nome in grassetto. La spunta Pending c'è anche per le Expansion e cambia il testo fra "Pending Expansion" ed "Expansion". Una riga vuota a cui si cambia il tipo in Expansion si precompila allo stesso modo.
+- Le righe dei cantieri usano l'emoji 🏗️ direttamente nel testo copiato (prima `:construction_site:`). Scegliendo una sezione in "Aggiungi riga" il tipo si adegua: Cantieri aperti → Cantiere, Note → Nota libera, Operazioni → Elezione.
+- Le quattro sezioni dell'editor sono sempre visibili, ciascuna con il suo colore (arancione, azzurro, giallo, verde) e il numero di righe.
+- Il punteggio di un conflitto si scrive sempre dal nostro punto di vista, con i nostri giorni prima (es. "Close Defeat; 0-2").
 
 ## [0.8.0] - 2026-10-05 — Ordini Ufficiali e titolo 1.0
 

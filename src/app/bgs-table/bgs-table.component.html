@@ -267,9 +267,19 @@
       <div class="bgs-legend-group">
         <h2 class="bgs-legend-title">Influenza e Margine</h2>
         <ul>
-          <li><span class="bgs-legend-sample bgs-legend-sample--accent">42,5%</span> influenza di {{ factionName }}</li>
-          <li><span class="bgs-legend-sample bgs-legend-sample--success">+12,3</span> controlliamo, vantaggio sicuro</li>
-          <li><span class="bgs-legend-sample bgs-legend-sample--danger">+3,1</span> controlliamo, vantaggio sotto {{ conflictMarginPoints }} punti: rischio conflitto</li>
+          <li>Semafori dei sistemi che controlliamo: almeno un verde, sistema tranquillo; almeno un rosso, da seguire</li>
+          <li>
+            Influenza: <span class="bgs-legend-sample bgs-light--green">{{ semaphoreThresholds.influence.green }}%+</span>
+            <span class="bgs-legend-sample bgs-light--yellow">{{ semaphoreThresholds.influence.yellow }}–{{ semaphoreThresholds.influence.green - 0.1 | number: '1.1-1' }}%</span>
+            <span class="bgs-legend-sample bgs-light--red">&lt; {{ semaphoreThresholds.influence.yellow }}%</span>
+          </li>
+          <li>
+            Margine: <span class="bgs-legend-sample bgs-light--green">+{{ semaphoreThresholds.margin.green }}</span>
+            <span class="bgs-legend-sample bgs-light--yellow">+{{ semaphoreThresholds.margin.yellow }}–{{ semaphoreThresholds.margin.green - 0.1 | number: '1.1-1' }}</span>
+            <span class="bgs-legend-sample bgs-light--red">&lt; +{{ semaphoreThresholds.margin.yellow }}</span>
+          </li>
+          <li><span class="bgs-legend-sample bgs-light--red bgs-margin--risk">⚠️ +3,1</span> vantaggio sotto {{ conflictMarginPoints }} punti: rischio conflitto</li>
+          <li><span class="bgs-legend-sample bgs-legend-sample--accent">12,5%</span> influenza dove non controlliamo</li>
           <li><span class="bgs-legend-sample bgs-legend-sample--muted">−8,4</span> non controlliamo: distacco da chi controlla</li>
         </ul>
       </div>
@@ -560,12 +570,20 @@
                   }
                 </td>
                 <td class="bgs-col-wrap">{{ row.controllingFaction ?? '—' }}</td>
-                <td class="bgs-col-influence" [class.bgs-influence--present]="row.factionInfluence !== null">
+                <td
+                  class="bgs-col-influence"
+                  [class.bgs-influence--present]="row.factionInfluence !== null"
+                  [class.bgs-light--green]="influenceLight(row) === 'green'"
+                  [class.bgs-light--yellow]="influenceLight(row) === 'yellow'"
+                  [class.bgs-light--red]="influenceLight(row) === 'red'"
+                >
                   {{ row.factionInfluence !== null ? (row.factionInfluence | number: '1.1-1') + '%' : '—' }}
                 </td>
                 <td
                   class="bgs-col-influence bgs-col-margin"
-                  [class.bgs-margin--lead]="row.margin?.controlled && !marginAtRisk(row)"
+                  [class.bgs-light--green]="marginLight(row) === 'green'"
+                  [class.bgs-light--yellow]="marginLight(row) === 'yellow'"
+                  [class.bgs-light--red]="marginLight(row) === 'red'"
                   [class.bgs-margin--risk]="marginAtRisk(row)"
                   [class.bgs-margin--gap]="row.margin && !row.margin.controlled"
                   [title]="marginTitle(row)"

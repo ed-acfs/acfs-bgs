@@ -1,4 +1,22 @@
-import { createOrderItem, draftItemFromRow, formatOrdersDate, OrderItem, OrdersDraft, renderOrderItem, renderOrdersMarkdown } from './orders';
+import { BgsRow } from './bgs';
+import {
+  changeOrderType,
+  createOrderItem,
+  createOrderItemFromBar,
+  draftItemFromRow,
+  formatOrdersDate,
+  OrderItem,
+  OrdersDraft,
+  renderOrderItem,
+  parseIsoDay,
+  pendingExpansionTemplate,
+  pendingItemsFromRows,
+  renderOrdersMarkdown,
+  resolveOrdersDay,
+  setOrderPending,
+  toggleOrderStatus,
+} from './orders';
+import { ORDER_STATUSES } from './order-types';
 
 function item(partial: Partial<OrderItem> & Pick<OrderItem, 'section' | 'typeKey'>): OrderItem {
   return {
@@ -21,6 +39,34 @@ describe('formatOrdersDate', () => {
 
   it('pads single-digit days and months', () => {
     expect(formatOrdersDate(new Date(2026, 0, 1))).toBe('01/01/3312');
+  });
+});
+
+describe('resolveOrdersDay', () => {
+  const now = new Date(2026, 9, 5, 21, 30);
+
+  it('defaults to tomorrow', () => {
+    expect(resolveOrdersDay(null, now)).toBe('2026-10-06');
+  });
+
+  it('keeps a picked day from today on', () => {
+    expect(resolveOrdersDay('2026-10-05', now)).toBe('2026-10-05');
+    expect(resolveOrdersDay('2026-10-08', now)).toBe('2026-10-08');
+  });
+
+  it('drops a picked day in the past, or one that is not a date, for tomorrow', () => {
+    expect(resolveOrdersDay('2026-10-04', now)).toBe('2026-10-06');
+    expect(resolveOrdersDay('ieri', now)).toBe('2026-10-06');
+  });
+
+  it('rolls over the end of the month', () => {
+    expect(resolveOrdersDay(null, new Date(2026, 9, 31))).toBe('2026-11-01');
+  });
+});
+
+describe('parseIsoDay', () => {
+  it('reads a day as local midnight, so the in-game date shows the same day', () => {
+    expect(formatOrdersDate(parseIsoDay('2026-10-06')!)).toBe('06/10/3312');
   });
 });
 
@@ -107,7 +153,7 @@ describe('renderOrderItem', () => {
         detail: 'Completare _Gauss Vision_ (Dodec Station)',
       }),
     );
-    expect(line).toBe(':construction_site: **Lyncis Sector CL-Y d68** :white_check_mark:\nCompletare _Gauss Vision_ (Dodec Station)');
+    expect(line).toBe('🏗️ **Lyncis Sector CL-Y d68** :white_check_mark:\nCompletare _Gauss Vision_ (Dodec Station)');
   });
 
   it('renders a "note" type as a single line, icon and status inline with the detail', () => {
@@ -258,7 +304,7 @@ describe('renderOrdersMarkdown', () => {
           '',
           ':ballot_box: **Lyncis Sector CL-Y d68** :x:\nElection per ACFS > **DIFESA del sistema**',
           '',
-          ':construction_site: **Lyncis Sector CL-Y d68** :white_check_mark:\nCompletare _Gauss Vision_ (Dodec Station)',
+          '🏗️ **Lyncis Sector CL-Y d68** :white_check_mark:\nCompletare _Gauss Vision_ (Dodec Station)',
           '',
           ':crossed_swords: **Ross 878** :white_check_mark:\nWar per ACFS > **difesa** di _Sturt Horizons_',
           '------',
@@ -283,7 +329,13 @@ describe('renderOrdersMarkdown', () => {
 });
 
 describe('draftItemFromRow', () => {
-  const baseRow = { systemName: 'Ross 878', factionInfluence: 43.6, warState: null, electionState: null, expansionState: null };
+  const baseRow: Parameters<typeof draftItemFromRow>[0] & { expansionState: 'active' | 'pending' | null } = {
+    systemName: 'Ross 878',
+    factionInfluence: 43.6,
+    warState: null,
+    electionState: null,
+    expansionState: null,
+  };
 
   it('prefers an active war, not pending', () => {
     const draft = draftItemFromRow({ ...baseRow, warState: 'active' });
@@ -292,16 +344,20 @@ describe('draftItemFromRow', () => {
     expect(draft.pending).toBe(false);
   });
 
-  it('marks a pending election as pending', () => {
+  it('puts a pending election in the notes, at 0-0 and flagged as new', () => {
     const draft = draftItemFromRow({ ...baseRow, electionState: 'pending' });
     expect(draft.typeKey).toBe('election');
     expect(draft.pending).toBe(true);
+    expect(draft.section).toBe('note');
+    expect(draft.score).toBe('Draw; 0-0');
+    expect(draft.statusKeys).toEqual(['new']);
+    expect(renderOrderItem(draft)).toBe(':ballot_box: **Ross 878** (Draw; 0-0) :new:\nPending Election per ACFS > ');
   });
 
-  it('falls back to a note for an expansion, war and election taking priority over it', () => {
-    const draft = draftItemFromRow({ ...baseRow, expansionState: 'pending' });
-    expect(draft.typeKey).toBe('expansion');
-    expect(draft.section).toBe('note');
+  it('ignores a pending expansion, which Spansh repeats in nearly every system: an influence push', () => {
+    const draft = draftItemFromRow({ ...baseRow, expansionState: 'pending' } as Parameters<typeof draftItemFromRow>[0]);
+    expect(draft.typeKey).toBe('influence');
+    expect(draft.section).toBe('operazioni');
   });
 
   it('defaults to an influence push with the current percentage, when nothing is active', () => {
@@ -310,9 +366,144 @@ describe('draftItemFromRow', () => {
     expect(draft.score).toBe('43.6%');
   });
 
+  it('presets the influence traffic light as the status', () => {
+    expect(draftItemFromRow(baseRow).statusKeys).toEqual(['warning']);
+    expect(draftItemFromRow({ ...baseRow, factionInfluence: 55 }).statusKeys).toEqual(['ok']);
+    expect(draftItemFromRow({ ...baseRow, factionInfluence: 12 }).statusKeys).toEqual(['bad']);
+    expect(draftItemFromRow({ ...baseRow, factionInfluence: null }).statusKeys).toEqual([]);
+  });
+
   it('leaves the score blank when the faction has no presence at all', () => {
     const draft = draftItemFromRow({ ...baseRow, factionInfluence: null });
     expect(draft.score).toBe('');
+  });
+});
+
+describe('pendingItemsFromRows', () => {
+  const row = (systemName: string, states: Partial<Pick<BgsRow, 'warState' | 'electionState' | 'expansionState'>>) => ({
+    systemName,
+    factionInfluence: 30,
+    warState: null,
+    electionState: null,
+    expansionState: null,
+    ...states,
+  });
+
+  it('collects pending wars and elections alphabetically, in the notes, and no expansions', () => {
+    const items = pendingItemsFromRows(
+      [
+        row('Fular', { expansionState: 'pending' }),
+        row('Ross 878', { warState: 'pending' }),
+        row('Crowfor', { electionState: 'pending' }),
+        row('Betel', { warState: 'active', expansionState: 'active' }),
+      ],
+      [],
+    );
+    expect(items.map(item => `${item.typeKey} ${item.system}`)).toEqual(['election Crowfor', 'war Ross 878']);
+    expect(items.every(item => item.section === 'note')).toBe(true);
+  });
+
+  it('skips what is already in the orders', () => {
+    const existing = [{ ...createOrderItem('operazioni', 'war'), system: 'Ross 878' }];
+    expect(pendingItemsFromRows([row('Ross 878', { warState: 'pending' })], existing)).toEqual([]);
+  });
+});
+
+describe('createOrderItemFromBar', () => {
+  it('turns an expansion with a system into the full pending line', () => {
+    const item = createOrderItemFromBar('note', 'expansion', 'Fular');
+    expect(item).toMatchObject({ pending: true, system: 'Fular', statusKeys: ['new'] });
+    expect(renderOrderItem(item)).toBe(':Expansion: Pending Expansion da **Fular** - Sistema di arrivo: **?** :new:');
+  });
+
+  it('puts the system of a free note into its text', () => {
+    expect(createOrderItemFromBar('note', 'note', 'Fular').detail).toBe('**Fular** ');
+  });
+
+  it('keeps the system in its own field for an operation', () => {
+    expect(createOrderItemFromBar('operazioni', 'election', 'Fular')).toMatchObject({ system: 'Fular', detail: '' });
+  });
+});
+
+describe('changeOrderType', () => {
+  it('prefills an empty line that becomes an expansion', () => {
+    const blank = { ...createOrderItem('note', 'note'), system: 'Fular' };
+    expect(changeOrderType(blank, 'expansion').detail).toBe('Pending Expansion da **Fular** - Sistema di arrivo: **?**');
+  });
+
+  it('leaves text already written alone', () => {
+    const written = { ...createOrderItem('note', 'note'), detail: 'Qualcosa' };
+    expect(changeOrderType(written, 'expansion').detail).toBe('Qualcosa');
+  });
+});
+
+describe('setOrderPending on an expansion', () => {
+  it('swaps "Pending Expansion" and "Expansion" at the start of the text', () => {
+    const pending = createOrderItemFromBar('note', 'expansion', 'Fular');
+    const active = setOrderPending(pending, false);
+    expect(active.detail).toBe('Expansion da **Fular** - Sistema di arrivo: **?**');
+    expect(setOrderPending(active, true).detail).toBe(pending.detail);
+  });
+});
+
+describe('pendingExpansionTemplate', () => {
+  it('is a pending expansion line to complete by hand', () => {
+    expect(renderOrderItem(pendingExpansionTemplate())).toBe(':Expansion: Pending Expansion da **?** - Sistema di arrivo: **?** :new:');
+  });
+});
+
+describe('toggleOrderStatus', () => {
+  const order = ORDER_STATUSES.map(status => status.key);
+  const election = item({ section: 'operazioni', priority: 2, typeKey: 'election', system: 'Crowfor', statusKeys: ['ok'] });
+
+  it('moves a completed operation to the concluded ones, keeping its flags in the fixed order', () => {
+    const done = toggleOrderStatus(election, 'done', order);
+    expect(done.section).toBe('concluse');
+    expect(done.statusKeys).toEqual(['ok', 'done']);
+  });
+
+  it('moves a failed operation there too, and done and failed exclude each other', () => {
+    const failed = toggleOrderStatus(toggleOrderStatus(election, 'done', order), 'failed', order);
+    expect(failed.section).toBe('concluse');
+    expect(failed.statusKeys).toEqual(['ok', 'failed']);
+  });
+
+  it('moves it back to its priority under Operazioni when the check is taken off', () => {
+    const reopened = toggleOrderStatus(toggleOrderStatus(election, 'done', order), 'done', order);
+    expect(reopened.section).toBe('operazioni');
+    expect(reopened.priority).toBe(2);
+  });
+
+  it('sends a reopened construction back to Cantieri', () => {
+    const build = item({ section: 'concluse', typeKey: 'construction', statusKeys: ['done'] });
+    expect(toggleOrderStatus(build, 'done', order).section).toBe('cantieri');
+  });
+
+  it('leaves the section alone for the other flags', () => {
+    expect(toggleOrderStatus(election, 'urgent', order).section).toBe('operazioni');
+  });
+});
+
+describe('setOrderPending', () => {
+  const war = item({ section: 'operazioni', priority: 1, typeKey: 'war', system: 'Ross 878' });
+
+  it('moves a pending war to the notes with a 0-0 draw and the new flag', () => {
+    const pending = setOrderPending(war, true);
+    expect(pending).toMatchObject({ section: 'note', pending: true, score: 'Draw; 0-0', statusKeys: ['new'] });
+  });
+
+  it('keeps a score already typed in', () => {
+    expect(setOrderPending({ ...war, score: 'Draw; 1-1' }, true).score).toBe('Draw; 1-1');
+  });
+
+  it('moves it back to Operazioni once it starts, dropping the placeholder score', () => {
+    const started = setOrderPending(setOrderPending(war, true), false);
+    expect(started).toMatchObject({ section: 'operazioni', priority: 1, pending: false, score: '' });
+  });
+
+  it('does not move a note-style type such as an expansion', () => {
+    const expansion = item({ section: 'note', typeKey: 'expansion' });
+    expect(setOrderPending(expansion, true)).toMatchObject({ section: 'note', pending: true, score: '' });
   });
 });
 

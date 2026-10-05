@@ -15,6 +15,7 @@ La domanda a cui il tool deve rispondere ogni giorno dopo il tick: **dove dobbia
 | Colonizzazione | Come i Canonn: Form e Sheet ACFS con architetto, appartenenza ad ACFS e fazione preferita, più la Watchlist |
 | Lingua | Interfaccia in italiano. Nomi degli stati BGS in inglese, come appaiono in gioco |
 | Registro Canonn | Non lo leggiamo, per ora |
+| Semafori (5 ottobre 2026) | Due semafori per i sistemi controllati, dal documento "Monitoraggio sistemi Flotta" dello squadrone, con la soglia dell'influenza aggiornata dall'utente: influenza 🟢 ≥ 50%, 🟡 40,0–49,9%, 🔴 < 40%; Margine sulla seconda fazione 🟢 ≥ 30 punti, 🟡 18–29,9, 🔴 < 18 (un'operazione nemica guadagna circa 8 punti al giorno: la zona gialla lascia due giorni per rispondere). Almeno un verde: tranquillo; almeno un rosso: da seguire. Negli Ordini, 🟡 vuol dire anche "ieri nessun punto segnato" e 🔴 "punto perso" (con 🚨 se è grave). La soglia dei 5 punti resta a parte: è quella in cui il gioco fa scattare il conflitto |
 | Struttura | La logica pura (tipi, priorità, freschezza, stati) va in un modulo senza Angular, così la usano sia il sito sia l'invio a Discord |
 
 ## Fasi
@@ -148,6 +149,8 @@ Nata da un'idea dell'utente il 5 ottobre 2026, non prevista nelle fasi originari
 ## Idee per versioni future
 
 - **Pattuglia ("Da visitare").** Dopo il tick Spansh si aggiorna solo quando un giocatore con un client EDDN (EDMC, EDDiscovery) passa nel sistema, quindi i dati arrivano nel giro di ore. L'unico modo di accelerare è mandarci qualcuno. Idea: una funzione a parte, non una colonna della tabella, con i sistemi P1-P2 ancora fermi a prima dell'ultimo tick, ordinati per priorità e distanza da Wong Sher, da girare ai piloti; anche nel report Discord (fase 7). Il dato c'è già: `core/tick-coverage.ts` sa quali sistemi sono aggiornati dopo il tick. Deciso il 5 ottobre 2026 di tenerla fuori dalla 0.7.0: rientra fra le nuove funzioni del tool ancora da progettare.
+
+- **Punteggio dei conflitti (giorni vinti).** Spansh ed EDSM non lo riportano (verificato il 5 ottobre 2026); ce l'hanno Inara (senza API pubblica per il BGS) ed EliteBGS (`elitebgs.app/api/ebgs/v5/systems`, campo `conflicts`), che però quel giorno rispondeva con errore 500. Idea: lo script dei dati legge il punteggio da EliteBGS solo per i sistemi in guerra o in elezione e lo mostra nella colonna Stato e negli Ordini. **Convenzione: il punteggio si scrive sempre dal punto di vista di Flotta Stellare, nostri giorni prima** (es. "Election 0-2" se l'avversario ha vinto 2 giorni e noi 0), anche se Inara mette prima l'altra fazione.
 
 - **Seconda PMF da confrontare.** Una fazione opzionale in configurazione (alleata o rivale), con una sua colonna di influenza nei sistemi in cui è presente insieme a Flotta Stellare. Solo per confronto visivo: non entra nel calcolo della priorità. Il dato c'è già, perché `minor_faction_presences` elenca tutte le fazioni del sistema. Per prepararla, nella fase 2 la configurazione prevede un campo `compareFaction`, vuoto per default.
 
