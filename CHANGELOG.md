@@ -2,11 +2,12 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [Non rilasciato]
+## [0.9.1] - 2026-10-05 — Colonna Distanza
 
 ### Tabella
 
 - Nuova colonna **Distanza**, in anni luce, dal sistema scritto nel box "Distanza da" (Wong Sher finché non se ne cerca un altro). Cliccando l'intestazione si ordina per distanza, come col pulsante di ricerca. Il sistema di riferimento resta quello cercato anche se poi si ordina per un'altra colonna (prima seguiva la prima riga dell'ordinamento).
+- Celle della tabella un po' più strette (10 px ai lati invece di 14), così con la colonna in più la tabella entra ancora senza scorrere in orizzontale.
 - L'ordine predefinito resta quello di Spansh: dal sistema aggiornato più di recente.
 
 ## [0.9.0] - 2026-10-05 — Semafori, legenda e editor degli ordini
