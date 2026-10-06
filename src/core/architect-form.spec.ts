@@ -2,7 +2,10 @@ import {
   AFFILIATION_SQUADRON_MEMBER,
   AFFILIATION_NOT_MEMBER,
   ArchitectSubmission,
+  AssignRejectedError,
   buildArchitectFormBody,
+  buildAssignScriptBody,
+  checkAssignScriptReply,
 } from './architect-form';
 
 function submission(partial: Partial<ArchitectSubmission> = {}): ArchitectSubmission {
@@ -39,5 +42,41 @@ describe('buildArchitectFormBody', () => {
     const body = buildArchitectFormBody(submission({ preferredFaction: '' }));
     expect(body.has('entry.55921704')).toBe(false);
     expect(body.has('entry.55921704.other_option_response')).toBe(false);
+  });
+});
+
+describe('buildAssignScriptBody', () => {
+  it('sends the same fields as the form plus the password, as JSON', () => {
+    expect(JSON.parse(buildAssignScriptBody(submission({ preferredFaction: '' }), 'segreta'))).toEqual({
+      password: 'segreta',
+      yourName: 'LCU No Fool Like One',
+      systemName: 'Varati',
+      architect: 'Herix',
+      affiliation: AFFILIATION_SQUADRON_MEMBER,
+      preferredFaction: '',
+    });
+  });
+});
+
+describe('checkAssignScriptReply', () => {
+  it('accepts only an explicit ok', () => {
+    expect(() => checkAssignScriptReply({ ok: true })).not.toThrow();
+  });
+
+  it('turns a refusal into an AssignRejectedError carrying the reason and detail', () => {
+    try {
+      checkAssignScriptReply({ ok: false, error: 'invalid', detail: 'Manca il nome del sistema.' });
+      throw new Error('expected a rejection');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AssignRejectedError);
+      expect((error as AssignRejectedError).reason).toBe('invalid');
+      expect((error as AssignRejectedError).detail).toBe('Manca il nome del sistema.');
+    }
+  });
+
+  it('treats an unrecognised reply as a refusal, never as a success', () => {
+    for (const reply of [null, {}, { ok: 'yes' }, { ok: false, error: 'teapot' }]) {
+      expect(() => checkAssignScriptReply(reply)).toThrow(AssignRejectedError);
+    }
   });
 });

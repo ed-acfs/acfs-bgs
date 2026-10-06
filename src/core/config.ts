@@ -68,6 +68,13 @@ export const WATCHLIST_SHEET_URL: string | null = config.watchlistSheetUrl;
 export const ARCHITECT_FORM_ACTION: string | null = config.architectFormAction;
 
 /**
+ * The web app URL of the password-protected Apps Script (`apps-script/assegna.gs`) that
+ * records assignments in the registry. Once set, Assign asks for the officers' password and
+ * writes through it instead of the Form; while null, Assign keeps using the Form.
+ */
+export const ASSIGN_SCRIPT_URL: string | null = config.assignScriptUrl || null;
+
+/**
  * SHA-256 hex digest of the Ordini Ufficiali page's shared passphrase. This is a deterrent,
  * not real access control — it's a public static site, so anyone can read this hash out of
  * the published bundle and brute-force a weak passphrase offline. Good enough to keep casual

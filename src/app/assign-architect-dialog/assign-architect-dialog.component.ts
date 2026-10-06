@@ -18,9 +18,11 @@ import {
   AFFILIATION_OPTIONS,
   AFFILIATION_UNKNOWN,
   ArchitectSubmission,
+  AssignRejectedError,
 } from '../../core/architect-form';
 import { ArchitectRegistryRow, architectNames, findArchitectProfile, suggestArchitects } from '../../core/architect-registry';
 import { readYourName, writeYourName } from '../your-name';
+import { forgetAssignPassword, readAssignPassword, writeAssignPassword } from '../assign-password';
 
 /** What the registry currently says about the system, when the dialog is changing it. */
 export interface CurrentAssignment {
@@ -35,6 +37,22 @@ export interface CurrentAssignment {
 export interface AssignArchitectDialogData {
   row: BgsRow;
   current?: CurrentAssignment;
+}
+
+/** What to tell the user when the Apps Script refused an assignment; nothing was written. */
+function rejectionMessage(error: AssignRejectedError): string {
+  switch (error.reason) {
+    case 'password':
+      return 'Password errata: non è stato registrato nulla. Chiedi la password a un ufficiale.';
+    case 'locked':
+      return 'Troppi tentativi con password errata: le assegnazioni sono bloccate per 10 minuti. Riprova più tardi.';
+    case 'not-configured':
+      return 'Lo script del registro non ha ancora una password impostata: avvisa chi lo gestisce.';
+    case 'invalid':
+      return `Dati non accettati dal registro: ${error.detail ?? 'controlla i campi'}`;
+    default:
+      return 'Il registro ha rifiutato la richiesta. Non è stato registrato nulla: riprova, e se succede ancora avvisa chi gestisce il tool.';
+  }
 }
 
 /** The `preferredFaction` value meaning "Don't know" — sent to the form as no answer at all. */
@@ -86,10 +104,17 @@ export class AssignArchitectDialogComponent {
   protected readonly dontKnowFaction = DONT_KNOW_FACTION;
   protected readonly notAColony = AFFILIATION_NOT_A_COLONY;
 
+  /** Assign writes through the protected Apps Script, so the officers' password is needed. */
+  protected readonly needsPassword = this.bgsService.assignNeedsPassword;
+
   protected readonly form = new FormGroup({
     yourName: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(120)],
+    }),
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: this.needsPassword ? [Validators.required] : [],
     }),
     affiliation: new FormControl(AFFILIATION_UNKNOWN, { nonNullable: true, validators: [Validators.required] }),
     architect: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(120)] }),
@@ -181,6 +206,9 @@ export class AssignArchitectDialogComponent {
 
   constructor() {
     this.form.controls.yourName.setValue(readYourName());
+    if (this.needsPassword) {
+      this.form.controls.password.setValue(readAssignPassword());
+    }
 
     const controls = this.form.controls;
     controls.architect.valueChanges.pipe(takeUntilDestroyed()).subscribe(value => this.architectValue.set(value));
@@ -279,17 +307,34 @@ export class AssignArchitectDialogComponent {
     this.sendError.set(null);
     // Don't let an Escape/backdrop click discard a submission that's already on the wire.
     this.dialogRef.disableClose = true;
+    const password = this.form.controls.password.value;
     try {
-      await this.bgsService.submitAssignment(submission);
+      await this.bgsService.submitAssignment(submission, password);
       this.bgsService.recordAssignment(submission);
       writeYourName(submission.yourName);
+      if (this.needsPassword) {
+        writeAssignPassword(password);
+      }
       this.dialogRef.close(submission);
     } catch (error) {
-      this.sendError.set(
-        error instanceof Error && error.name === 'AbortError'
-          ? 'Google non ha risposto in tempo. Non è stato registrato nulla: puoi riprovare.'
-          : 'Invio al registro architetti non riuscito. Controlla la connessione e riprova.',
-      );
+      if (error instanceof AssignRejectedError) {
+        this.sendError.set(rejectionMessage(error));
+        if (error.reason === 'password') {
+          forgetAssignPassword();
+          this.form.controls.password.setValue('');
+          this.form.controls.password.markAsTouched();
+        }
+      } else {
+        const timedOut = error instanceof Error && error.name === 'AbortError';
+        this.sendError.set(
+          !timedOut
+            ? 'Invio al registro architetti non riuscito. Controlla la connessione e riprova.'
+            : this.needsPassword
+              ? // The script may have written the row before the reply was lost.
+                'Google non ha risposto in tempo. Controlla nel foglio prima di riprovare: la riga potrebbe essere già stata scritta.'
+              : 'Google non ha risposto in tempo. Non è stato registrato nulla: puoi riprovare.',
+        );
+      }
       this.canRetry.set(true);
     } finally {
       this.sending.set(false);

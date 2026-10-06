@@ -7,6 +7,7 @@ import {
   AFFILIATION_NOT_A_COLONY,
   AFFILIATION_NOT_MEMBER,
   AFFILIATION_UNKNOWN,
+  AssignRejectedError,
 } from '../../core/architect-form';
 import { ArchitectRegistryRow } from '../../core/architect-registry';
 import { AssignArchitectDialogComponent } from './assign-architect-dialog.component';
@@ -247,5 +248,78 @@ describe('AssignArchitectDialogComponent changing an existing assignment', () =>
     expect(form.controls.preferredFaction.value).toBe('Canonn');
     expect(component['factionOptions']()).toContain('Canonn');
     expect(fixture.nativeElement.textContent).toContain('Modifica assegnazione');
+  });
+});
+
+describe('AssignArchitectDialogComponent with the protected Apps Script', () => {
+  let fixture: ComponentFixture<AssignArchitectDialogComponent>;
+  let component: AssignArchitectDialogComponent;
+  let dialogRef: { close: ReturnType<typeof vi.fn>; disableClose: boolean };
+  let service: {
+    assignNeedsPassword: boolean;
+    getArchitectRegistry: ReturnType<typeof vi.fn>;
+    submitAssignment: ReturnType<typeof vi.fn>;
+    recordAssignment: ReturnType<typeof vi.fn>;
+  };
+
+  async function create(): Promise<void> {
+    await TestBed.configureTestingModule({
+      imports: [AssignArchitectDialogComponent],
+      providers: [
+        { provide: MatDialogRef, useValue: dialogRef },
+        { provide: MAT_DIALOG_DATA, useValue: { row: ROW } },
+        { provide: BgsService, useValue: service },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(AssignArchitectDialogComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  }
+
+  beforeEach(() => {
+    localStorage.clear();
+    localStorage.setItem('acfs-bgs:your-name:v1', 'LCU No Fool Like One');
+    dialogRef = { close: vi.fn(), disableClose: false };
+    service = {
+      assignNeedsPassword: true,
+      getArchitectRegistry: vi.fn().mockResolvedValue(REGISTRY),
+      submitAssignment: vi.fn().mockResolvedValue(undefined),
+      recordAssignment: vi.fn(),
+    };
+  });
+
+  it('asks for the password and will not send without it', async () => {
+    await create();
+    expect(fixture.nativeElement.querySelector('input[type="password"]')).not.toBeNull();
+
+    await component['send']();
+
+    expect(service.submitAssignment).not.toHaveBeenCalled();
+  });
+
+  it('sends the password and remembers it on this device after a confirmed write', async () => {
+    await create();
+    component['form'].controls.password.setValue('segreta');
+
+    await component['send']();
+
+    expect(service.submitAssignment.mock.calls[0][1]).toBe('segreta');
+    expect(localStorage.getItem('acfs-bgs:assign-password:v1')).toBe('segreta');
+    expect(dialogRef.close).toHaveBeenCalled();
+  });
+
+  it('pre-fills a remembered password, and forgets it when the script says it is wrong', async () => {
+    localStorage.setItem('acfs-bgs:assign-password:v1', 'vecchia');
+    service.submitAssignment.mockRejectedValue(new AssignRejectedError('password'));
+    await create();
+    expect(component['form'].controls.password.value).toBe('vecchia');
+
+    await component['send']();
+
+    expect(component['sendError']()).toContain('Password errata');
+    expect(component['form'].controls.password.value).toBe('');
+    expect(localStorage.getItem('acfs-bgs:assign-password:v1')).toBeNull();
+    expect(service.recordAssignment).not.toHaveBeenCalled();
+    expect(dialogRef.close).not.toHaveBeenCalled();
   });
 });

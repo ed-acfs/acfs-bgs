@@ -138,6 +138,25 @@ Da proteggere sono **lo Sheet e le sue note**, non i dati Spansh (chiunque può 
 
 Già dalle fasi 1–7 vale una regola: niente dati strategici nel repo. Lo Sheet si legge per URL configurabile, così passare alla fase 8 non richiede di riscrivere l'app.
 
+**Aggiornamento del 6 ottobre 2026.** Verificato che lo Sheet pubblicato si legge senza login (Registro e Watchlist, con fazioni preferite e motivazioni) e che il sito mostra comunque questi dati a chiunque. L'utente ha deciso che **non sono riservati, "non in questa fase"** (vedi `CLAUDE.md`): la protezione della lettura (punti sopra) è rimandata. Il foglio Google resta la base dati: per le nostre dimensioni va bene. Va protetta invece **la scrittura**, ed è il prossimo lavoro (8a).
+
+#### 8a. "Assegna" protetta da password (prossimo lavoro, deciso il 6 ottobre 2026)
+
+Oggi "Assegna" invia il Google Form (`architectFormAction` in `config.json`, POST `no-cors`): il tool non sa se l'invio è riuscito, e chiunque può scrivere, anche saltando il tool, perché l'URL del Form è nel repo pubblico. Una password controllata solo nel browser (come quella degli Ordini) non basterebbe. Decisioni dell'utente:
+
+- **Uno script Google (Apps Script) collegato al foglio**, pubblicato come web app, diventa la via di scrittura del tool: riceve assegnazione e password, controlla la password **dal lato del foglio** (salvata nelle proprietà dello script, mai nel repo) e solo allora scrive. Risponde con l'esito, così il tool può confermare il salvataggio.
+- **Una riga nuova a ogni assegnazione**, come fa oggi il Form: resta la storia (chi ha cambiato cosa e quando) e il tool usa già l'ultima riga di ogni sistema. Se il foglio grezzo diventa scomodo da leggere, si aggiunge una scheda "Situazione attuale" con una formula che mostra una riga per sistema.
+- **Password unica, solo per gli ufficiali**, da cambiare quando qualcuno esce. Accessi personali (es. login Discord) restano un passo successivo, eventualmente con Supabase o con l'app nostra sul web.
+- **Il Form resta aperto per ora** (si usa anche a mano); più avanti l'utente vuole condividere il foglio con gli ufficiali come editor. Chiudere il Form alle risposte pubbliche è un passo successivo, da decidere.
+
+Passi:
+
+- [x] Codice dello script nel repo (`apps-script/assegna.gs`, con guida in `apps-script/README.md`), con la stessa struttura di colonne del Registro (`Informazioni cronologiche`, `Your Name`, `System Name`, `Architect Name`, `ACFS Architect`, `Preferred Faction`), abbinate per nome. In più: blocco di 10 minuti dopo 10 password sbagliate, testi che iniziano con `=` `+` `-` `@` scritti come testo e non come formule (0.9.9)
+- [x] In "Assegna": campo password chiesto la prima volta e ricordato sul dispositivo (`localStorage`, prefisso `acfs-bgs:`), invio allo script, messaggio di esito; finché lo script non è configurato (`assignScriptUrl` a `null` in `config.json`) il tool continua a usare il Form come oggi (0.9.9)
+- [x] Installazione dello script nel foglio e impostazione della password (fatta dall'utente il 6 ottobre 2026). URL dell'app web: `https://script.google.com/macros/s/AKfycbyynDPW5BkGVWA_5kIx1mFVoo4ssOD0qunB_jLE_9XI0SQ1bZTVkqiluAy9WnCtisWx/exec`
+- [x] Prove reali e attivazione (6 ottobre 2026): la GET risponde `{"ok":true,…}`; una password sbagliata, sia da `curl` sia dal dialog su `localhost`, viene rifiutata con "Password errata" senza scrivere niente; con la password giusta l'utente ha assegnato Fular dal dialog e la riga è arrivata nel foglio (riga 83) nello stesso formato del Form. Pubblicato con l'URL in `assignScriptUrl`. Se un giorno le scritture falliscono, guardare **Esecuzioni** nell'editor di Apps Script
+- [ ] Decidere se chiudere il Form alle risposte pubbliche
+
 ### 9. Ordini Ufficiali
 
 Nata da un'idea dell'utente il 5 ottobre 2026, non prevista nelle fasi originarie: comporre nel tool il report giornaliero che lo squadrone scrive a mano su Discord ("ordini ufficiali"), invece di scriverlo da zero ogni volta.
