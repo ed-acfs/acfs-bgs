@@ -179,6 +179,20 @@ export function computeMargin(
 /** Whether a war/election/retreat/expansion affecting the squadron's faction is already happening or just upcoming. */
 export type FactionStateStatus = 'active' | 'pending' | null;
 
+/**
+ * One state behind a State column icon, structured for the click-to-open details panel (the
+ * tooltip keeps using the `*Details` strings). Same selection as those strings: active entries
+ * when there are any, otherwise pending ones.
+ */
+export interface StateEntry {
+  kind: 'war' | 'election' | 'retreat';
+  /** The state's name as the game spells it: "War", "CivilWar", "Election", "Retreat". */
+  state: string;
+  status: 'active' | 'pending';
+  /** The factions sharing the state, the squadron's first. */
+  factions: string[];
+}
+
 /** One row of the rendered table. */
 export interface BgsRow {
   systemName: string;
@@ -224,6 +238,8 @@ export interface BgsRow {
   retreatState: FactionStateStatus;
   /** Tooltip text for the retreat icon (faction and influence, one line per faction), or null if retreatState is null. */
   retreatDetails: string | null;
+  /** The war, election and retreat states above as structured entries, for the State details panel. */
+  stateEntries: StateEntry[];
   /**
    * Whether the squadron's faction is (or is about to be) expanding here. Internal-only input for
    * the priority score's "expansion unwanted" trigger — not rendered as a State column icon.
@@ -363,14 +379,18 @@ function pendingCorroborators(presences: readonly MinorFactionPresence[], normal
  * pending state) renders as just its own name.
  */
 function describeConflict(corroborators: readonly MinorFactionPresence[]): string {
+  return ownFactionFirst(corroborators).join(' vs ');
+}
+
+/** The corroborators' names, the squadron's faction first and the rest alphabetical. */
+function ownFactionFirst(corroborators: readonly MinorFactionPresence[]): string[] {
   return [...corroborators]
     .sort((a, b) => {
       const aIsOwn = a.name === FACTION_NAME ? 0 : 1;
       const bIsOwn = b.name === FACTION_NAME ? 0 : 1;
       return aIsOwn - bIsOwn || a.name.localeCompare(b.name);
     })
-    .map(c => c.name)
-    .join(' vs ');
+    .map(c => c.name);
 }
 
 /**
@@ -427,7 +447,7 @@ function summarizeFactionState(
   snapshotTime: string | null,
   presences: readonly MinorFactionPresence[],
   config: StateSetConfig,
-): { status: FactionStateStatus; details: string | null } {
+): { status: FactionStateStatus; details: string | null; entries: Omit<StateEntry, 'kind'>[] } {
   const { states: conflictStates, requiresCorroboration, isSuppressed } = config;
   const describeMatch = config.describeMatch ?? describeConflict;
 
@@ -473,6 +493,8 @@ function summarizeFactionState(
   // by (state, corroborator set) and deduped, so the same "X vs Y" line never appears twice.
   const active: string[] = [];
   const pending: string[] = [];
+  const activeEntries: Omit<StateEntry, 'kind'>[] = [];
+  const pendingEntries: Omit<StateEntry, 'kind'>[] = [];
   const seenActive = new Set<string>();
   const seenPending = new Set<string>();
 
@@ -494,6 +516,7 @@ function summarizeFactionState(
       if (!seenActive.has(key)) {
         seenActive.add(key);
         active.push(`${rawState}: ${describeMatch(corroborators)}`);
+        activeEntries.push({ state: rawState, status: 'active', factions: ownFactionFirst(corroborators) });
       }
     }
 
@@ -508,17 +531,18 @@ function summarizeFactionState(
       if (!seenPending.has(key)) {
         seenPending.add(key);
         pending.push(`${stateName}: ${describeMatch(corroborators)} (pending)`);
+        pendingEntries.push({ state: stateName, status: 'pending', factions: ownFactionFirst(corroborators) });
       }
     }
   }
 
   if (active.length > 0) {
-    return { status: 'active', details: active.join('\n') };
+    return { status: 'active', details: active.join('\n'), entries: activeEntries };
   }
   if (pending.length > 0) {
-    return { status: 'pending', details: pending.join('\n') };
+    return { status: 'pending', details: pending.join('\n'), entries: pendingEntries };
   }
-  return { status: null, details: null };
+  return { status: null, details: null, entries: [] };
 }
 
 /**
@@ -587,6 +611,12 @@ export function toBgsRow(
     electionDetails: election.details,
     retreatState: retreat.status,
     retreatDetails: retreat.details,
+    // Same order as the State column's icons: retreat, war, election.
+    stateEntries: [
+      ...retreat.entries.map(entry => ({ ...entry, kind: 'retreat' as const })),
+      ...war.entries.map(entry => ({ ...entry, kind: 'war' as const })),
+      ...election.entries.map(entry => ({ ...entry, kind: 'election' as const })),
+    ],
     expansionState: expansion.status,
     bodyCount: record.body_count ?? null,
     population: record.population ?? null,

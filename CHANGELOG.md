@@ -2,6 +2,18 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.9.7] - 2026-10-06 — Dettagli dei conflitti al clic
+
+### Tabella
+
+- Le icone della colonna **Stato** (⚔️ War o Civil War, 🗳️ Election, ⚠️ Retreat) si possono cliccare: si apre un riquadro con, per ogni stato, il nome come in gioco, se è in corso o in pending, le fazioni coinvolte (la nostra per prima, in arancione) con la loro influenza, e l'ora del dato Spansh. Prima queste informazioni c'erano solo nel tooltip, che su telefono non si vede.
+- Il **punteggio** del conflitto (giorni vinti) per ora non c'è: Spansh non lo riporta ed EliteBGS, che lo avrebbe, oggi risponde ancora con errore 500. Il riquadro rimanda a Inara; un conflitto in pending mostra "Draw; 0-0". Vedi la roadmap.
+- Ogni riga ha ora anche gli stati in forma strutturata (`stateEntries`), da cui legge il riquadro.
+
+### Test
+
+- Due nuovi test: le voci strutturate degli stati (la nostra fazione per prima, l'attivo prevale sul pending) e l'apertura del riquadro. Passano 215 test dell'app.
+
 ## [0.9.6] - 2026-10-06 — Filtri per nome più chiari
 
 ### Filtri

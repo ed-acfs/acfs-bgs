@@ -23,6 +23,7 @@ function row(overrides: Partial<BgsRow> = {}): BgsRow {
     electionDetails: null,
     retreatState: null,
     retreatDetails: null,
+    stateEntries: [],
     expansionState: null,
     bodyCount: null,
     population: null,
