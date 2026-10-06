@@ -24,7 +24,7 @@ import {
   faDownload,
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
-import { BgsRow, StateEntry, rowWithAssignment } from '../../core/bgs';
+import { BgsRow, ConflictScore, StateEntry, rowWithAssignment } from '../../core/bgs';
 import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM, SEMAPHORE_THRESHOLDS } from '../../core/config';
 import { influenceSemaphore, marginSemaphore, Semaphore } from '../../core/semaphore';
 import { draftItemFromRow } from '../../core/orders';
@@ -856,6 +856,23 @@ export class BgsTableComponent implements OnDestroy {
   protected stateEntryTitle(entry: StateEntry): string {
     const icon = entry.kind === 'war' ? '⚔️' : entry.kind === 'election' ? '🗳️' : '⚠️';
     return `${icon} ${entry.state.replace(/([a-z])([A-Z])/g, '$1 $2')}`;
+  }
+
+  /**
+   * What each side risks losing, naming only the sides that risk something: "Bolden Port
+   * (nostra); Prova Station di Earth Defense Fleet". Null when nothing is at stake.
+   */
+  protected stakesLabel(score: ConflictScore): string | null {
+    const parts = [
+      score.ourStake ? `${score.ourStake} (nostra)` : null,
+      score.theirStake ? `${score.theirStake} di ${score.opponent}` : null,
+    ].filter(part => part !== null);
+    return parts.length > 0 ? parts.join('; ') : null;
+  }
+
+  /** When EliteBGS last updated a conflict score, in the same words as the Spansh data's age. */
+  protected scoreAgeTitle(updatedAt: string | null): string {
+    return computeFreshness(updatedAt, this.now()).title;
   }
 
   /** A faction's influence in the row's system, Italian style ("42,5%"), or '—' if it isn't listed. */

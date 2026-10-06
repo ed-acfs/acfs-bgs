@@ -73,7 +73,7 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
       getPage: vi.fn((page: number) => Promise.resolve(serverPage(page))),
       prefetchPage: vi.fn(),
       getArchitectRegistry: vi.fn().mockResolvedValue([]),
-      getDatasetInfo: vi.fn().mockResolvedValue({ generatedAt: '2026-10-04T21:28:47Z', tickAt: '2026-10-04T16:06:50Z', count: 500 }),
+      getDatasetInfo: vi.fn().mockResolvedValue({ generatedAt: '2026-10-04T21:28:47Z', tickAt: '2026-10-04T16:06:50Z', count: 500, conflictScoresAvailable: true }),
       // The tick counter's rows; mocked apart so the getPage call counts above stay about paging.
       getAllRows: vi.fn().mockResolvedValue([]),
     };
@@ -192,7 +192,15 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
         { name: 'Earth Defense Fleet', influencePercent: 30 },
         { name: 'Flotta Stellare', influencePercent: 25 },
       ],
-      stateEntries: [{ kind: 'war', state: 'CivilWar', status: 'active', factions: ['Flotta Stellare', 'Earth Defense Fleet'] }],
+      stateEntries: [
+        {
+          kind: 'war',
+          state: 'CivilWar',
+          status: 'active',
+          factions: ['Flotta Stellare', 'Earth Defense Fleet'],
+          score: { ours: 1, theirs: 2, opponent: 'Earth Defense Fleet', ourStake: null, theirStake: 'Bolden Port', updatedAt: '2026-10-06T08:00:00Z' },
+        },
+      ],
     };
     service.getAllRows.mockResolvedValue([misir]);
     const host: HTMLElement = fixture.nativeElement;
@@ -207,6 +215,8 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     expect(panel.textContent).toContain('in corso');
     expect(panel.textContent).toContain('Earth Defense Fleet');
     expect(panel.textContent).toContain('25,0%');
+    expect(panel.textContent).toContain('1-2');
+    expect(panel.textContent).toContain('Bolden Port');
   });
 
   /** Types into a quick-filter name field the way a user does (marking it dirty), then leaves it. */

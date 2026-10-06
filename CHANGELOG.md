@@ -2,6 +2,26 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.9.8] - 2026-10-06 — Punteggio dei conflitti da EliteBGS
+
+### Dati
+
+- Lo script dei dati chiede a **EliteBGS** il punteggio (giorni vinti) dei conflitti, solo per i sistemi in cui Flotta Stellare ha una guerra, guerra civile o elezione in corso: di solito una sola richiesta, perché l'API accetta 10 sistemi alla volta. Il punteggio finisce nel file dei dati (`ebgs_conflicts` per sistema, `conflict_scores_available` in testa).
+- EliteBGS è spesso giù (il suo database è fermo da settimane, vedi roadmap): al primo errore lo script rinuncia e prosegue senza punteggio, con un'attesa massima di 20 secondi. Un errore conta anche quando arriva con HTTP 200, come a volte fa EliteBGS.
+
+### Riquadro dello stato
+
+- Con il punteggio: "Punteggio: 1-2" coi **nostri giorni prima**, la posta in gioco (le stazioni che ciascuno rischia) e l'ora del dato EliteBGS.
+- Senza punteggio il riquadro dice perché: EliteBGS non era raggiungibile, oppure non ha ancora quel conflitto. In entrambi i casi resta il link a Inara. Un conflitto in pending resta "Draw; 0-0".
+
+### Roadmap
+
+- Annotati lo stato reale di EliteBGS (dal suo repository e dalla issue #378), il formato del dato e l'idea di un'app nostra sul web, da valutare.
+
+### Test
+
+- Cinque nuovi test dello script (sistemi da chiedere, richieste a gruppi di 10, errori con HTTP 200 e 500) e due dell'app (punteggio dal nostro lato, nessun punteggio per conflitti assenti o in pending). Passano 217 test dell'app e 17 degli script.
+
 ## [0.9.7] - 2026-10-06 — Dettagli dei conflitti al clic
 
 ### Tabella
