@@ -748,14 +748,202 @@
     max-width: none;
   }
 
+  // Title and logo side by side, the action buttons below in an even grid (2×2 on a phone).
   .bgs-header {
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: flex-start;
+    gap: 12px;
+
+    h1 {
+      font-size: 1.35rem;
+    }
+  }
+
+  .bgs-title {
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   .bgs-logo {
-    width: 72px;
-    height: 72px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .bgs-header-actions {
+    order: 3;
+    flex: 1 1 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+  }
+
+  // Page counter on its own line, the two buttons side by side under it.
+  .bgs-pager {
+    gap: 12px;
+  }
+
+  .bgs-pager-status {
+    order: -1;
+    flex: 1 1 100%;
+  }
+}
+
+// Below this width the 11 columns no longer fit: each system becomes a card with labelled
+// values, and the sortable headers become a row of "Ordina per" chips above the cards.
+@media (max-width: 720px) {
+  .bgs-table-wrap {
+    overflow-x: visible;
+  }
+
+  .bgs-table {
+    display: block;
+
+    thead,
+    tbody {
+      display: block;
+    }
+
+    thead tr {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 12px;
+      background-color: var(--color-surface-2);
+      border-bottom: 1px solid var(--color-border-muted);
+
+      &::before {
+        content: 'Ordina per';
+        margin-right: 4px;
+        color: var(--color-text-muted);
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+    }
+
+    thead th {
+      position: static;
+      display: block;
+      width: auto;
+      padding: 0;
+      border: none;
+      background: none;
+    }
+
+    thead th.bgs-th-static {
+      display: none;
+    }
+
+    .bgs-sort-header {
+      padding: 5px 10px;
+      border: 1px solid var(--color-border-muted);
+      border-radius: 999px;
+      font-size: 0.7rem;
+    }
+
+    // A card: six narrow tracks, so short values sit three to a line and long ones two.
+    tbody tr {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px 12px;
+      padding: 12px;
+    }
+
+    tbody tr:hover {
+      background-color: transparent;
+    }
+
+    td {
+      grid-column: span 2;
+      width: auto;
+      min-width: 0;
+      padding: 0;
+      text-align: left;
+      white-space: normal;
+    }
+
+    td[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 3px;
+      color: var(--color-text-muted);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .bgs-col-wrap {
+      max-width: none;
+    }
+
+    // The progress bar and loading placeholders stay one full-width block.
+    .bgs-row-progress,
+    .bgs-row-skeleton {
+      display: block;
+    }
+
+    .bgs-row-progress td,
+    .bgs-row-skeleton td {
+      display: block;
+      padding: 6px 0;
+    }
+  }
+
+  // Card order: name; Priority, Freshness, Distance; ACFS, Margin, State; controlling faction
+  // and the faction chart; architect and preferred faction.
+  .bgs-table tbody td.bgs-col-system {
+    grid-column: 1 / -1;
+    order: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .bgs-table tbody td.bgs-col-priority {
+    order: 1;
+  }
+
+  .bgs-table tbody td.bgs-col-freshness {
+    order: 2;
+  }
+
+  .bgs-table tbody td.bgs-col-distance {
+    order: 3;
+  }
+
+  .bgs-table tbody td.bgs-col-influence {
+    order: 4;
+  }
+
+  .bgs-table tbody td.bgs-col-margin {
+    order: 5;
+  }
+
+  .bgs-table tbody td.bgs-col-state {
+    order: 6;
+  }
+
+  .bgs-table tbody td.bgs-cell-control {
+    grid-column: span 3;
+    order: 7;
+  }
+
+  .bgs-table tbody td.bgs-col-factions {
+    grid-column: span 3;
+    order: 8;
+    width: auto;
+  }
+
+  .bgs-table tbody td.bgs-cell-architect {
+    grid-column: span 3;
+    order: 9;
+  }
+
+  .bgs-table tbody td.bgs-cell-preferred {
+    grid-column: span 3;
+    order: 10;
   }
 }
 
