@@ -241,10 +241,10 @@
         <h2 class="bgs-legend-title">Aggiornato</h2>
         <p class="bgs-legend-note">Età del dato Spansh, in giorni (circa un tick al giorno).</p>
         <ul>
-          <li><span class="bgs-freshness-pill bgs-freshness-pill--current"><span class="bgs-freshness-dot" aria-hidden="true"></span>oggi</span> aggiornato oggi</li>
-          <li><span class="bgs-freshness-pill bgs-freshness-pill--oneTick"><span class="bgs-freshness-dot" aria-hidden="true"></span>1g</span> indietro di un tick</li>
-          <li><span class="bgs-freshness-pill bgs-freshness-pill--days"><span class="bgs-freshness-dot" aria-hidden="true"></span>4g</span> indietro di 2-6 giorni</li>
-          <li><span class="bgs-freshness-pill bgs-freshness-pill--weeks"><span class="bgs-freshness-dot" aria-hidden="true"></span>3s</span> settimane (s) o anni (a)</li>
+          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--current"><span class="bgs-freshness-dot" aria-hidden="true"></span>oggi</span></span><span>aggiornato oggi</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--oneTick"><span class="bgs-freshness-dot" aria-hidden="true"></span>1g</span></span><span>indietro di un tick</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--days"><span class="bgs-freshness-dot" aria-hidden="true"></span>4g</span></span><span>indietro di 2-6 giorni</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--weeks"><span class="bgs-freshness-dot" aria-hidden="true"></span>3s</span></span><span>settimane (s) o anni (a)</span></li>
         </ul>
       </div>
 
@@ -252,17 +252,19 @@
         <h2 class="bgs-legend-title">Fazioni e Stato</h2>
         <ul>
           <li>
-            <span class="bgs-faction-chart bgs-legend-chart" aria-hidden="true">
-              <span class="bgs-faction-bar" style="height: 55%"></span>
-              <span class="bgs-faction-bar bgs-faction-bar--own" style="height: 30%"></span>
-              <span class="bgs-faction-bar" style="height: 15%"></span>
+            <span class="bgs-legend-key">
+              <span class="bgs-faction-chart bgs-legend-chart" aria-hidden="true">
+                <span class="bgs-faction-bar" style="height: 55%"></span>
+                <span class="bgs-faction-bar bgs-faction-bar--own" style="height: 30%"></span>
+                <span class="bgs-faction-bar" style="height: 15%"></span>
+              </span>
             </span>
-            influenza delle fazioni, in arancione {{ factionName }}
+            <span>influenza delle fazioni, in arancione {{ factionName }}</span>
           </li>
-          <li><span class="bgs-state-icon" aria-hidden="true">⚔️</span> guerra di {{ factionName }}</li>
-          <li><span class="bgs-state-icon bgs-state-icon--election" aria-hidden="true">🗳️</span> elezione di {{ factionName }}</li>
-          <li><span class="bgs-state-icon bgs-state-icon--retreat" aria-hidden="true">⚠️</span> ritirata di {{ factionName }}</li>
-          <li><span class="bgs-state-icon bgs-state-icon--pending" aria-hidden="true">⚔️</span> in grigio: in arrivo (pending)</li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon" aria-hidden="true">⚔️</span></span><span>guerra di {{ factionName }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--election" aria-hidden="true">🗳️</span></span><span>elezione di {{ factionName }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat" aria-hidden="true">⚠️</span></span><span>ritirata di {{ factionName }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--pending" aria-hidden="true">⚔️</span></span><span>in grigio: in arrivo (pending)</span></li>
         </ul>
       </div>
 
@@ -270,44 +272,67 @@
         <h2 class="bgs-legend-title">Priorità</h2>
         <p class="bgs-legend-note">Dove lavorare per primi. Il tooltip spiega il perché.</p>
         <ul>
-          <li><span class="bgs-priority-pill bgs-priority-pill--P1">P1</span> urgente</li>
-          <li><span class="bgs-priority-pill bgs-priority-pill--P2">P2</span> <span class="bgs-priority-pill bgs-priority-pill--P3">P3</span> da seguire</li>
-          <li><span class="bgs-priority-pill bgs-priority-pill--P4">P4</span> <span class="bgs-priority-pill bgs-priority-pill--P5">P5</span> tranquillo</li>
-          <li><span class="bgs-priority-pill bgs-priority-pill--out-of-scope">⛔</span> fazione preferita di un altro: accordo da rispettare</li>
+          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--P1">P1</span></span><span>urgente</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--P2">P2</span> <span class="bgs-priority-pill bgs-priority-pill--P3">P3</span></span><span>da seguire</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--P4">P4</span> <span class="bgs-priority-pill bgs-priority-pill--P5">P5</span></span><span>tranquillo</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--out-of-scope">⛔</span></span><span>fazione preferita di un altro: accordo da rispettare</span></li>
         </ul>
       </div>
 
       <div class="bgs-legend-group">
         <h2 class="bgs-legend-title">Influenza e Margine</h2>
+        <p class="bgs-legend-note">Semafori dei sistemi che controlliamo: almeno un verde, sistema tranquillo; almeno un rosso, da seguire.</p>
         <ul>
-          <li>Semafori dei sistemi che controlliamo: almeno un verde, sistema tranquillo; almeno un rosso, da seguire</li>
           <li>
-            Influenza: <span class="bgs-legend-sample bgs-light--green">{{ semaphoreThresholds.influence.green }}%+</span>
-            <span class="bgs-legend-sample bgs-light--yellow">{{ semaphoreThresholds.influence.yellow }}–{{ semaphoreThresholds.influence.green - 0.1 | number: '1.1-1' }}%</span>
-            <span class="bgs-legend-sample bgs-light--red">&lt; {{ semaphoreThresholds.influence.yellow }}%</span>
+            <span class="bgs-legend-key">Influenza</span>
+            <span class="bgs-legend-scale">
+              <span class="bgs-legend-sample bgs-light--green">{{ semaphoreThresholds.influence.green }}%+</span>
+              <span class="bgs-legend-sample bgs-light--yellow">{{ semaphoreThresholds.influence.yellow }}–{{ semaphoreThresholds.influence.green - 0.1 | number: '1.1-1' }}%</span>
+              <span class="bgs-legend-sample bgs-light--red">&lt; {{ semaphoreThresholds.influence.yellow }}%</span>
+            </span>
           </li>
           <li>
-            Margine: <span class="bgs-legend-sample bgs-light--green">+{{ semaphoreThresholds.margin.green }}</span>
-            <span class="bgs-legend-sample bgs-light--yellow">+{{ semaphoreThresholds.margin.yellow }}–{{ semaphoreThresholds.margin.green - 0.1 | number: '1.1-1' }}</span>
-            <span class="bgs-legend-sample bgs-light--red">&lt; +{{ semaphoreThresholds.margin.yellow }}</span>
+            <span class="bgs-legend-key">Margine</span>
+            <span class="bgs-legend-scale">
+              <span class="bgs-legend-sample bgs-light--green">+{{ semaphoreThresholds.margin.green }}</span>
+              <span class="bgs-legend-sample bgs-light--yellow">+{{ semaphoreThresholds.margin.yellow }}–{{ semaphoreThresholds.margin.green - 0.1 | number: '1.1-1' }}</span>
+              <span class="bgs-legend-sample bgs-light--red">&lt; +{{ semaphoreThresholds.margin.yellow }}</span>
+            </span>
           </li>
-          <li><span class="bgs-legend-sample bgs-light--red bgs-margin--risk">⚠️ +3,1</span> vantaggio sotto {{ conflictMarginPoints }} punti: rischio conflitto</li>
-          <li><span class="bgs-legend-sample bgs-legend-sample--accent">12,5%</span> influenza dove non controlliamo</li>
-          <li><span class="bgs-legend-sample bgs-legend-sample--muted">−8,4</span> non controlliamo: distacco da chi controlla</li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-light--red bgs-margin--risk">⚠️ +3,1</span></span><span>vantaggio sotto {{ conflictMarginPoints }} punti: rischio conflitto</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--accent">12,5%</span></span><span>influenza dove non controlliamo</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--muted">−8,4</span></span><span>non controlliamo: distacco da chi controlla</span></li>
         </ul>
       </div>
 
       <div class="bgs-legend-group">
-        <h2 class="bgs-legend-title">Sistema e Architetto</h2>
+        <h2 class="bgs-legend-title">Sistema</h2>
         <ul>
-          <li><fa-icon class="bgs-legend-link" [icon]="faCopy" aria-hidden="true"></fa-icon> copia il nome; il nome apre Inara</li>
-          <li><span class="bgs-legend-muted">12,3 ly</span> distanza dal sistema del box "Distanza da"</li>
-          <li><fa-icon class="bgs-legend-link" [icon]="faCircleInfo" aria-hidden="true"></fa-icon> dettagli del sistema; <fa-icon class="bgs-legend-accent" [icon]="faCircleInfo" aria-hidden="true"></fa-icon> in arancione: nella Watchlist</li>
-          <li><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon> aggiungi agli Ordini Ufficiali</li>
-          <li>Material Trader: <fa-icon class="bgs-service-icon" [icon]="faGem" aria-hidden="true"></fa-icon> Raw, <fa-icon class="bgs-service-icon" [icon]="faGear" aria-hidden="true"></fa-icon> Manufactured, <fa-icon class="bgs-service-icon" [icon]="faMicrochip" aria-hidden="true"></fa-icon> Encoded, <fa-icon class="bgs-service-icon" [icon]="faFlask" aria-hidden="true"></fa-icon> tipo non noto</li>
-          <li><fa-icon class="bgs-service-icon" [icon]="faWrench" aria-hidden="true"></fa-icon> Technology Broker (Human o Guardian nel tooltip); stazione e distanza nel tooltip e nei dettagli del sistema</li>
-          <li><fa-icon class="bgs-legend-muted" [icon]="faPen" aria-hidden="true"></fa-icon> modifica l'assegnazione dell'architetto</li>
-          <li><span class="bgs-legend-muted">{{ factionName }}</span> fazione preferita in grigio: ricavata dalle stazioni, non registrata</li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faCopy" aria-hidden="true"></fa-icon></span><span>copia il nome; il nome apre Inara</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-muted">12,3 ly</span></span><span>distanza dal sistema del box "Distanza da"</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>dettagli del sistema</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-accent" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>in arancione: il sistema è nella Watchlist</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon></span><span>aggiungi agli Ordini Ufficiali</span></li>
+        </ul>
+      </div>
+
+      <div class="bgs-legend-group">
+        <h2 class="bgs-legend-title">Servizi delle stazioni</h2>
+        <p class="bgs-legend-note">Stazione e distanza dalla stella nel tooltip e nei dettagli del sistema.</p>
+        <ul>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faGem" aria-hidden="true"></fa-icon></span><span>Material Trader Raw</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faGear" aria-hidden="true"></fa-icon></span><span>Material Trader Manufactured</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faMicrochip" aria-hidden="true"></fa-icon></span><span>Material Trader Encoded</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faFlask" aria-hidden="true"></fa-icon></span><span>Material Trader di tipo non noto</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faWrench" aria-hidden="true"></fa-icon></span><span>Technology Broker (Human o Guardian nel tooltip)</span></li>
+        </ul>
+      </div>
+
+      <div class="bgs-legend-group">
+        <h2 class="bgs-legend-title">Architetto</h2>
+        <ul>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-muted" [icon]="faPen" aria-hidden="true"></fa-icon></span><span>modifica l'assegnazione dell'architetto</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-muted">Grigio</span></span><span>fazione preferita ricavata dalle stazioni, non registrata</span></li>
         </ul>
       </div>
     </section>

@@ -218,12 +218,40 @@
     list-style: none;
   }
 
+  // Two columns per group, shared by every row (subgrid): the sample on the left, its
+  // explanation on the right, so the texts line up and wrap within their own column.
+  ul {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 10px;
+    row-gap: 6px;
+    margin-top: 8px;
+  }
+
   li {
-    display: flex;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
+  }
+}
+
+.bgs-legend-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text);
+}
+
+// The traffic-light thresholds, side by side in the text column.
+.bgs-legend-scale {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+
+  .bgs-legend-sample {
+    min-width: 0;
+    text-align: left;
   }
 }
 
@@ -239,7 +267,7 @@
   color: var(--color-text-muted);
 }
 
-.bgs-legend-chart {
+.bgs-faction-chart.bgs-legend-chart {
   height: 18px;
   width: 36px;
 }

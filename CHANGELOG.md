@@ -2,6 +2,15 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.10.1] - 2026-10-06 — Legenda più leggibile
+
+### Interfaccia
+
+- Nella **Legenda** ogni voce ha due colonne, l'esempio a sinistra e la spiegazione a destra, allineate in tutto il gruppo: prima esempi e testi andavano a capo insieme e, nelle voci con più icone (i Material Trader), si spezzavano in pezzi sparsi.
+- Il gruppo "Sistema e Architetto", il più lungo e chiuso in una colonna stretta, è diviso in tre: **Sistema**, **Servizi delle stazioni** (un Material Trader per riga) e **Architetto**.
+- La spiegazione dei semafori passa sotto il titolo di "Influenza e Margine", e le soglie stanno accanto a "Influenza" e "Margine".
+- Il grafico di esempio delle fazioni torna piccolo: la sua larghezza era sovrascritta da quella del grafico della tabella.
+
 ## [0.10.0] - 2026-10-06 — Material Trader e Technology Broker
 
 ### Tabella
