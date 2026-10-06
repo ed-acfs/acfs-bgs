@@ -33,7 +33,8 @@ Questo file esiste dal 5 ottobre 2026: la memoria locale di Claude accumulata pr
 - Interfaccia in italiano; i nomi degli stati BGS restano in inglese, come in gioco.
 - Logo: quello 2025 "Vanguards" (`ed-acfs.github.io/extras/ACFS_Logo_2025_Vanguards/`). I file `ed-acfs.github.io/images/logo_*.png` sono il logo vecchio: non usarli.
 - Il prefisso `acfs-bgs:` delle chiavi `localStorage` è rimasto invariato apposta dopo la rinomina in `acfs-bgs-tool`: cambiarlo farebbe perdere le impostazioni salvate.
-- Niente dati strategici nel repo, che è pubblico: accordi con altre fazioni, fazioni preferite e motivazioni della Watchlist stanno solo nel foglio Google.
+- Fazioni preferite e motivazioni della Watchlist stanno nel foglio Google, non nel repo: il foglio è l'unica fonte. **Non sono riservate** (decisione dell'utente del 6 ottobre 2026, "non in questa fase"): il foglio è pubblicato sul web, i suoi URL sono in `config.json` e il sito le mostra a chiunque. Con un sito statico tutto ciò che il tool mostra è pubblico; se in futuro servissero dati riservati, ci vorrà un login (vedi roadmap). Gli accordi con altre fazioni non vanno né nel repo né nel tool.
+- La passphrase degli Ordini è solo un deterrente: il controllo avviene nel browser e l'impronta SHA-256 sta nel repo pubblico.
 - Spansh è in ritardo rispetto al gioco: il tool deve mostrare la freschezza del dato, non presentarlo come autorevole.
 
 ## Come funziona il BGS (spiegato dall'utente)
