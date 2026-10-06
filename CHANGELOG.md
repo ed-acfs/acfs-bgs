@@ -2,6 +2,16 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.9.5] - 2026-10-06 — Tabella leggibile su telefono
+
+### Interfaccia mobile
+
+- Sotto i 720 px di larghezza ogni sistema diventa una **scheda**: nome in alto, poi i valori con la loro etichetta, in quest'ordine: Priorità, Aggiornato, Distanza; ACFS, Margine, Stato; fazione di controllo e grafico delle fazioni; architetto e fazione preferita. Prima la tabella era larga più di 1100 px e su un telefono si vedevano solo Sistema e Distanza, il resto andava scorso in orizzontale.
+- Le intestazioni ordinabili diventano una fila di pulsanti **"Ordina per"** sopra le schede, con lo stesso indicatore ▲/▼.
+- Sotto i 600 px: titolo e logo affiancati, i pulsanti Guida, Legenda, Ordini ed Esporta in una griglia (2×2 su telefono); nel paginatore la pagina corrente sta sopra e i due pulsanti affiancati sotto.
+- **Ordini Ufficiali**: su telefono i campi (intestazione, barra "Aggiungi riga", righe) occupano tutta la larghezza invece di avere larghezze miste; la Firma tiene accanto il pulsante Blocca. L'anteprima Markdown non sborda più a destra (era larga il 100% più il suo margine interno, anche su desktop).
+- Su desktop non cambia nulla, a parte l'anteprima Markdown che ora resta dentro la pagina.
+
 ## [0.9.4] - 2026-10-06 — Ordinamento per nome
 
 ### Tabella

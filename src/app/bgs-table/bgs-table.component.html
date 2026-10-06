@@ -364,7 +364,7 @@
                 }
               </button>
             </th>
-            <th class="bgs-col-state">Stato</th>
+            <th class="bgs-col-state bgs-th-static">Stato</th>
             <th class="bgs-col-priority">
               <button
                 type="button"
@@ -524,8 +524,8 @@
                     <fa-icon [icon]="faClipboardList"></fa-icon>
                   </button>
                 </td>
-                <td class="bgs-col-distance" [title]="distanceTitle(row)">{{ distanceLabel(row) }}</td>
-                <td class="bgs-col-freshness">
+                <td class="bgs-col-distance" data-label="Distanza" [title]="distanceTitle(row)">{{ distanceLabel(row) }}</td>
+                <td class="bgs-col-freshness" data-label="Aggiornato">
                   @let freshness = freshnessFor(row);
                   <span
                     class="bgs-freshness-pill"
@@ -537,7 +537,7 @@
                     <span aria-hidden="true">{{ freshness.label }}</span>
                   </span>
                 </td>
-                <td class="bgs-col-factions">
+                <td class="bgs-col-factions" data-label="Fazioni">
                   @if (row.factions.length > 0) {
                     <div class="bgs-faction-chart" [attr.aria-label]="factionsSummary(row)">
                       @for (faction of row.factions; track faction.name) {
@@ -553,7 +553,7 @@
                     <span>—</span>
                   }
                 </td>
-                <td class="bgs-col-state">
+                <td class="bgs-col-state" data-label="Stato">
                   @if (row.retreatState) {
                     <span
                       class="bgs-state-icon bgs-state-icon--retreat"
@@ -585,7 +585,7 @@
                     <span>—</span>
                   }
                 </td>
-                <td class="bgs-col-priority">
+                <td class="bgs-col-priority" data-label="Priorità">
                   @let priority = priorityFor(row);
                   @if (priority.tier === 'not-applicable') {
                     <span>—</span>
@@ -599,9 +599,10 @@
                     </span>
                   }
                 </td>
-                <td class="bgs-col-wrap">{{ row.controllingFaction ?? '—' }}</td>
+                <td class="bgs-col-wrap bgs-cell-control" data-label="Fazione di controllo">{{ row.controllingFaction ?? '—' }}</td>
                 <td
                   class="bgs-col-influence"
+                  data-label="ACFS"
                   [class.bgs-influence--present]="row.factionInfluence !== null"
                   [class.bgs-light--green]="influenceLight(row) === 'green'"
                   [class.bgs-light--yellow]="influenceLight(row) === 'yellow'"
@@ -611,6 +612,7 @@
                 </td>
                 <td
                   class="bgs-col-influence bgs-col-margin"
+                  data-label="Margine"
                   [class.bgs-light--green]="marginLight(row) === 'green'"
                   [class.bgs-light--yellow]="marginLight(row) === 'yellow'"
                   [class.bgs-light--red]="marginLight(row) === 'red'"
@@ -618,7 +620,7 @@
                   [class.bgs-margin--gap]="row.margin && !row.margin.controlled"
                   [title]="marginTitle(row)"
                 >{{ marginLabel(row) }}</td>
-                <td class="bgs-col-wrap">
+                <td class="bgs-col-wrap bgs-cell-architect" data-label="Architetto">
                   @if (row.architect === null && !row.notAColony) {
                     <button
                       type="button"
@@ -638,7 +640,7 @@
                     </button></span>
                   }
                 </td>
-                <td class="bgs-col-wrap" [class.bgs-preferred-derived]="!row.preferredFactionRecorded">{{ row.preferredFaction ?? '—' }}</td>
+                <td class="bgs-col-wrap bgs-cell-preferred" data-label="Fazione preferita" [class.bgs-preferred-derived]="!row.preferredFactionRecorded">{{ row.preferredFaction ?? '—' }}</td>
               </tr>
             }
           }
