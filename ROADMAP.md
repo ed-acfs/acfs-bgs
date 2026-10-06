@@ -153,8 +153,9 @@ Passi:
 
 - [x] Codice dello script nel repo (`apps-script/assegna.gs`, con guida in `apps-script/README.md`), con la stessa struttura di colonne del Registro (`Informazioni cronologiche`, `Your Name`, `System Name`, `Architect Name`, `ACFS Architect`, `Preferred Faction`), abbinate per nome. In più: blocco di 10 minuti dopo 10 password sbagliate, testi che iniziano con `=` `+` `-` `@` scritti come testo e non come formule (0.9.9)
 - [x] In "Assegna": campo password chiesto la prima volta e ricordato sul dispositivo (`localStorage`, prefisso `acfs-bgs:`), invio allo script, messaggio di esito; finché lo script non è configurato (`assignScriptUrl` a `null` in `config.json`) il tool continua a usare il Form come oggi (0.9.9)
-- [ ] Installazione dello script nel foglio e impostazione della password: dal PC di casa, dove i connettori Google funzionano (vedi `CLAUDE.md`), oppure a mano dall'utente con una guida passo passo
-- [ ] Prove reali, poi decidere se chiudere il Form
+- [x] Installazione dello script nel foglio e impostazione della password (fatta dall'utente il 6 ottobre 2026). URL dell'app web: `https://script.google.com/macros/s/AKfycbyynDPW5BkGVWA_5kIx1mFVoo4ssOD0qunB_jLE_9XI0SQ1bZTVkqiluAy9WnCtisWx/exec`
+- [x] Prove reali e attivazione (6 ottobre 2026): la GET risponde `{"ok":true,…}`; una password sbagliata, sia da `curl` sia dal dialog su `localhost`, viene rifiutata con "Password errata" senza scrivere niente; con la password giusta l'utente ha assegnato Fular dal dialog e la riga è arrivata nel foglio (riga 83) nello stesso formato del Form. Pubblicato con l'URL in `assignScriptUrl`. Se un giorno le scritture falliscono, guardare **Esecuzioni** nell'editor di Apps Script
+- [ ] Decidere se chiudere il Form alle risposte pubbliche
 
 ### 9. Ordini Ufficiali
 
