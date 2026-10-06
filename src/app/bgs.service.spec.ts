@@ -98,6 +98,8 @@ describe('BgsService dataset loading', () => {
   });
 
   it('submits an assignment to the squadron form, as an opaque no-cors POST', async () => {
+    // The Form path, used whenever the Apps Script isn't configured.
+    service.assignScriptUrl = null;
     fetchMock.mockImplementationOnce(() => Promise.resolve({ ok: false, status: 0, type: 'opaque' } as Response));
 
     await service.submitAssignment({ yourName: 'Cmdr', systemName: 'Wong Sher', architect: '', affiliation: '', preferredFaction: '' });
