@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { activeConflictSystems, fetchConflictScores, fetchLastTick, slimSystem } from './fetch-bgs.mjs';
+import {
+  activeConflictSystems,
+  applyServiceTypes,
+  fetchConflictScores,
+  fetchLastTick,
+  fetchServiceTypes,
+  serviceSystems,
+  slimSystem,
+} from './fetch-bgs.mjs';
 
 const system = {
   name: 'Wong Sher',
@@ -117,4 +125,52 @@ test('treats an EliteBGS HTTP 500 as no scores, without failing the download', a
   t.mock.method(console, 'warn', () => {});
   t.mock.method(globalThis, 'fetch', async () => new Response('{"message":"down"}', { status: 500 }));
   assert.equal(await fetchConflictScores(['Misir']), null);
+});
+
+test('marks Material Traders and Technology Brokers as unknown kinds, with the distance from the star', () => {
+  const slim = slimSystem({
+    name: 'Zandu',
+    stations: [
+      { name: 'Vaucanson Hub', type: 'Coriolis Starport', controlling_minor_faction: 'Flotta Stellare', distance_to_arrival: 282.4, services: ['Market', 'Material Trader', 'Technology Broker'] },
+      { name: 'Plain Port', type: 'Outpost', controlling_minor_faction: 'Other', distance_to_arrival: 90, services: ['Market'] },
+    ],
+  });
+
+  assert.deepEqual(slim.assets, [
+    { name: 'Vaucanson Hub', type: 'Coriolis Starport', controlling_minor_faction: 'Flotta Stellare', distance_to_arrival: 282, material_trader: 'unknown', technology_broker: 'unknown' },
+    { name: 'Plain Port', type: 'Outpost', controlling_minor_faction: 'Other' },
+  ]);
+  assert.deepEqual(serviceSystems([slim, slimSystem(system)]), ['Zandu']);
+});
+
+test('reads trader and broker kinds from the station search, forty systems at a time', async t => {
+  const names = Array.from({ length: 41 }, (_unused, i) => `System ${i}`);
+  const bodies = [];
+  t.mock.method(globalThis, 'fetch', async (_url, init) => {
+    const body = JSON.parse(init.body);
+    bodies.push(body);
+    const results = body.filters.system_name.value.includes('System 40')
+      ? [{ system_name: 'SYSTEM 40', name: 'Hub', material_trader: 'Encoded', technology_broker: null }, { system_name: 'System 40', name: 'Plain' }]
+      : [];
+    return new Response(JSON.stringify({ count: results.length, results }));
+  });
+
+  const types = await fetchServiceTypes(names);
+
+  assert.equal(bodies.length, 2);
+  assert.equal(bodies[0].filters.system_name.value.length, 40);
+  const systems = [{ name: 'System 40', assets: [{ name: 'Hub', material_trader: 'unknown' }, { name: 'Other', technology_broker: 'unknown' }] }];
+  applyServiceTypes(systems, types);
+  assert.deepEqual(systems[0].assets, [{ name: 'Hub', material_trader: 'Encoded' }, { name: 'Other', technology_broker: 'unknown' }]);
+});
+
+test('keeps the services as unknown kinds when the station search fails', async t => {
+  t.mock.method(console, 'warn', () => {});
+  t.mock.method(globalThis, 'fetch', async () => new Response('down', { status: 502 }));
+  const types = await fetchServiceTypes(['Zandu']);
+  assert.equal(types, null);
+
+  const systems = [{ name: 'Zandu', assets: [{ name: 'Hub', material_trader: 'unknown' }] }];
+  applyServiceTypes(systems, types);
+  assert.equal(systems[0].assets[0].material_trader, 'unknown');
 });

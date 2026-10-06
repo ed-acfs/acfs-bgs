@@ -716,6 +716,12 @@
   }
 }
 
+// Material Trader / Technology Broker next to the system name: blue, apart from the link-coloured actions.
+.bgs-service-icon,
+.bgs-info-button.bgs-service-icon {
+  color: var(--color-info);
+}
+
 // Architect name and its pencil stay on one line.
 .bgs-architect {
   white-space: nowrap;

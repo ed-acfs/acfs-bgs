@@ -219,6 +219,35 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     expect(panel.textContent).toContain('Bolden Port');
   });
 
+  it('marks the services next to the system name and filters to the systems that have one', async () => {
+    const zandu: BgsRow = {
+      ...row('Zandu'),
+      stations: [
+        {
+          name: 'Vaucanson Hub',
+          type: 'Coriolis Starport',
+          controllingFaction: FACTION_NAME,
+          distanceToArrival: 282,
+          services: [
+            { kind: 'material-trader', type: 'Encoded' },
+            { kind: 'technology-broker', type: null },
+          ],
+        },
+      ],
+    };
+    service.getAllRows.mockResolvedValue([row('Plain'), zandu]);
+    const host: HTMLElement = fixture.nativeElement;
+    host.querySelector<HTMLButtonElement>('button[title="Solo i sistemi con un Material Trader o un Technology Broker"]')!.click();
+    await fixture.whenStable();
+
+    expect(visibleRows().map(r => r.systemName)).toEqual(['Zandu']);
+    const icons = [...host.querySelectorAll<HTMLButtonElement>('.bgs-service-icon')];
+    expect(icons.map(icon => icon.title)).toEqual([
+      'Material Trader\nEncoded — Vaucanson Hub, 282 ls',
+      'Technology Broker\ntipo non noto — Vaucanson Hub, 282 ls',
+    ]);
+  });
+
   /** Types into a quick-filter name field the way a user does (marking it dirty), then leaves it. */
   async function typeAndLeave(label: string, text: string): Promise<void> {
     const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>(`input[aria-label="${label}"]`)!;
