@@ -5,6 +5,7 @@
   "homeSystem": "Wong Sher",
   "compareFaction": null,
   "conflictMarginPoints": 5,
+  "retreatInfluencePercent": 2.5,
   "semaphores": {
     "influence": { "green": 50, "yellow": 40 },
     "margin": { "green": 30, "yellow": 18 }
