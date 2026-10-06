@@ -1,3 +1,4 @@
+import { systemServices } from '../core/bgs';
 import { TestBed } from '@angular/core/testing';
 import { ARCHITECT_FORM_ACTION, ARCHITECTS_SHEET_URL, WATCHLIST_SHEET_URL } from '../core/config';
 import { BgsService } from './bgs.service';
@@ -146,7 +147,7 @@ interface FactionPresenceFixture {
 function systemWithPresences(
   name: string,
   presences: FactionPresenceFixture[],
-  extra: { body_count?: number; population?: number; ebgs_conflicts?: unknown } = {},
+  extra: { body_count?: number; population?: number; ebgs_conflicts?: unknown; assets?: unknown[] } = {},
 ) {
   return { name, controlling_minor_faction: null, x: 0, y: 0, z: 0, minor_faction_presences: presences, ...extra };
 }
@@ -314,5 +315,28 @@ describe('BgsService state summarisation (retreat, FR-1/FR-2)', () => {
     expect(page.rows[0].population).toBe(26481079);
     expect(page.rows[1].bodyCount).toBeNull();
     expect(page.rows[1].population).toBeNull();
+  });
+
+  it('reads Material Traders and Technology Brokers from the stations, with an unknown kind as null', async () => {
+    records = [
+      systemWithPresences('Zandu', [], {
+        assets: [
+          { name: 'Plain Port', type: 'Outpost', controlling_minor_faction: 'Other' },
+          { name: 'Vaucanson Hub', type: 'Coriolis Starport', controlling_minor_faction: 'Flotta Stellare', distance_to_arrival: 282, material_trader: 'Encoded', technology_broker: 'unknown' },
+        ],
+      }),
+    ];
+
+    const [zandu] = (await service.getPage(0)).rows;
+
+    expect(zandu.stations[0].services).toBeUndefined();
+    expect(zandu.stations[1].services).toEqual([
+      { kind: 'material-trader', type: 'Encoded' },
+      { kind: 'technology-broker', type: null },
+    ]);
+    expect(systemServices(zandu.stations)).toEqual([
+      { kind: 'material-trader', type: 'Encoded', station: 'Vaucanson Hub', distanceToArrival: 282 },
+      { kind: 'technology-broker', type: null, station: 'Vaucanson Hub', distanceToArrival: 282 },
+    ]);
   });
 });

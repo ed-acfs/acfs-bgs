@@ -31,6 +31,14 @@ const EBGS_SYSTEMS_URL = 'https://elitebgs.app/api/ebgs/v5/systems';
 const EBGS_PAGE_SIZE = 10;
 /** Shorter than Spansh's: when its database is down EliteBGS takes ~35 s to answer with an error. */
 const EBGS_TIMEOUT_MS = 20_000;
+/** Spansh station search: unlike the system search, it says which kind of trader or broker a station has. */
+const STATIONS_URL = 'https://spansh.co.uk/api/stations/search';
+/** System names per station search, as the squadron map's `spansh_sync.py` does. */
+const STATIONS_CHUNK = 40;
+/** Station services worth showing in the table, and the dataset field each is kept in. */
+const SERVICE_FIELDS = { 'Material Trader': 'material_trader', 'Technology Broker': 'technology_broker' };
+/** Placeholder for a service Spansh lists without saying its kind (Raw/Encoded…, Human/Guardian). */
+export const UNKNOWN_SERVICE_TYPE = 'unknown';
 /** Spansh's pseudo-faction for fleet carriers, which aren't stations the BGS cares about. */
 const FLEET_CARRIER_FACTION = 'FleetCarrier';
 
@@ -60,12 +68,93 @@ export function slimSystem(system) {
   return {
     ...rest,
     station_count: realStations.length,
-    assets: realStations.map(s => ({
-      name: s.name,
-      type: s.type ?? null,
-      controlling_minor_faction: s.controlling_minor_faction ?? null,
-    })),
+    assets: realStations.map(slimStation),
   };
+}
+
+/**
+ * One station for the `assets` list. A station with a Material Trader or Technology Broker also
+ * keeps its distance from the arrival star and the service, as {@link UNKNOWN_SERVICE_TYPE} until
+ * {@link applyServiceTypes} fills in the kind from the station search.
+ */
+function slimStation(station) {
+  const asset = {
+    name: station.name,
+    type: station.type ?? null,
+    controlling_minor_faction: station.controlling_minor_faction ?? null,
+  };
+  const services = Object.entries(SERVICE_FIELDS).filter(([service]) => (station.services ?? []).includes(service));
+  if (services.length > 0) {
+    asset.distance_to_arrival = typeof station.distance_to_arrival === 'number' ? Math.round(station.distance_to_arrival) : null;
+    for (const [, field] of services) {
+      asset[field] = UNKNOWN_SERVICE_TYPE;
+    }
+  }
+  return asset;
+}
+
+/** The systems with at least one Material Trader or Technology Broker, the only ones worth a station search. */
+export function serviceSystems(systems) {
+  const fields = Object.values(SERVICE_FIELDS);
+  return systems.filter(system => (system.assets ?? []).some(asset => fields.some(field => asset[field]))).map(system => system.name);
+}
+
+const stationKey = (systemName, stationName) => `${String(systemName).toLowerCase()} / ${String(stationName).toLowerCase()}`;
+
+/**
+ * The kind of each Material Trader and Technology Broker in the given systems, from Spansh's
+ * station search, keyed by system and station name. Like the EliteBGS scores, this only adds
+ * detail: on an error it returns null and the services stay {@link UNKNOWN_SERVICE_TYPE}.
+ */
+export async function fetchServiceTypes(systemNames) {
+  const types = new Map();
+  if (systemNames.length === 0) {
+    return types;
+  }
+  try {
+    for (let i = 0; i < systemNames.length; i += STATIONS_CHUNK) {
+      const chunk = systemNames.slice(i, i + STATIONS_CHUNK);
+      for (let page = 0; ; page++) {
+        const data = await request(STATIONS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filters: { system_name: { value: chunk } }, size: 100, page }),
+        });
+        for (const station of data.results ?? []) {
+          if (station.material_trader || station.technology_broker) {
+            types.set(stationKey(station.system_name, station.name), {
+              material_trader: station.material_trader || null,
+              technology_broker: station.technology_broker || null,
+            });
+          }
+        }
+        if ((page + 1) * 100 >= (data.count ?? 0) || (data.results ?? []).length === 0) {
+          break;
+        }
+      }
+    }
+    return types;
+  } catch (error) {
+    console.warn(`Spansh station search unavailable (${error.message}): trader and broker kinds unknown this time.`);
+    return null;
+  }
+}
+
+/** Replaces {@link UNKNOWN_SERVICE_TYPE} with the kind the station search found, where it found one. */
+export function applyServiceTypes(systems, types) {
+  if (!types) {
+    return;
+  }
+  for (const system of systems) {
+    for (const asset of system.assets ?? []) {
+      const found = types.get(stationKey(system.name, asset.name));
+      for (const field of Object.values(SERVICE_FIELDS)) {
+        if (asset[field] && found?.[field]) {
+          asset[field] = found[field];
+        }
+      }
+    }
+  }
 }
 
 export async function fetchFactionSystems(faction = FACTION_NAME) {
@@ -181,7 +270,11 @@ async function main() {
   }
   const startedAt = Date.now();
   const [results, tickAt] = await Promise.all([fetchFactionSystems(), fetchLastTick()]);
-  const scores = await fetchConflictScores(activeConflictSystems(results));
+  const [scores, serviceTypes] = await Promise.all([
+    fetchConflictScores(activeConflictSystems(results)),
+    fetchServiceTypes(serviceSystems(results)),
+  ]);
+  applyServiceTypes(results, serviceTypes);
   for (const system of results) {
     const score = scores?.[system.name.toLowerCase()];
     if (score) {

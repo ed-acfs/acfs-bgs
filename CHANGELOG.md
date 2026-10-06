@@ -2,6 +2,24 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.10.0] - 2026-10-06 — Material Trader e Technology Broker
+
+### Tabella
+
+- Accanto al nome del sistema, un'icona blu per ogni servizio presente. Il **Material Trader** ha un'icona per tipo: gemma per Raw, ingranaggio per Manufactured, chip per Encoded, fiaschetta se Spansh non conosce il tipo. Il **Technology Broker** ha una chiave inglese. Il tooltip dice tipo, stazione e distanza dalla stella di arrivo (es. "Material Trader: Encoded", "Vaucanson Hub, 282 ls"); cliccando l'icona si aprono i dettagli del sistema, così si legge anche su telefono.
+- Nuovo filtro rapido **Servizi** nel gruppo "Mostra": solo i sistemi con almeno uno dei due servizi. Insieme all'ordinamento per Distanza risponde a "dov'è il trader più vicino?".
+- Nei dettagli del sistema, la tabella delle stazioni ha una colonna **Servizi** con tipo e distanza dalla stella.
+- La Legenda spiega le due icone.
+
+### Dati
+
+- Lo script dei dati tiene, per le stazioni che ne hanno uno, il Material Trader o il Technology Broker e la distanza dalla stella di arrivo. Il tipo (Raw, Manufactured, Encoded; Human, Guardian) lo chiede alla **ricerca per stazioni** di Spansh, l'unica che lo riporta, solo per i sistemi con un servizio: di solito una richiesta, a gruppi di 40 sistemi come fa la mappa del sito dello squadrone. Se la richiesta fallisce il download prosegue, con il tipo "non noto".
+- Al 6 ottobre 2026: 9 Material Trader e 16 Technology Broker nei sistemi di Flotta Stellare. Per 10 broker, in stazioni di colonie recenti, Spansh sa che il servizio c'è ma non il tipo.
+
+### Test
+
+- Tre nuovi test dello script (servizi delle stazioni, ricerca a gruppi di 40, errore della ricerca) e due dell'app (lettura dei servizi dal file dei dati, icone e filtro nella tabella). Passano 228 test dell'app e 20 degli script.
+
 ## [0.9.9] - 2026-10-06 — "Assegna" con password degli ufficiali
 
 ### Registro architetti

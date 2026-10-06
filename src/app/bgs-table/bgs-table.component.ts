@@ -22,9 +22,23 @@ import {
   faPen,
   faCopy,
   faDownload,
+  faFlask,
+  faGear,
+  faGem,
   faMagnifyingGlass,
+  faMicrochip,
+  faWrench,
+  IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
-import { BgsRow, ConflictScore, StateEntry, rowWithAssignment } from '../../core/bgs';
+import {
+  BgsRow,
+  ConflictScore,
+  StateEntry,
+  StationServiceKind,
+  SystemService,
+  rowWithAssignment,
+  systemServices,
+} from '../../core/bgs';
 import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM, SEMAPHORE_THRESHOLDS } from '../../core/config';
 import { influenceSemaphore, marginSemaphore, Semaphore } from '../../core/semaphore';
 import { draftItemFromRow } from '../../core/orders';
@@ -222,6 +236,11 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly faCircleInfo = faCircleInfo;
   protected readonly faPen = faPen;
   protected readonly faClipboardList = faClipboardList;
+  protected readonly faFlask = faFlask;
+  protected readonly faGem = faGem;
+  protected readonly faGear = faGear;
+  protected readonly faMicrochip = faMicrochip;
+  protected readonly faWrench = faWrench;
   protected readonly faCircleQuestion = faCircleQuestion;
   protected readonly faListUl = faListUl;
   /** The squadron's faction, named in the ACFS column header's tooltip and highlighted orange in the Factions chart. */
@@ -322,6 +341,8 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly warElectionOnly = signal(false);
   /** FR-5: "needs recon" pairs naturally with the Distance sort — stale systems near me. */
   protected readonly needsReconOnly = signal(false);
+  /** Only systems with a Material Trader or Technology Broker. */
+  protected readonly servicesOnly = signal(false);
   protected readonly architectFilterMode = signal<ArchitectFilterMode>('all');
   /** Lower-cased names of the architects the registry records as squadron members, for the "ACFS" filter. */
   private readonly squadronArchitects = signal<ReadonlySet<string>>(new Set());
@@ -358,6 +379,7 @@ export class BgsTableComponent implements OnDestroy {
     () =>
       this.warElectionOnly() ||
       this.needsReconOnly() ||
+      this.servicesOnly() ||
       this.architectFilterMode() !== 'all' ||
       this.factionFilterMode() !== 'all',
   );
@@ -387,6 +409,9 @@ export class BgsTableComponent implements OnDestroy {
     }
     if (this.needsReconOnly()) {
       rows = rows.filter(row => this.priorityFor(row).needsRecon);
+    }
+    if (this.servicesOnly()) {
+      rows = rows.filter(row => systemServices(row.stations).length > 0);
     }
     switch (this.architectFilterMode()) {
       case 'none':
@@ -684,6 +709,35 @@ export class BgsTableComponent implements OnDestroy {
   protected toggleNeedsRecon(): void {
     this.needsReconOnly.update(active => !active);
     this.pageIndex.set(0);
+  }
+
+  protected toggleServices(): void {
+    this.servicesOnly.update(active => !active);
+    this.pageIndex.set(0);
+  }
+
+  /**
+   * One icon per service and kind in the system — each Material Trader kind its own (gem for
+   * Raw, gear for Manufactured, chip for Encoded, flask when Spansh doesn't know), a wrench for
+   * Technology Brokers — with every station offering it in the tooltip.
+   */
+  protected serviceIcons(row: BgsRow): ServiceIcon[] {
+    const groups = new Map<string, SystemService[]>();
+    for (const service of systemServices(row.stations)) {
+      const key = `${service.kind}:${service.type ?? ''}`;
+      groups.set(key, [...(groups.get(key) ?? []), service]);
+    }
+    return [...groups].map(([key, services]) => {
+      const { kind, type } = services[0];
+      const label = `${SERVICE_LABELS[kind]}: ${type ?? 'tipo non noto'}`;
+      return {
+        key,
+        kind,
+        icon: kind === 'material-trader' ? (TRADER_ICONS[type ?? ''] ?? faFlask) : faWrench,
+        title: [label, ...services.map(describeStation)].join('\n'),
+        ariaLabel: `${label} a ${row.systemName}`,
+      };
+    });
   }
 
   protected setArchitectFilterMode(mode: 'all' | 'none' | 'squadron'): void {
@@ -1211,4 +1265,32 @@ export class BgsTableComponent implements OnDestroy {
       // Suggestions are a convenience; the filter's free-text entry still works without them.
     }
   }
+}
+
+/** A service icon next to the system name. */
+interface ServiceIcon {
+  key: string;
+  kind: StationServiceKind;
+  icon: IconDefinition;
+  title: string;
+  ariaLabel: string;
+}
+
+/** Service names as the game shows them. */
+const SERVICE_LABELS: Record<StationServiceKind, string> = {
+  'material-trader': 'Material Trader',
+  'technology-broker': 'Technology Broker',
+};
+
+/** Material Trader icons by kind; a trader of unknown kind gets the flask. */
+const TRADER_ICONS: Record<string, IconDefinition> = {
+  Raw: faGem,
+  Manufactured: faGear,
+  Encoded: faMicrochip,
+};
+
+/** "Vaucanson Hub, 282 ls" for a service's tooltip line. */
+function describeStation(service: SystemService): string {
+  const distance = service.distanceToArrival === null ? '' : `, ${service.distanceToArrival.toLocaleString('it-IT')} ls`;
+  return `${service.station}${distance}`;
 }

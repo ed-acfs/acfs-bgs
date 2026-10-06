@@ -2,7 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { BgsRow } from '../../core/bgs';
+import { BgsRow, StationService } from '../../core/bgs';
 
 /** The system whose info the dialog shows. */
 export interface PriorityWatchlistDialogData {
@@ -27,4 +27,10 @@ export class PriorityWatchlistDialogComponent {
 
   protected readonly row = this.data.row;
   protected readonly entries = this.data.row.watchlist;
+
+  /** "Material Trader: Encoded", or "tipo non noto" when Spansh lists the service without its kind. */
+  protected serviceLabel(service: StationService): string {
+    const name = service.kind === 'material-trader' ? 'Material Trader' : 'Technology Broker';
+    return `${name}: ${service.type ?? 'tipo non noto'}`;
+  }
 }

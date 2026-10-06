@@ -119,6 +119,14 @@
             (click)="toggleNeedsRecon()"
             title="Solo i sistemi con dati vecchi di almeno 2 giorni"
           >Da aggiornare</button>
+          <button
+            type="button"
+            class="bgs-segment"
+            [class.bgs-segment--active]="servicesOnly()"
+            [attr.aria-pressed]="servicesOnly()"
+            (click)="toggleServices()"
+            title="Solo i sistemi con un Material Trader o un Technology Broker"
+          >Servizi</button>
         </div>
       </div>
 
@@ -296,6 +304,8 @@
           <li><span class="bgs-legend-muted">12,3 ly</span> distanza dal sistema del box "Distanza da"</li>
           <li><fa-icon class="bgs-legend-link" [icon]="faCircleInfo" aria-hidden="true"></fa-icon> dettagli del sistema; <fa-icon class="bgs-legend-accent" [icon]="faCircleInfo" aria-hidden="true"></fa-icon> in arancione: nella Watchlist</li>
           <li><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon> aggiungi agli Ordini Ufficiali</li>
+          <li>Material Trader: <fa-icon class="bgs-service-icon" [icon]="faGem" aria-hidden="true"></fa-icon> Raw, <fa-icon class="bgs-service-icon" [icon]="faGear" aria-hidden="true"></fa-icon> Manufactured, <fa-icon class="bgs-service-icon" [icon]="faMicrochip" aria-hidden="true"></fa-icon> Encoded, <fa-icon class="bgs-service-icon" [icon]="faFlask" aria-hidden="true"></fa-icon> tipo non noto</li>
+          <li><fa-icon class="bgs-service-icon" [icon]="faWrench" aria-hidden="true"></fa-icon> Technology Broker (Human o Guardian nel tooltip); stazione e distanza nel tooltip e nei dettagli del sistema</li>
           <li><fa-icon class="bgs-legend-muted" [icon]="faPen" aria-hidden="true"></fa-icon> modifica l'assegnazione dell'architetto</li>
           <li><span class="bgs-legend-muted">{{ factionName }}</span> fazione preferita in grigio: ricavata dalle stazioni, non registrata</li>
         </ul>
@@ -528,6 +538,17 @@
                   >
                     <fa-icon [icon]="faClipboardList"></fa-icon>
                   </button>
+                  @for (service of serviceIcons(row); track service.key) {
+                    <button
+                      type="button"
+                      class="bgs-info-button bgs-service-icon"
+                      [title]="service.title"
+                      [attr.aria-label]="service.ariaLabel"
+                      (click)="openWatchlistDialog(row)"
+                    >
+                      <fa-icon [icon]="service.icon"></fa-icon>
+                    </button>
+                  }
                 </td>
                 <td class="bgs-col-distance" data-label="Distanza" [title]="distanceTitle(row)">{{ distanceLabel(row) }}</td>
                 <td class="bgs-col-freshness" data-label="Aggiornato">

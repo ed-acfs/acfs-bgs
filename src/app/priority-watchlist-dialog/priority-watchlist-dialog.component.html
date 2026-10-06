@@ -42,6 +42,7 @@
               <th scope="col">Nome</th>
               <th scope="col">Tipo</th>
               <th scope="col">Fazione</th>
+              <th scope="col">Servizi</th>
             </tr>
           </thead>
           <tbody>
@@ -50,6 +51,16 @@
                 <td>{{ station.name }}</td>
                 <td>{{ station.type ?? '—' }}</td>
                 <td>{{ station.controllingFaction ?? '—' }}</td>
+                <td>
+                  @for (service of station.services ?? []; track service.kind) {
+                    <span class="info-service">{{ serviceLabel(service) }}</span>
+                  } @empty {
+                    —
+                  }
+                  @if (station.distanceToArrival != null) {
+                    <span class="info-service-distance">{{ station.distanceToArrival | number }} ls</span>
+                  }
+                </td>
               </tr>
             }
           </tbody>

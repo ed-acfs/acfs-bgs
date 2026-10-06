@@ -121,6 +121,12 @@ export interface StationRecord {
   name: string;
   type: string | null;
   controlling_minor_faction: string | null;
+  /** Only on stations with a Material Trader or Technology Broker. */
+  distance_to_arrival?: number | null;
+  /** The trader's kind (Raw, Manufactured, Encoded), `"unknown"` if Spansh doesn't say; absent if there's none. */
+  material_trader?: string | null;
+  /** The broker's kind (Human, Guardian), `"unknown"` if Spansh doesn't say; absent if there's none. */
+  technology_broker?: string | null;
 }
 
 /** The file `scripts/fetch-bgs.mjs` writes: every system the faction is present in. */
@@ -143,11 +149,57 @@ export interface FactionInfluence {
   influencePercent: number;
 }
 
+/** The station services the table points out: where to trade materials or unlock tech. */
+export type StationServiceKind = 'material-trader' | 'technology-broker';
+
+/** A Material Trader or Technology Broker at a station. */
+export interface StationService {
+  kind: StationServiceKind;
+  /** Raw/Manufactured/Encoded for a trader, Human/Guardian for a broker; null when Spansh doesn't know yet. */
+  type: string | null;
+}
+
 /** A station in a system, as the system info dialog lists it. */
 export interface StationDetail {
   name: string;
   type: string | null;
   controllingFaction: string | null;
+  /** Its Material Trader and Technology Broker, if any. */
+  services?: StationService[];
+  /** Light seconds from the arrival star; kept only for stations with a service. */
+  distanceToArrival?: number | null;
+}
+
+/** A service together with the station offering it, for the System column's icons and the quick filter. */
+export interface SystemService extends StationService {
+  station: string;
+  distanceToArrival: number | null;
+}
+
+/** Placeholder `scripts/fetch-bgs.mjs` writes for a service whose kind Spansh doesn't know. */
+const UNKNOWN_SERVICE_TYPE = 'unknown';
+
+function stationServices(asset: StationRecord): StationService[] {
+  const services: StationService[] = [];
+  const add = (kind: StationServiceKind, value: string | null | undefined) => {
+    if (value) {
+      services.push({ kind, type: value === UNKNOWN_SERVICE_TYPE ? null : value });
+    }
+  };
+  add('material-trader', asset.material_trader);
+  add('technology-broker', asset.technology_broker);
+  return services;
+}
+
+/** Every Material Trader and Technology Broker in a system, traders first. */
+export function systemServices(stations: readonly StationDetail[]): SystemService[] {
+  const services = stations.flatMap(station =>
+    (station.services ?? []).map(service => ({ ...service, station: station.name, distanceToArrival: station.distanceToArrival ?? null })),
+  );
+  return [
+    ...services.filter(service => service.kind === 'material-trader'),
+    ...services.filter(service => service.kind === 'technology-broker'),
+  ];
 }
 
 /** A minor faction present in a system, with the detail the system dialog's faction table shows. */
@@ -668,11 +720,19 @@ export function toBgsRow(
     preferredFactionRecorded: recordedPreference !== null,
     stationCount: record.station_count ?? null,
     factions,
-    stations: (record.assets ?? []).map(asset => ({
-      name: asset.name,
-      type: asset.type ?? null,
-      controllingFaction: asset.controlling_minor_faction ?? null,
-    })),
+    stations: (record.assets ?? []).map(asset => {
+      const station: StationDetail = {
+        name: asset.name,
+        type: asset.type ?? null,
+        controllingFaction: asset.controlling_minor_faction ?? null,
+      };
+      const services = stationServices(asset);
+      if (services.length > 0) {
+        station.services = services;
+        station.distanceToArrival = asset.distance_to_arrival ?? null;
+      }
+      return station;
+    }),
     factionDetails: [...presences]
       .sort((a, b) => b.influence - a.influence)
       .map(p => ({
