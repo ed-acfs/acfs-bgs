@@ -82,3 +82,41 @@ export function buildArchitectFormBody(submission: ArchitectSubmission): URLSear
   body.set('pageHistory', '0');
   return body;
 }
+
+/**
+ * The request body for the password-protected Apps Script (`apps-script/assegna.gs`): the
+ * same fields as the Form, as JSON. "Don't know" for the preferred faction is '' there too.
+ */
+export function buildAssignScriptBody(submission: ArchitectSubmission, password: string): string {
+  return JSON.stringify({ password, ...submission });
+}
+
+/** Why the Apps Script refused an assignment — the `error` field of its reply. */
+export type AssignRejection = 'bad-request' | 'locked' | 'not-configured' | 'password' | 'invalid' | 'unknown';
+
+/** An assignment the Apps Script answered but refused; nothing was written. */
+export class AssignRejectedError extends Error {
+  constructor(
+    public readonly reason: AssignRejection,
+    public readonly detail: string | null = null,
+  ) {
+    super(`Assignment refused: ${reason}${detail ? ` (${detail})` : ''}`);
+    this.name = 'AssignRejectedError';
+  }
+}
+
+const KNOWN_REJECTIONS: ReadonlySet<string> = new Set(['bad-request', 'locked', 'not-configured', 'password', 'invalid']);
+
+/**
+ * Reads the Apps Script's reply: returns when the row was written, throws
+ * {@link AssignRejectedError} otherwise — including for a reply it doesn't recognise, since
+ * only an explicit `ok: true` means the registry has the row.
+ */
+export function checkAssignScriptReply(reply: unknown): void {
+  const body = (reply ?? {}) as { ok?: unknown; error?: unknown; detail?: unknown };
+  if (body.ok === true) {
+    return;
+  }
+  const reason = typeof body.error === 'string' && KNOWN_REJECTIONS.has(body.error) ? (body.error as AssignRejection) : 'unknown';
+  throw new AssignRejectedError(reason, typeof body.detail === 'string' ? body.detail : null);
+}

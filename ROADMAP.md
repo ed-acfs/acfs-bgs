@@ -151,8 +151,8 @@ Oggi "Assegna" invia il Google Form (`architectFormAction` in `config.json`, POS
 
 Passi:
 
-- [ ] Codice dello script nel repo (es. `apps-script/`), con la stessa struttura di colonne del Registro (`Informazioni cronologiche`, `Your Name`, `System Name`, `Architect Name`, `ACFS Architect`, `Preferred Faction`)
-- [ ] In "Assegna": campo password chiesto la prima volta e ricordato sul dispositivo (`localStorage`, prefisso `acfs-bgs:`), invio allo script, messaggio di esito; finché lo script non è configurato (URL vuoto in `config.json`) il tool continua a usare il Form come oggi
+- [x] Codice dello script nel repo (`apps-script/assegna.gs`, con guida in `apps-script/README.md`), con la stessa struttura di colonne del Registro (`Informazioni cronologiche`, `Your Name`, `System Name`, `Architect Name`, `ACFS Architect`, `Preferred Faction`), abbinate per nome. In più: blocco di 10 minuti dopo 10 password sbagliate, testi che iniziano con `=` `+` `-` `@` scritti come testo e non come formule (0.9.9)
+- [x] In "Assegna": campo password chiesto la prima volta e ricordato sul dispositivo (`localStorage`, prefisso `acfs-bgs:`), invio allo script, messaggio di esito; finché lo script non è configurato (`assignScriptUrl` a `null` in `config.json`) il tool continua a usare il Form come oggi (0.9.9)
 - [ ] Installazione dello script nel foglio e impostazione della password: dal PC di casa, dove i connettori Google funzionano (vedi `CLAUDE.md`), oppure a mano dall'utente con una guida passo passo
 - [ ] Prove reali, poi decidere se chiudere il Form
 

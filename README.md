@@ -9,7 +9,7 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 - stati in corso o in arrivo: guerra, elezione, ritirata; cliccando l'icona si vedono le fazioni coinvolte e la loro influenza;
 - età del dato, cioè quanto tempo fa il sistema è stato aggiornato;
 - priorità di intervento, da P1 (massima) a P5;
-- architetto e fazione preferita dei sistemi colonizzati;
+- architetto e fazione preferita dei sistemi colonizzati, registrabili dal pulsante "Assegna" (con la password degli ufficiali, una volta installato lo script del foglio);
 - distanza da un sistema a scelta: di default Wong Sher, la capitale.
 
 Il tool è pubblicato su **https://flottastellare.it/acfs-bgs-tool/** e controlla i dati ogni 30 minuti.
@@ -75,6 +75,7 @@ Fazione, capitale e indirizzi di dati, Sheet e Form sono in [src/core/config.jso
 | `src/core/` | Logica pura: tipi dei dati, priorità, freschezza, stati BGS, registro architetti, export. Niente Angular né API del browser, così la stessa logica può girare anche in Node |
 | `src/app/` | L'app Angular: tabella, dialog, caricamento e cache dei dati |
 | `scripts/` | Script Node: scaricamento dei dati da Spansh e informazioni di build |
+| `apps-script/` | Script Google collegato al foglio, con cui "Assegna" scrive nel Registro Architetti dietro la password degli ufficiali. Si installa a mano nel foglio: istruzioni in `apps-script/README.md` |
 
 ## Crediti e licenza
 

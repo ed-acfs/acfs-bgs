@@ -2,6 +2,19 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.9.9] - 2026-10-06 — "Assegna" con password degli ufficiali (pronto, da attivare)
+
+### Registro architetti
+
+- Nuovo script Google `apps-script/assegna.gs`, da collegare al foglio: riceve le assegnazioni dal tool, controlla la **password degli ufficiali dal lato di Google** (salvata nelle proprietà dello script, mai nel repo) e solo allora aggiunge una riga al Registro, come farebbe il Google Form. Risponde con l'esito, così il tool sa se il salvataggio è riuscito (col Form non poteva saperlo).
+- Protezioni dello script: blocco di 10 minuti dopo 10 password sbagliate; testi che iniziano con `=`, `+`, `-` o `@` salvati come testo, non come formule; colonne abbinate per nome.
+- Il dialog **Assegna** chiede la password solo quando lo script è configurato (`assignScriptUrl` in `config.json`). Dopo il primo invio riuscito la ricorda su quel dispositivo; se lo script la rifiuta la dimentica e lo dice. Messaggi distinti per password errata, blocco, script senza password e dati non accettati.
+- **Per ora non cambia nulla per chi usa il sito**: `assignScriptUrl` è vuoto, quindi "Assegna" continua a usare il Google Form. Si attiva installando lo script nel foglio (guida in `apps-script/README.md`) e mettendo il suo URL nella configurazione.
+
+### Test
+
+- Nove nuovi test dell'app: corpo della richiesta e lettura della risposta dello script, invio tramite script nel servizio, campo password nel dialog (obbligatorio, ricordato dopo un invio riuscito, dimenticato se rifiutato). Passano 226 test dell'app e 17 degli script. Lo script Google è stato provato anche in locale, con servizi Google simulati.
+
 ## [0.9.8] - 2026-10-06 — Punteggio dei conflitti da EliteBGS
 
 ### Dati

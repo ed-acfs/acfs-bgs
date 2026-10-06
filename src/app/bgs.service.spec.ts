@@ -108,6 +108,30 @@ describe('BgsService dataset loading', () => {
     expect(init.mode).toBe('no-cors');
     expect(String(init.body)).toContain('entry.2086138170=Wong+Sher');
   });
+
+  it('writes through the protected Apps Script, once configured, with the password in a text/plain JSON body', async () => {
+    service.assignScriptUrl = 'https://script.google.com/macros/s/test/exec';
+    fetchMock.mockImplementationOnce(() => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ ok: true }) } as Response));
+
+    await service.submitAssignment({ yourName: 'Cmdr', systemName: 'Wong Sher', architect: '', affiliation: "Don't know", preferredFaction: '' }, 'segreta');
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('https://script.google.com/macros/s/test/exec');
+    expect(init.mode).toBeUndefined();
+    expect((init.headers as Record<string, string>)['Content-Type']).toContain('text/plain');
+    expect(JSON.parse(String(init.body))).toMatchObject({ password: 'segreta', systemName: 'Wong Sher' });
+  });
+
+  it("rejects with the script's reason when it refuses the assignment", async () => {
+    service.assignScriptUrl = 'https://script.google.com/macros/s/test/exec';
+    fetchMock.mockImplementationOnce(() =>
+      Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ ok: false, error: 'password' }) } as Response),
+    );
+
+    await expect(
+      service.submitAssignment({ yourName: 'Cmdr', systemName: 'Wong Sher', architect: '', affiliation: "Don't know", preferredFaction: '' }, 'sbagliata'),
+    ).rejects.toMatchObject({ name: 'AssignRejectedError', reason: 'password' });
+  });
 });
 
 interface FactionPresenceFixture {
