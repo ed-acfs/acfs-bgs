@@ -138,6 +138,24 @@ Da proteggere sono **lo Sheet e le sue note**, non i dati Spansh (chiunque può 
 
 Già dalle fasi 1–7 vale una regola: niente dati strategici nel repo. Lo Sheet si legge per URL configurabile, così passare alla fase 8 non richiede di riscrivere l'app.
 
+**Aggiornamento del 6 ottobre 2026.** Verificato che lo Sheet pubblicato si legge senza login (Registro e Watchlist, con fazioni preferite e motivazioni) e che il sito mostra comunque questi dati a chiunque. L'utente ha deciso che **non sono riservati, "non in questa fase"** (vedi `CLAUDE.md`): la protezione della lettura (punti sopra) è rimandata. Il foglio Google resta la base dati: per le nostre dimensioni va bene. Va protetta invece **la scrittura**, ed è il prossimo lavoro (8a).
+
+#### 8a. "Assegna" protetta da password (prossimo lavoro, deciso il 6 ottobre 2026)
+
+Oggi "Assegna" invia il Google Form (`architectFormAction` in `config.json`, POST `no-cors`): il tool non sa se l'invio è riuscito, e chiunque può scrivere, anche saltando il tool, perché l'URL del Form è nel repo pubblico. Una password controllata solo nel browser (come quella degli Ordini) non basterebbe. Decisioni dell'utente:
+
+- **Uno script Google (Apps Script) collegato al foglio**, pubblicato come web app, diventa la via di scrittura del tool: riceve assegnazione e password, controlla la password **dal lato del foglio** (salvata nelle proprietà dello script, mai nel repo) e solo allora scrive. Risponde con l'esito, così il tool può confermare il salvataggio.
+- **Una riga nuova a ogni assegnazione**, come fa oggi il Form: resta la storia (chi ha cambiato cosa e quando) e il tool usa già l'ultima riga di ogni sistema. Se il foglio grezzo diventa scomodo da leggere, si aggiunge una scheda "Situazione attuale" con una formula che mostra una riga per sistema.
+- **Password unica, solo per gli ufficiali**, da cambiare quando qualcuno esce. Accessi personali (es. login Discord) restano un passo successivo, eventualmente con Supabase o con l'app nostra sul web.
+- **Il Form resta aperto per ora** (si usa anche a mano); più avanti l'utente vuole condividere il foglio con gli ufficiali come editor. Chiudere il Form alle risposte pubbliche è un passo successivo, da decidere.
+
+Passi:
+
+- [ ] Codice dello script nel repo (es. `apps-script/`), con la stessa struttura di colonne del Registro (`Informazioni cronologiche`, `Your Name`, `System Name`, `Architect Name`, `ACFS Architect`, `Preferred Faction`)
+- [ ] In "Assegna": campo password chiesto la prima volta e ricordato sul dispositivo (`localStorage`, prefisso `acfs-bgs:`), invio allo script, messaggio di esito; finché lo script non è configurato (URL vuoto in `config.json`) il tool continua a usare il Form come oggi
+- [ ] Installazione dello script nel foglio e impostazione della password: dal PC di casa, dove i connettori Google funzionano (vedi `CLAUDE.md`), oppure a mano dall'utente con una guida passo passo
+- [ ] Prove reali, poi decidere se chiudere il Form
+
 ### 9. Ordini Ufficiali
 
 Nata da un'idea dell'utente il 5 ottobre 2026, non prevista nelle fasi originarie: comporre nel tool il report giornaliero che lo squadrone scrive a mano su Discord ("ordini ufficiali"), invece di scriverlo da zero ogni volta.
