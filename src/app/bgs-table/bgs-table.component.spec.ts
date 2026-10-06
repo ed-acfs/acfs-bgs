@@ -248,7 +248,64 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     ]);
   });
 
-  /** Types into a quick-filter name field the way a user does (marking it dirty), then leaves it. */
+  it('flags a gap of 5 points or less from the controlling faction or a neighbour, and an expected Retreat', async () => {
+    const close: BgsRow = {
+      ...row('Amait'),
+      controllingFaction: 'Earth Defense Fleet',
+      factionInfluence: 31.6,
+      margin: { points: -4.1, versus: 'Earth Defense Fleet', versusInfluence: 35.7, controlled: false },
+    };
+    const edge: BgsRow = {
+      ...row('Edge'),
+      controllingFaction: FACTION_NAME,
+      factionInfluence: 40,
+      margin: { points: 5, versus: 'Other', versusInfluence: 35, controlled: true },
+    };
+    const far: BgsRow = {
+      ...row('Far'),
+      controllingFaction: 'Other',
+      factionInfluence: 10,
+      margin: { points: -20, versus: 'Other', versusInfluence: 30, controlled: false },
+    };
+    const sinking: BgsRow = { ...row('Sinking'), factionInfluence: 2.1 };
+    const geras: BgsRow = {
+      ...row('Geras'),
+      controllingFaction: 'Quebecois Patriots',
+      factionInfluence: 6,
+      factions: [
+        { name: 'Quebecois Patriots', influencePercent: 53.9 },
+        { name: 'Geras Order', influencePercent: 7.1 },
+        { name: FACTION_NAME, influencePercent: 6 },
+        { name: 'Labour of Geras', influencePercent: 4.7 },
+      ],
+      margin: { points: -47.9, versus: 'Quebecois Patriots', versusInfluence: 53.9, controlled: false },
+    };
+    // Already in an election with the controller, level with it: nothing left to warn about.
+    const voting: BgsRow = {
+      ...row('Voting'),
+      controllingFaction: 'Canonn',
+      factionInfluence: 42.3,
+      margin: { points: 0, versus: 'Canonn', versusInfluence: 42.3, controlled: false },
+      stateEntries: [{ kind: 'election', state: 'Election', status: 'active', factions: [FACTION_NAME, 'Canonn'], score: null }],
+    };
+    service.getAllRows.mockResolvedValue([close, edge, far, sinking, geras, voting]);
+    const host: HTMLElement = fixture.nativeElement;
+    host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!.click();
+    await fixture.whenStable();
+
+    const risky = [...host.querySelectorAll<HTMLElement>('td.bgs-margin--risk')].map(cell => cell.textContent!.trim());
+    expect(risky).toEqual(['⚠️ −4,1', '⚠️ +5,0']);
+    const expected = host.querySelectorAll<HTMLElement>('.bgs-state-icon--expected');
+    expect(expected.length).toBe(1);
+    expect(expected[0].title).toContain('2,1%');
+    const closeCells = host.querySelectorAll<HTMLElement>('td.bgs-influence--close');
+    expect(closeCells.length).toBe(1);
+    expect(closeCells[0].textContent!.trim()).toMatch(/^⚠️ 6[.,]0%$/);
+    expect(closeCells[0].title).toContain('Geras Order (7,1%): sopra di 1,1 punti');
+    expect(closeCells[0].title).toContain('Labour of Geras (4,7%): sotto di 1,3 punti');
+  });
+
+    /** Types into a quick-filter name field the way a user does (marking it dirty), then leaves it. */
   async function typeAndLeave(label: string, text: string): Promise<void> {
     const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>(`input[aria-label="${label}"]`)!;
     input.dispatchEvent(new Event('focus'));

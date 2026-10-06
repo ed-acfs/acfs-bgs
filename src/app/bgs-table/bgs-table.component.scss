@@ -452,6 +452,12 @@
   color: var(--color-text-muted);
 }
 
+// Close behind the controlling faction: a conflict for control is possible, so it stands out.
+.bgs-margin--gap.bgs-margin--risk,
+.bgs-table td.bgs-margin--gap.bgs-margin--risk {
+  color: var(--color-accent);
+}
+
 .bgs-col-factions {
   width: 110px;
 }
@@ -624,6 +630,13 @@
 
 // Retreat's warning icon carries its own colour well enough as-is; pending styling still
 // comes from the shared .bgs-state-icon--pending rule above.
+// Retreat expected at the next tick (influence at or below the threshold), not yet a state.
+.bgs-state-icon--expected {
+  padding: 1px 2px;
+  border: 1px dashed var(--color-danger);
+  border-radius: 4px;
+}
+
 .bgs-state-icon--retreat {
   filter: none;
 }

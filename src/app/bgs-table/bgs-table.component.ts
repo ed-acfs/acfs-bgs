@@ -39,9 +39,11 @@ import {
   rowWithAssignment,
   systemServices,
 } from '../../core/bgs';
-import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM, SEMAPHORE_THRESHOLDS } from '../../core/config';
+import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM, RETREAT_INFLUENCE_PERCENT, SEMAPHORE_THRESHOLDS } from '../../core/config';
 import { influenceSemaphore, marginSemaphore, Semaphore } from '../../core/semaphore';
 import { draftItemFromRow } from '../../core/orders';
+import { retreatExpected } from '../../core/retreat';
+import { CloseFaction, alreadyInConflict, closeFactions } from '../../core/close-factions';
 import { HelpDialogComponent } from '../help-dialog/help-dialog.component';
 import { OrdersStore } from '../orders/orders.store';
 import { BgsService, DatasetInfo, TypeaheadSystem } from '../bgs.service';
@@ -248,6 +250,7 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly encodeURIComponent = encodeURIComponent;
   /** Margin threshold named in the legend. */
   protected readonly conflictMarginPoints = CONFLICT_MARGIN_POINTS;
+  protected readonly retreatInfluencePercent = RETREAT_INFLUENCE_PERCENT;
   protected readonly semaphoreThresholds = SEMAPHORE_THRESHOLDS;
   /** Placeholder rows shown while data is still loading. */
   protected readonly skeletonRows = Array.from({ length: 12 }, (_, i) => i);
@@ -865,9 +868,52 @@ export class BgsTableComponent implements OnDestroy {
     return row.factions.map(f => `${f.name}: ${formatPercent(f.influencePercent)}`).join(', ');
   }
 
-  /** Whether a controlled system's lead is thin enough to risk a conflict for control. */
+  /**
+   * Whether our faction is within {@link CONFLICT_MARGIN_POINTS} of the controlling faction, so a
+   * conflict for control is possible: a thin lead to defend where we control, a gap we could
+   * close elsewhere.
+   */
   protected marginAtRisk(row: BgsRow): boolean {
-    return row.margin !== null && row.margin.controlled && row.margin.points < CONFLICT_MARGIN_POINTS;
+    const margin = row.margin;
+    return (
+      margin !== null &&
+      Math.abs(margin.points) <= CONFLICT_MARGIN_POINTS &&
+      !alreadyInConflict(row, margin.versus, margin.points)
+    );
+  }
+
+  /**
+   * Factions next to ours in the ranking within {@link CONFLICT_MARGIN_POINTS}, other than the
+   * one the Margine column already measures us against (the controller, or our runner-up where
+   * we control): those flag the ACFS cell instead. A faction we're already in conflict with
+   * isn't a warning any more (see {@link alreadyInConflict}).
+   */
+  protected closeRivals(row: BgsRow): CloseFaction[] {
+    return closeFactions(row.factions).filter(
+      faction => faction.name !== row.margin?.versus && !alreadyInConflict(row, faction.name, faction.points),
+    );
+  }
+
+  /** Hover text for the ACFS cell: the close factions, if any. */
+  protected influenceTitle(row: BgsRow): string | null {
+    const rivals = this.closeRivals(row);
+    if (rivals.length === 0) {
+      return null;
+    }
+    const lines = rivals.map(
+      rival => `${rival.name} (${formatPercent(rival.influencePercent)}): ${rival.points > 0 ? 'sopra' : 'sotto'} di ${formatPercent(Math.abs(rival.points)).replace('%', '')} punti`,
+    );
+    return [`Fazioni a ${CONFLICT_MARGIN_POINTS} punti o meno: possibile conflitto`, ...lines].join('\n');
+  }
+
+  /** Whether to warn that a Retreat should start at the next tick (see {@link retreatExpected}). */
+  protected retreatExpected(row: BgsRow): boolean {
+    return retreatExpected(row);
+  }
+
+  /** Hover text for the expected-Retreat warning in the State column. */
+  protected retreatExpectedTitle(row: BgsRow): string {
+    return `${FACTION_NAME} al ${formatPercent(row.factionInfluence ?? 0)}: Retreat probabile al prossimo tick (soglia ${formatPercent(RETREAT_INFLUENCE_PERCENT)})`;
   }
 
   /**
@@ -954,9 +1000,10 @@ export class BgsTableComponent implements OnDestroy {
     }
     const versus = `${margin.versus} (${formatPercent(margin.versusInfluence)})`;
     if (!margin.controlled) {
-      return `Distacco da chi controlla il sistema: ${versus}`;
+      const chance = this.marginAtRisk(row) ? `\nEntro ${CONFLICT_MARGIN_POINTS} punti: possibile conflitto per il controllo` : '';
+      return `Distacco da chi controlla il sistema: ${versus}${chance}`;
     }
-    const risk = this.marginAtRisk(row) ? `\nSotto ${CONFLICT_MARGIN_POINTS} punti: rischio di conflitto per il controllo` : '';
+    const risk = this.marginAtRisk(row) ? `\nEntro ${CONFLICT_MARGIN_POINTS} punti: rischio di conflitto per il controllo` : '';
     return `Vantaggio sulla seconda fazione: ${versus}${risk}`;
   }
 

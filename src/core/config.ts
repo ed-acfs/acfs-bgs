@@ -20,8 +20,14 @@ export const HOME_SYSTEM: string = config.homeSystem;
 /** An optional second faction (ally or rival) to show alongside ours, for comparison only. Null for none. */
 export const COMPARE_FACTION: string | null = config.compareFaction;
 
-/** Below this lead over the next faction (in percentage points), a controlled system is at risk of a conflict. */
+/**
+ * Within this many percentage points of the controlling faction (our lead where we control, our
+ * gap elsewhere), a conflict for control is possible.
+ */
 export const CONFLICT_MARGIN_POINTS: number = config.conflictMarginPoints;
+
+/** At or below this influence (percent) at the tick, a faction enters Retreat. */
+export const RETREAT_INFLUENCE_PERCENT: number = config.retreatInfluencePercent;
 
 /** Lower bounds of a traffic light: at or above `green` it's green, at or above `yellow` yellow, red below. */
 export interface SemaphoreThreshold {

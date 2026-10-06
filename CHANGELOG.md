@@ -2,6 +2,23 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.11.0] - 2026-10-06 — Forbice del 5% e preavviso del Retreat
+
+### Forbice di influenza
+
+- **Correzione**: il ⚠️ del Margine ("rischio conflitto") compariva solo nei sistemi che controlliamo, e oggi nessuno è sotto la soglia: la Legenda lo prometteva ma in tabella non si vedeva mai. Ora vale anche dove controlla un'altra fazione e noi siamo a 5 punti o meno da lei (sorpasso possibile, in arancione: oggi Amait e LP 302-22). La soglia è "5 punti o meno", non più "sotto 5".
+- **Nuovo**: ⚠️ nella colonna **ACFS** quando la fazione subito sopra o subito sotto di noi in classifica (non quella del Margine) è a 5 punti o meno: due fazioni così vicine possono finire in guerra o elezione anche se nessuna delle due controlla il sistema. Il tooltip dice quali fazioni e di quanto. Oggi 61 sistemi, per esempio Geras (Geras Order 1,1 punti sopra, Labour of Geras 1,3 sotto).
+- Nessun ⚠️ verso una fazione con cui il conflitto è già in corso o in pending, o con la nostra stessa influenza (è così che il conflitto parte, anche prima che Spansh lo riporti): a quel punto il preavviso non serve più.
+
+### Retreat
+
+- Nella colonna **Stato**, un ⚠️ tratteggiato quando Flotta Stellare è al **2,5% o meno** (`retreatInfluencePercent` in `config.json`) e Spansh non riporta ancora il Retreat: è probabile che parta al prossimo tick. Mai a Wong Sher, da dove la fazione non può ritirarsi. Non cambia la priorità: una volta attivo ci sono 5 giorni per risalire, e farlo l'ultimo giorno è la mossa migliore. Oggi nessun sistema è sotto la soglia (il più basso è Lalande 15394 al 3,7%).
+- La Legenda spiega le nuove icone.
+
+### Test
+
+- Sei nuovi test: fazioni vicine (Geras, 111 Tauri, il limite dei 5 punti), conflitto già in corso, preavviso del Retreat, e in tabella i ⚠️ del Margine, della colonna ACFS e dello Stato. Passano 235 test dell'app e 20 degli script.
+
 ## [0.10.1] - 2026-10-06 — Legenda più leggibile
 
 ### Interfaccia

@@ -265,6 +265,7 @@
           <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--election" aria-hidden="true">🗳️</span></span><span>elezione di {{ factionName }}</span></li>
           <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat" aria-hidden="true">⚠️</span></span><span>ritirata di {{ factionName }}</span></li>
           <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--pending" aria-hidden="true">⚔️</span></span><span>in grigio: in arrivo (pending)</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat bgs-state-icon--expected" aria-hidden="true">⚠️</span></span><span>tratteggiato: influenza al {{ retreatInfluencePercent | number: '1.1-1' }}% o meno, Retreat probabile al prossimo tick</span></li>
         </ul>
       </div>
 
@@ -299,8 +300,10 @@
               <span class="bgs-legend-sample bgs-light--red">&lt; +{{ semaphoreThresholds.margin.yellow }}</span>
             </span>
           </li>
-          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-light--red bgs-margin--risk">⚠️ +3,1</span></span><span>vantaggio sotto {{ conflictMarginPoints }} punti: rischio conflitto</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-light--red bgs-margin--risk">⚠️ +3,1</span></span><span>vantaggio di {{ conflictMarginPoints }} punti o meno: rischio conflitto per il controllo</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-margin--gap bgs-margin--risk">⚠️ −4,1</span></span><span>a {{ conflictMarginPoints }} punti o meno da chi controlla: possibile conflitto per il controllo</span></li>
           <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--accent">12,5%</span></span><span>influenza dove non controlliamo</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--accent">⚠️ 6,0%</span></span><span>un'altra fazione a {{ conflictMarginPoints }} punti o meno, sopra o sotto di noi: possibile conflitto (nel tooltip quale)</span></li>
           <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--muted">−8,4</span></span><span>non controlliamo: distacco da chi controlla</span></li>
         </ul>
       </div>
@@ -638,7 +641,15 @@
                         >🗳️</span>
                       }
                     </button>
-                  } @else {
+                  }
+                  @if (retreatExpected(row)) {
+                    <span
+                      class="bgs-state-icon bgs-state-icon--retreat bgs-state-icon--expected"
+                      role="img"
+                      [title]="retreatExpectedTitle(row)"
+                      [attr.aria-label]="retreatExpectedTitle(row)"
+                    >⚠️</span>
+                  } @else if (row.stateEntries.length === 0) {
                     <span>—</span>
                   }
                 </td>
@@ -664,8 +675,10 @@
                   [class.bgs-light--green]="influenceLight(row) === 'green'"
                   [class.bgs-light--yellow]="influenceLight(row) === 'yellow'"
                   [class.bgs-light--red]="influenceLight(row) === 'red'"
+                  [class.bgs-influence--close]="closeRivals(row).length > 0"
+                  [title]="influenceTitle(row) ?? ''"
                 >
-                  {{ row.factionInfluence !== null ? (row.factionInfluence | number: '1.1-1') + '%' : '—' }}
+                  @if (closeRivals(row).length > 0) {<span class="bgs-close-warning" aria-hidden="true">⚠️ </span>}{{ row.factionInfluence !== null ? (row.factionInfluence | number: '1.1-1') + '%' : '—' }}
                 </td>
                 <td
                   class="bgs-col-influence bgs-col-margin"
