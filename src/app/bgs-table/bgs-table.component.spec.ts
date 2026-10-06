@@ -243,8 +243,8 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     expect(visibleRows().map(r => r.systemName)).toEqual(['Zandu']);
     const icons = [...host.querySelectorAll<HTMLButtonElement>('.bgs-service-icon')];
     expect(icons.map(icon => icon.title)).toEqual([
-      'Material Trader\nEncoded — Vaucanson Hub, 282 ls',
-      'Technology Broker\ntipo non noto — Vaucanson Hub, 282 ls',
+      'Material Trader: Encoded\nVaucanson Hub, 282 ls',
+      'Technology Broker: tipo non noto\nVaucanson Hub, 282 ls',
     ]);
   });
 

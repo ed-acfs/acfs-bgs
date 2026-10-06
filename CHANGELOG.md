@@ -6,7 +6,7 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
 ### Tabella
 
-- Accanto al nome del sistema, un'icona blu per ogni servizio presente: ⚗ (fiaschetta) per il **Material Trader**, 🔧 (chiave) per il **Technology Broker**. Il tooltip dice il tipo, la stazione e la sua distanza dalla stella di arrivo (es. "Encoded — Vaucanson Hub, 282 ls"); cliccando l'icona si aprono i dettagli del sistema, così si legge anche su telefono.
+- Accanto al nome del sistema, un'icona blu per ogni servizio presente. Il **Material Trader** ha un'icona per tipo: gemma per Raw, ingranaggio per Manufactured, chip per Encoded, fiaschetta se Spansh non conosce il tipo. Il **Technology Broker** ha una chiave inglese. Il tooltip dice tipo, stazione e distanza dalla stella di arrivo (es. "Material Trader: Encoded", "Vaucanson Hub, 282 ls"); cliccando l'icona si aprono i dettagli del sistema, così si legge anche su telefono.
 - Nuovo filtro rapido **Servizi** nel gruppo "Mostra": solo i sistemi con almeno uno dei due servizi. Insieme all'ordinamento per Distanza risponde a "dov'è il trader più vicino?".
 - Nei dettagli del sistema, la tabella delle stazioni ha una colonna **Servizi** con tipo e distanza dalla stella.
 - La Legenda spiega le due icone.

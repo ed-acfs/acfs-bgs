@@ -23,7 +23,10 @@ import {
   faCopy,
   faDownload,
   faFlask,
+  faGear,
+  faGem,
   faMagnifyingGlass,
+  faMicrochip,
   faWrench,
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
@@ -234,6 +237,9 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly faPen = faPen;
   protected readonly faClipboardList = faClipboardList;
   protected readonly faFlask = faFlask;
+  protected readonly faGem = faGem;
+  protected readonly faGear = faGear;
+  protected readonly faMicrochip = faMicrochip;
   protected readonly faWrench = faWrench;
   protected readonly faCircleQuestion = faCircleQuestion;
   protected readonly faListUl = faListUl;
@@ -711,25 +717,27 @@ export class BgsTableComponent implements OnDestroy {
   }
 
   /**
-   * One icon per kind of service in the system (a flask for Material Traders, a wrench for
-   * Technology Brokers), with every station offering it in the tooltip.
+   * One icon per service and kind in the system — each Material Trader kind its own (gem for
+   * Raw, gear for Manufactured, chip for Encoded, flask when Spansh doesn't know), a wrench for
+   * Technology Brokers — with every station offering it in the tooltip.
    */
   protected serviceIcons(row: BgsRow): ServiceIcon[] {
-    const services = systemServices(row.stations);
-    const icons: ServiceIcon[] = [];
-    for (const kind of ['material-trader', 'technology-broker'] as const) {
-      const ofKind = services.filter(service => service.kind === kind);
-      if (ofKind.length > 0) {
-        const label = SERVICE_LABELS[kind];
-        icons.push({
-          kind,
-          icon: kind === 'material-trader' ? faFlask : faWrench,
-          title: [label, ...ofKind.map(describeService)].join('\n'),
-          ariaLabel: `${label} a ${row.systemName}: ${ofKind.map(service => service.type ?? 'tipo non noto').join(', ')}`,
-        });
-      }
+    const groups = new Map<string, SystemService[]>();
+    for (const service of systemServices(row.stations)) {
+      const key = `${service.kind}:${service.type ?? ''}`;
+      groups.set(key, [...(groups.get(key) ?? []), service]);
     }
-    return icons;
+    return [...groups].map(([key, services]) => {
+      const { kind, type } = services[0];
+      const label = `${SERVICE_LABELS[kind]}: ${type ?? 'tipo non noto'}`;
+      return {
+        key,
+        kind,
+        icon: kind === 'material-trader' ? (TRADER_ICONS[type ?? ''] ?? faFlask) : faWrench,
+        title: [label, ...services.map(describeStation)].join('\n'),
+        ariaLabel: `${label} a ${row.systemName}`,
+      };
+    });
   }
 
   protected setArchitectFilterMode(mode: 'all' | 'none' | 'squadron'): void {
@@ -1261,6 +1269,7 @@ export class BgsTableComponent implements OnDestroy {
 
 /** A service icon next to the system name. */
 interface ServiceIcon {
+  key: string;
   kind: StationServiceKind;
   icon: IconDefinition;
   title: string;
@@ -1273,8 +1282,15 @@ const SERVICE_LABELS: Record<StationServiceKind, string> = {
   'technology-broker': 'Technology Broker',
 };
 
-/** "Encoded — Vaucanson Hub, 282 ls" for a service's tooltip line. */
-function describeService(service: SystemService): string {
+/** Material Trader icons by kind; a trader of unknown kind gets the flask. */
+const TRADER_ICONS: Record<string, IconDefinition> = {
+  Raw: faGem,
+  Manufactured: faGear,
+  Encoded: faMicrochip,
+};
+
+/** "Vaucanson Hub, 282 ls" for a service's tooltip line. */
+function describeStation(service: SystemService): string {
   const distance = service.distanceToArrival === null ? '' : `, ${service.distanceToArrival.toLocaleString('it-IT')} ls`;
-  return `${service.type ?? 'tipo non noto'} — ${service.station}${distance}`;
+  return `${service.station}${distance}`;
 }
