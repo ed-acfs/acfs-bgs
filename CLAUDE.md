@@ -33,7 +33,8 @@ Questo file esiste dal 5 ottobre 2026: la memoria locale di Claude accumulata pr
 - Interfaccia in italiano; i nomi degli stati BGS restano in inglese, come in gioco.
 - Logo: quello 2025 "Vanguards" (`ed-acfs.github.io/extras/ACFS_Logo_2025_Vanguards/`). I file `ed-acfs.github.io/images/logo_*.png` sono il logo vecchio: non usarli.
 - Il prefisso `acfs-bgs:` delle chiavi `localStorage` è rimasto invariato apposta dopo la rinomina in `acfs-bgs-tool`: cambiarlo farebbe perdere le impostazioni salvate.
-- Niente dati strategici nel repo, che è pubblico: accordi con altre fazioni, fazioni preferite e motivazioni della Watchlist stanno solo nel foglio Google.
+- Fazioni preferite e motivazioni della Watchlist stanno nel foglio Google, non nel repo: il foglio è l'unica fonte. **Non sono riservate** (decisione dell'utente del 6 ottobre 2026, "non in questa fase"): il foglio è pubblicato sul web, i suoi URL sono in `config.json` e il sito le mostra a chiunque. Con un sito statico tutto ciò che il tool mostra è pubblico; se in futuro servissero dati riservati, ci vorrà un login (vedi roadmap). Gli accordi con altre fazioni non vanno né nel repo né nel tool.
+- La passphrase degli Ordini è solo un deterrente: il controllo avviene nel browser e l'impronta SHA-256 sta nel repo pubblico.
 - Spansh è in ritardo rispetto al gioco: il tool deve mostrare la freschezza del dato, non presentarlo come autorevole.
 
 ## Come funziona il BGS (spiegato dall'utente)
@@ -49,3 +50,5 @@ Questo file esiste dal 5 ottobre 2026: la memoria locale di Claude accumulata pr
 - Per verificare le modifiche visibili si possono fare screenshot con Edge headless; sotto circa 500 px di larghezza non scende, quindi per simulare un telefono usare almeno 520 px.
 - GitHub sospende i workflow programmati dopo 60 giorni senza commit: se i dati del sito smettono di aggiornarsi, riattivare `pages.yml` dalla scheda Actions.
 - I cron di GitHub partono in ritardo e spesso saltano: il 5 ottobre 2026, con il cron `17,47 * * * *`, ci sono state solo 3 esecuzioni `schedule` in tutta la giornata. Controllo: `gh run list --repo ed-acfs/acfs-bgs-tool --event schedule`.
+- `gh` sul PC di lavoro è installato con scoop (6 ottobre 2026), con login fatto e `gh repo set-default` impostato.
+- I connettori Google Drive e Google Sheets sono attivi sull'account claude.ai dell'utente (5 ottobre 2026), autorizzati con il suo account Google. **Sul PC di casa funzionano**: il 5 ottobre Claude ci ha lavorato direttamente sul foglio (es. la formattazione della scheda Watchlist). **Sul PC di lavoro no**: in Claude Code `/mcp` mostra solo i server del plugin "engineering" (6 ottobre 2026), quindi lì Claude legge il foglio solo dalle versioni pubblicate in TSV e non può scriverci. Le operazioni sul foglio (installare script, cambiare formattazione o schede) vanno fatte dal PC di casa, o a mano dall'utente.
