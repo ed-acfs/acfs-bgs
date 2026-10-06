@@ -681,19 +681,27 @@
                 }
               </ul>
               @if (entry.kind !== 'retreat') {
-                <p class="bgs-state-score">
-                  @if (entry.status === 'pending') {
-                    Punteggio: Draw; 0-0, il conflitto non è ancora iniziato.
-                  } @else {
-                    Punteggio (giorni vinti): Spansh non lo riporta.
+                @if (entry.status === 'pending') {
+                  <p class="bgs-state-score">Punteggio: Draw; 0-0, il conflitto non è ancora iniziato.</p>
+                } @else if (entry.score; as score) {
+                  <p class="bgs-state-score">
+                    Punteggio: <strong class="bgs-state-score-value">{{ score.ours }}-{{ score.theirs }}</strong>&nbsp;<span class="bgs-state-score-note">(giorni vinti, i nostri prima)</span>
+                  </p>
+                  @if (stakesLabel(score); as stakes) {
+                    <p class="bgs-state-score">In palio: {{ stakes }}</p>
+                  }
+                  <p class="bgs-state-score bgs-state-score-note">Punteggio EliteBGS: {{ scoreAgeTitle(score.updatedAt) }}</p>
+                } @else {
+                  <p class="bgs-state-score">
+                    {{ datasetInfo()?.conflictScoresAvailable ? 'EliteBGS non ha ancora il punteggio di questo conflitto.' : 'Punteggio non disponibile: EliteBGS non era raggiungibile.' }}
                     <a
                       [href]="'https://inara.cz/elite/starsystem/?search=' + encodeURIComponent(row.systemName)"
                       target="_blank"
                       rel="noopener noreferrer"
                       class="bgs-system-link"
                     >Vedi su Inara</a>
-                  }
-                </p>
+                  </p>
+                }
               }
             </section>
           }

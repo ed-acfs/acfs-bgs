@@ -549,6 +549,15 @@
   font-size: 0.8rem;
 }
 
+.bgs-state-score-value {
+  color: var(--color-text-bright);
+  font-size: 0.95rem;
+}
+
+.bgs-state-score-note {
+  color: var(--color-text-muted);
+}
+
 .bgs-state-panel-age {
   margin: 10px 0 0;
   color: var(--color-text-muted);

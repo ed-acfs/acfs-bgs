@@ -25,6 +25,12 @@ const PAGE_SIZE = 500;
 const TICK_URL = 'https://tick.edcd.io/api/tick';
 const USER_AGENT = 'acfs-bgs-tool (+https://github.com/ed-acfs/acfs-bgs-tool)';
 const TIMEOUT_MS = 60_000;
+/** EliteBGS systems API: conflict scores, which Spansh doesn't have. */
+const EBGS_SYSTEMS_URL = 'https://elitebgs.app/api/ebgs/v5/systems';
+/** Systems per EliteBGS page (fixed by its API). */
+const EBGS_PAGE_SIZE = 10;
+/** Shorter than Spansh's: when its database is down EliteBGS takes ~35 s to answer with an error. */
+const EBGS_TIMEOUT_MS = 20_000;
 /** Spansh's pseudo-faction for fleet carriers, which aren't stations the BGS cares about. */
 const FLEET_CARRIER_FACTION = 'FleetCarrier';
 
@@ -88,6 +94,67 @@ export async function fetchFactionSystems(faction = FACTION_NAME) {
   }
 }
 
+/** Game state names (normalised like `src/core/bgs.ts` does) whose conflicts have a score. */
+const CONFLICT_STATES = new Set(['war', 'civilwar', 'election']);
+const normalizeState = state => String(state).toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/**
+ * The systems where the squadron's faction is in an active war, civil war or election — the
+ * only ones with a score worth asking EliteBGS for (a pending conflict is always 0-0).
+ */
+export function activeConflictSystems(systems, faction = FACTION_NAME) {
+  return systems
+    .filter(system =>
+      (system.minor_faction_presences ?? []).some(
+        presence => presence.name === faction && (presence.active_states ?? []).some(state => CONFLICT_STATES.has(normalizeState(state))),
+      ),
+    )
+    .map(system => system.name);
+}
+
+/** One conflict as EliteBGS stores it, cut down to what the app shows. */
+function slimConflict(conflict) {
+  const side = faction => ({ name: faction?.name ?? null, stake: faction?.stake || null, days_won: faction?.days_won ?? null });
+  return { type: conflict.type ?? null, status: conflict.status ?? null, faction1: side(conflict.faction1), faction2: side(conflict.faction2) };
+}
+
+/**
+ * Conflict scores (days won) from EliteBGS for the given systems, keyed by lowercased system
+ * name (the two sources needn't agree on capitalisation): `{ updated_at, conflicts }`. Spansh doesn't carry them (see ROADMAP.md, "Punteggio dei
+ * conflitti").
+ *
+ * EliteBGS is often down for weeks, so this never fails the download: on the first error it
+ * gives up and returns null (scores unknown), and the app falls back to its Inara link. Its
+ * database errors sometimes come back as HTTP 200, so a reply counts only if it has `docs`.
+ * The API returns 10 systems per page, so names are asked for 10 at a time.
+ */
+export async function fetchConflictScores(systemNames) {
+  if (systemNames.length === 0) {
+    return {};
+  }
+  const scores = {};
+  try {
+    for (let i = 0; i < systemNames.length; i += EBGS_PAGE_SIZE) {
+      const query = systemNames.slice(i, i + EBGS_PAGE_SIZE).map(name => `name=${encodeURIComponent(name)}`).join('&');
+      const response = await fetch(`${EBGS_SYSTEMS_URL}?${query}`, {
+        headers: { 'User-Agent': USER_AGENT },
+        signal: AbortSignal.timeout(EBGS_TIMEOUT_MS),
+      });
+      const body = response.ok ? await response.json() : null;
+      if (!Array.isArray(body?.docs)) {
+        throw new Error(body?.message ?? `HTTP ${response.status}`);
+      }
+      for (const system of body.docs) {
+        scores[String(system.name).toLowerCase()] = { updated_at: system.updated_at ?? null, conflicts: (system.conflicts ?? []).map(slimConflict) };
+      }
+    }
+    return scores;
+  } catch (error) {
+    console.warn(`EliteBGS unavailable (${error.message}): no conflict scores this time.`);
+    return null;
+  }
+}
+
 /**
  * The last BGS tick as an ISO 8601 string, or null if the Tick Detector can't be reached —
  * it only labels the data, so it must never stop the download.
@@ -114,11 +181,20 @@ async function main() {
   }
   const startedAt = Date.now();
   const [results, tickAt] = await Promise.all([fetchFactionSystems(), fetchLastTick()]);
+  const scores = await fetchConflictScores(activeConflictSystems(results));
+  for (const system of results) {
+    const score = scores?.[system.name.toLowerCase()];
+    if (score) {
+      system.ebgs_conflicts = score;
+    }
+  }
   const payload = {
     faction: FACTION_NAME,
     generated_at: new Date().toISOString(),
     tick_at: tickAt,
     source: 'spansh.co.uk',
+    // False when EliteBGS couldn't be reached, so the app can say why scores are missing.
+    conflict_scores_available: scores !== null,
     count: results.length,
     results,
   };

@@ -74,6 +74,8 @@ export interface DatasetInfo {
   /** ISO 8601 time of the last BGS tick at that moment; null if unknown. */
   tickAt: string | null;
   count: number;
+  /** Whether EliteBGS answered when the dataset was downloaded, i.e. whether conflict scores could be fetched. */
+  conflictScoresAvailable: boolean;
 }
 
 export interface BgsPage {
@@ -142,7 +144,13 @@ export class BgsService {
   /** When the dataset was downloaded from Spansh, and the last tick at that moment — for the page header. */
   async getDatasetInfo(): Promise<DatasetInfo> {
     const dataset = await this.getDataset();
-    return { generatedAt: dataset.generated_at, tickAt: dataset.tick_at ?? null, count: dataset.results.length };
+    return {
+      generatedAt: dataset.generated_at,
+      tickAt: dataset.tick_at ?? null,
+      count: dataset.results.length,
+      // Files written before the EliteBGS lookup existed have no flag: no scores either.
+      conflictScoresAvailable: dataset.conflict_scores_available ?? false,
+    };
   }
 
   /** Name-suggestion + coordinate lookup, for the "sort by distance from system" search box. */

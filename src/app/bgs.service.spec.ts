@@ -120,7 +120,7 @@ interface FactionPresenceFixture {
 function systemWithPresences(
   name: string,
   presences: FactionPresenceFixture[],
-  extra: { body_count?: number; population?: number } = {},
+  extra: { body_count?: number; population?: number; ebgs_conflicts?: unknown } = {},
 ) {
   return { name, controlling_minor_faction: null, x: 0, y: 0, z: 0, minor_faction_presences: presences, ...extra };
 }
@@ -174,9 +174,69 @@ describe('BgsService state summarisation (retreat, FR-1/FR-2)', () => {
     const page = await service.getPage(0);
 
     expect(page.rows[0].stateEntries).toEqual([
-      { kind: 'war', state: 'CivilWar', status: 'active', factions: ['Flotta Stellare', 'Earth Defense Fleet'] },
-      { kind: 'election', state: 'Election', status: 'pending', factions: ['Flotta Stellare', 'Civitas Dei'] },
+      { kind: 'war', state: 'CivilWar', status: 'active', factions: ['Flotta Stellare', 'Earth Defense Fleet'], score: null },
+      { kind: 'election', state: 'Election', status: 'pending', factions: ['Flotta Stellare', 'Civitas Dei'], score: null },
     ]);
+  });
+
+  it("attaches EliteBGS's score to an active conflict from our side, our days first", async () => {
+    records = [
+      systemWithPresences(
+        'Misir',
+        [
+          { name: 'Earth Defense Fleet', influence: 0.3, active_states: ['CivilWar'] },
+          { name: 'Flotta Stellare', influence: 0.3, active_states: ['CivilWar'] },
+        ],
+        {
+          ebgs_conflicts: {
+            updated_at: '2026-10-06T08:00:00.000Z',
+            conflicts: [
+              { type: 'election', status: 'active', faction1: { name: 'Someone', stake: null, days_won: 3 }, faction2: { name: 'Else', stake: null, days_won: 0 } },
+              {
+                type: 'civilwar',
+                status: 'active',
+                faction1: { name: 'Earth Defense Fleet', stake: 'Bolden Port', days_won: 2 },
+                faction2: { name: 'flotta stellare', stake: null, days_won: 1 },
+              },
+            ],
+          },
+        },
+      ),
+    ];
+
+    const page = await service.getPage(0);
+
+    expect(page.rows[0].stateEntries[0].score).toEqual({
+      ours: 1,
+      theirs: 2,
+      opponent: 'Earth Defense Fleet',
+      ourStake: null,
+      theirStake: 'Bolden Port',
+      updatedAt: '2026-10-06T08:00:00.000Z',
+    });
+  });
+
+  it('gives no score when EliteBGS has none for the conflict, or the conflict is still pending', async () => {
+    const conflicts = { updated_at: null, conflicts: [] };
+    records = [
+      systemWithPresences('A', [
+        { name: 'Flotta Stellare', influence: 0.3, active_states: ['War'] },
+        { name: 'Other', influence: 0.3, active_states: ['War'] },
+      ], { ebgs_conflicts: conflicts }),
+      systemWithPresences('B', [
+        { name: 'Flotta Stellare', influence: 0.3, pending_states: ['Election'] },
+        { name: 'Other', influence: 0.3, pending_states: ['Election'] },
+      ], {
+        ebgs_conflicts: {
+          updated_at: null,
+          conflicts: [{ type: 'election', status: 'pending', faction1: { name: 'Flotta Stellare', stake: null, days_won: 0 }, faction2: { name: 'Other', stake: null, days_won: 0 } }],
+        },
+      }),
+    ];
+
+    const page = await service.getPage(0);
+
+    expect(page.rows.map(r => r.stateEntries[0].score)).toEqual([null, null]);
   });
 
   it('does not log an anomaly for an unpaired pending retreat (R9 only applies to two-party states)', async () => {

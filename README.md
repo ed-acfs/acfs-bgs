@@ -20,6 +20,8 @@ Il progetto è in sviluppo. Le fasi, le decisioni prese e le domande aperte sono
 
 I dati vengono da [Spansh](https://spansh.co.uk). Spansh non accetta chiamate dirette dal browser, quindi lo script `scripts/fetch-bgs.mjs` scarica tutti i sistemi con Flotta Stellare presente e li salva in `public/data/bgs.json`. L'app legge quel file. Il file non è versionato.
 
+Spansh non riporta il punteggio dei conflitti (giorni vinti). Per i soli sistemi in cui Flotta Stellare è in guerra o in elezione, lo script lo chiede a [EliteBGS](https://elitebgs.app), che però è spesso irraggiungibile: in quel caso il download prosegue senza punteggio e il riquadro dello stato rimanda a Inara.
+
 Spansh si aggiorna con i dati che i giocatori inviano mentre volano, quindi è sempre un po' indietro rispetto al gioco. I sistemi visitati di rado possono mostrare dati vecchi di giorni o settimane. La colonna "Aggiornato" indica l'età di ogni dato. Sotto il titolo, un contatore dice quanti sistemi sono stati aggiornati dopo l'ultimo tick, in totale e fra i P1-P2: dopo il tick sale nel giro di ore.
 
 ## Uso in locale

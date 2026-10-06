@@ -89,6 +89,31 @@ export interface BgsSystemRecord {
   station_count?: number | null;
   /** Every station in the system, fleet carriers excluded. */
   assets?: StationRecord[] | null;
+  /** Conflict scores from EliteBGS, only for systems with an active war or election of ours and only when EliteBGS answered. */
+  ebgs_conflicts?: EbgsConflicts | null;
+}
+
+/** EliteBGS's view of a system's conflicts, as `scripts/fetch-bgs.mjs` slims it. */
+export interface EbgsConflicts {
+  /** ISO 8601 time EliteBGS last updated the system. */
+  updated_at: string | null;
+  conflicts: EbgsConflict[];
+}
+
+export interface EbgsConflict {
+  /** "war", "civilwar" or "election". */
+  type: string | null;
+  /** "active" or "pending". */
+  status: string | null;
+  faction1: EbgsConflictSide;
+  faction2: EbgsConflictSide;
+}
+
+export interface EbgsConflictSide {
+  name: string | null;
+  /** What the faction loses if it loses the conflict, e.g. a station; null if nothing. */
+  stake: string | null;
+  days_won: number | null;
 }
 
 /** A station or installation in a system, as the dataset's `assets` array describes it. */
@@ -105,6 +130,8 @@ export interface BgsDataset {
   generated_at: string;
   /** ISO 8601 time of the last BGS tick when it was downloaded (EDCD Tick Detector); null if unknown. */
   tick_at?: string | null;
+  /** False when EliteBGS couldn't be reached at download time, so no conflict has a score. Absent in older files. */
+  conflict_scores_available?: boolean;
   count: number;
   results: BgsSystemRecord[];
 }
@@ -191,6 +218,20 @@ export interface StateEntry {
   status: 'active' | 'pending';
   /** The factions sharing the state, the squadron's first. */
   factions: string[];
+  /** Days won so far, from EliteBGS; null when it has no score for this conflict (or for a retreat, which has none). */
+  score: ConflictScore | null;
+}
+
+/** A conflict's score from the squadron's side: our days first, as the orders write it. */
+export interface ConflictScore {
+  ours: number;
+  theirs: number;
+  opponent: string;
+  /** What each side loses if it loses, e.g. a station; null if nothing. */
+  ourStake: string | null;
+  theirStake: string | null;
+  /** ISO 8601 time EliteBGS last updated the system. */
+  updatedAt: string | null;
 }
 
 /** One row of the rendered table. */
@@ -447,7 +488,7 @@ function summarizeFactionState(
   snapshotTime: string | null,
   presences: readonly MinorFactionPresence[],
   config: StateSetConfig,
-): { status: FactionStateStatus; details: string | null; entries: Omit<StateEntry, 'kind'>[] } {
+): { status: FactionStateStatus; details: string | null; entries: Omit<StateEntry, 'kind' | 'score'>[] } {
   const { states: conflictStates, requiresCorroboration, isSuppressed } = config;
   const describeMatch = config.describeMatch ?? describeConflict;
 
@@ -493,8 +534,8 @@ function summarizeFactionState(
   // by (state, corroborator set) and deduped, so the same "X vs Y" line never appears twice.
   const active: string[] = [];
   const pending: string[] = [];
-  const activeEntries: Omit<StateEntry, 'kind'>[] = [];
-  const pendingEntries: Omit<StateEntry, 'kind'>[] = [];
+  const activeEntries: Omit<StateEntry, 'kind' | 'score'>[] = [];
+  const pendingEntries: Omit<StateEntry, 'kind' | 'score'>[] = [];
   const seenActive = new Set<string>();
   const seenPending = new Set<string>();
 
@@ -543,6 +584,42 @@ function summarizeFactionState(
     return { status: 'pending', details: pending.join('\n'), entries: pendingEntries };
   }
   return { status: null, details: null, entries: [] };
+}
+
+/**
+ * The score of one of our active conflicts, from the squadron's side, if EliteBGS has it: the
+ * conflict of the same type (war, civil war, election) with our faction on one side. Pending
+ * conflicts haven't started, so they never get one ("Draw; 0-0" is implied).
+ */
+export function conflictScore(
+  ebgs: EbgsConflicts | null | undefined,
+  entry: Pick<StateEntry, 'state' | 'status'>,
+): ConflictScore | null {
+  if (!ebgs || entry.status !== 'active') {
+    return null;
+  }
+  const type = normalizeStateName(entry.state);
+  const own = FACTION_NAME.toLowerCase();
+  for (const conflict of ebgs.conflicts) {
+    if (normalizeStateName(conflict.type ?? '') !== type) {
+      continue;
+    }
+    const [us, them] =
+      conflict.faction1.name?.toLowerCase() === own ? [conflict.faction1, conflict.faction2]
+      : conflict.faction2.name?.toLowerCase() === own ? [conflict.faction2, conflict.faction1]
+      : [null, null];
+    if (us && them && us.days_won !== null && them.days_won !== null) {
+      return {
+        ours: us.days_won,
+        theirs: them.days_won,
+        opponent: them.name ?? '—',
+        ourStake: us.stake,
+        theirStake: them.stake,
+        updatedAt: ebgs.updated_at,
+      };
+    }
+  }
+  return null;
 }
 
 /**
@@ -613,9 +690,9 @@ export function toBgsRow(
     retreatDetails: retreat.details,
     // Same order as the State column's icons: retreat, war, election.
     stateEntries: [
-      ...retreat.entries.map(entry => ({ ...entry, kind: 'retreat' as const })),
-      ...war.entries.map(entry => ({ ...entry, kind: 'war' as const })),
-      ...election.entries.map(entry => ({ ...entry, kind: 'election' as const })),
+      ...retreat.entries.map(entry => ({ ...entry, kind: 'retreat' as const, score: null })),
+      ...war.entries.map(entry => ({ ...entry, kind: 'war' as const, score: conflictScore(record.ebgs_conflicts, entry) })),
+      ...election.entries.map(entry => ({ ...entry, kind: 'election' as const, score: conflictScore(record.ebgs_conflicts, entry) })),
     ],
     expansionState: expansion.status,
     bodyCount: record.body_count ?? null,
