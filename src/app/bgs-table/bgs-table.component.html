@@ -308,7 +308,20 @@
       <table class="bgs-table">
         <thead>
           <tr>
-            <th>Sistema</th>
+            <th>
+              <button
+                type="button"
+                class="bgs-sort-header"
+                (click)="sortByColumn('systemName')"
+                [disabled]="loading()"
+                title="Ordina per nome del sistema"
+              >
+                Sistema
+                @if (sortIndicator('systemName'); as indicator) {
+                  <span class="bgs-sort-indicator">{{ indicator }}</span>
+                }
+              </button>
+            </th>
             <th class="bgs-col-distance">
               <button
                 type="button"

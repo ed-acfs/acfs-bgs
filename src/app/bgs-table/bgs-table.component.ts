@@ -59,6 +59,7 @@ type Mode = 'paged' | 'distance' | 'column';
 
 /** Columns the user can click a header to sort by. */
 type SortColumn =
+  | 'systemName'
   | 'influence'
   | 'margin'
   | 'controllingFaction'
@@ -106,6 +107,8 @@ function formatPercent(value: number): string {
 
 function columnValue(row: BgsRow, column: SortColumn): string | number | null {
   switch (column) {
+    case 'systemName':
+      return row.systemName;
     case 'influence':
       return row.factionInfluence;
     case 'margin':
