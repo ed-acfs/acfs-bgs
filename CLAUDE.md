@@ -50,3 +50,5 @@ Questo file esiste dal 5 ottobre 2026: la memoria locale di Claude accumulata pr
 - Per verificare le modifiche visibili si possono fare screenshot con Edge headless; sotto circa 500 px di larghezza non scende, quindi per simulare un telefono usare almeno 520 px.
 - GitHub sospende i workflow programmati dopo 60 giorni senza commit: se i dati del sito smettono di aggiornarsi, riattivare `pages.yml` dalla scheda Actions.
 - I cron di GitHub partono in ritardo e spesso saltano: il 5 ottobre 2026, con il cron `17,47 * * * *`, ci sono state solo 3 esecuzioni `schedule` in tutta la giornata. Controllo: `gh run list --repo ed-acfs/acfs-bgs-tool --event schedule`.
+- `gh` sul PC di lavoro è installato con scoop (6 ottobre 2026), con login fatto e `gh repo set-default` impostato.
+- I connettori Google Drive e Google Sheets sono attivi sull'account claude.ai dell'utente (5 ottobre 2026), ma nel Claude Code del PC di lavoro non compaiono: `/mcp` mostra solo i server del plugin "engineering" (6 ottobre 2026). Lì Claude non può leggere né scrivere il foglio, se non tramite le versioni pubblicate in TSV. Da verificare se sul PC di casa funzionano.
