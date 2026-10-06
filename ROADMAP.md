@@ -1,6 +1,6 @@
 # Roadmap: ACFS BGS Tool
 
-Tool BGS per lo squadrone **Alto Comando Flotta Stellare** (ACFS) e per la sua PMF **Flotta Stellare**, derivato da [canonn-colony-operations](https://github.com/canonn-science/canonn-colony-operations) (MIT). Il contesto di partenza è in `HANDOFF.md`.
+Tool BGS per lo squadrone **Alto Comando Flotta Stellare** (ACFS) e per la sua PMF **Flotta Stellare**, derivato da [canonn-colony-operations](https://github.com/canonn-science/canonn-colony-operations) (MIT). Punto di partenza: il commit `551a119` del loro branch `main` (il repo dei Canonn è il remote `upstream`), utile per confrontare o recuperare loro correzioni. Le note di analisi iniziali (`HANDOFF.md`) sono state tolte il 6 ottobre 2026 perché superate da questo file: restano nella storia di git.
 
 La domanda a cui il tool deve rispondere ogni giorno dopo il tick: **dove dobbiamo lavorare oggi?**
 
@@ -11,12 +11,13 @@ La domanda a cui il tool deve rispondere ogni giorno dopo il tick: **dove dobbia
 | Fazione | Una sola: `Flotta Stellare`. Si tolgono CDSR e tutte le regole basate su coppie di fazioni |
 | Capitale | `Wong Sher` (sistema home e punto di partenza per le distanze) |
 | Fonte dati | Spansh, scaricato da uno script e pubblicato come JSON statico. Spansh non manda header CORS, quindi il browser non può chiamarlo direttamente. Lo script fa le stesse operazioni della Cloud Function Canonn (`Canonn-GCloud/query/function/localpackage/canonnbgs.py`) |
-| Hosting | Repo `ed-acfs/acfs-bgs-tool` (prima `acfs-bgs`) pubblico (lo è già: l'handoff lo dava privato), con GitHub Pages su `https://flottastellare.it/acfs-bgs-tool/` (il dominio dell'organizzazione vale anche per i siti dei suoi repo). Organizzazione su piano Free |
+| Hosting | Repo `ed-acfs/acfs-bgs-tool` (prima `acfs-bgs`) pubblico, con GitHub Pages su `https://flottastellare.it/acfs-bgs-tool/` (il dominio dell'organizzazione vale anche per i siti dei suoi repo). Organizzazione su piano Free |
 | Colonizzazione | Come i Canonn: Form e Sheet ACFS con architetto, appartenenza ad ACFS e fazione preferita, più la Watchlist |
 | Lingua | Interfaccia in italiano. Nomi degli stati BGS in inglese, come appaiono in gioco |
 | Registro Canonn | Non lo leggiamo, per ora |
 | Semafori (5 ottobre 2026) | Due semafori per i sistemi controllati, dal documento "Monitoraggio sistemi Flotta" dello squadrone, con la soglia dell'influenza aggiornata dall'utente: influenza 🟢 ≥ 50%, 🟡 40,0–49,9%, 🔴 < 40%; Margine sulla seconda fazione 🟢 ≥ 30 punti, 🟡 18–29,9, 🔴 < 18 (un'operazione nemica guadagna circa 8 punti al giorno: la zona gialla lascia due giorni per rispondere). Almeno un verde: tranquillo; almeno un rosso: da seguire. Negli Ordini, 🟡 vuol dire anche "ieri nessun punto segnato" e 🔴 "punto perso" (con 🚨 se è grave). La soglia dei 5 punti resta a parte: è quella in cui il gioco fa scattare il conflitto |
 | Struttura | La logica pura (tipi, priorità, freschezza, stati) va in un modulo senza Angular, così la usano sia il sito sia l'invio a Discord |
+| Discord | In ordine di costo: prima un webhook che invia il report dopo il tick (fase 7), poi un eventuale bot con slash command. Scartata per ora la Discord Activity (il sito dentro Discord, in un iframe) |
 
 ## Fasi
 
