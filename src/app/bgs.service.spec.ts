@@ -162,6 +162,23 @@ describe('BgsService state summarisation (retreat, FR-1/FR-2)', () => {
     expect(page.rows[0].retreatDetails).toBe('Retreat: Flotta Stellare (2.1%)');
   });
 
+  it('lists the State details as structured entries, our faction first, active winning over pending', async () => {
+    records = [
+      systemWithPresences('Misir', [
+        { name: 'Earth Defense Fleet', influence: 0.3, active_states: ['CivilWar'] },
+        { name: 'Flotta Stellare', influence: 0.25, active_states: ['CivilWar'], pending_states: ['Election'] },
+        { name: 'Civitas Dei', influence: 0.2, pending_states: ['Election'] },
+      ]),
+    ];
+
+    const page = await service.getPage(0);
+
+    expect(page.rows[0].stateEntries).toEqual([
+      { kind: 'war', state: 'CivilWar', status: 'active', factions: ['Flotta Stellare', 'Earth Defense Fleet'] },
+      { kind: 'election', state: 'Election', status: 'pending', factions: ['Flotta Stellare', 'Civitas Dei'] },
+    ]);
+  });
+
   it('does not log an anomaly for an unpaired pending retreat (R9 only applies to two-party states)', async () => {
     const warnSpy = vi.spyOn(logger, 'warn');
     const logSpy = vi.spyOn(logger, 'log');

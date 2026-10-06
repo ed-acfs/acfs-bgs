@@ -24,7 +24,7 @@ import {
   faDownload,
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
-import { BgsRow, rowWithAssignment } from '../../core/bgs';
+import { BgsRow, StateEntry, rowWithAssignment } from '../../core/bgs';
 import { CONFLICT_MARGIN_POINTS, FACTION_NAME, HOME_SYSTEM, SEMAPHORE_THRESHOLDS } from '../../core/config';
 import { influenceSemaphore, marginSemaphore, Semaphore } from '../../core/semaphore';
 import { draftItemFromRow } from '../../core/orders';
@@ -850,6 +850,18 @@ export class BgsTableComponent implements OnDestroy {
     if (anchor) {
       this.selectAnchorPoint({ systemName: anchor.systemName, x: anchor.x, y: anchor.y, z: anchor.z });
     }
+  }
+
+  /** The State details panel's heading for an entry: the game's state name, spaced ("Civil War"), with its icon. */
+  protected stateEntryTitle(entry: StateEntry): string {
+    const icon = entry.kind === 'war' ? '⚔️' : entry.kind === 'election' ? '🗳️' : '⚠️';
+    return `${icon} ${entry.state.replace(/([a-z])([A-Z])/g, '$1 $2')}`;
+  }
+
+  /** A faction's influence in the row's system, Italian style ("42,5%"), or '—' if it isn't listed. */
+  protected factionInfluenceLabel(row: BgsRow, factionName: string): string {
+    const faction = row.factions.find(f => f.name === factionName);
+    return faction ? formatPercent(faction.influencePercent) : '—';
   }
 
   /** The Margin cell's text: signed points, Italian style ("+12,4", "−3,0"). */

@@ -559,34 +559,40 @@
                   }
                 </td>
                 <td class="bgs-col-state" data-label="Stato">
-                  @if (row.retreatState) {
-                    <span
-                      class="bgs-state-icon bgs-state-icon--retreat"
-                      [class.bgs-state-icon--pending]="row.retreatState === 'pending'"
-                      [title]="row.retreatDetails"
-                      role="img"
-                      [attr.aria-label]="row.retreatDetails ?? 'Ritirata'"
-                    >⚠️</span>
-                  }
-                  @if (row.warState) {
-                    <span
-                      class="bgs-state-icon"
-                      [class.bgs-state-icon--pending]="row.warState === 'pending'"
-                      [title]="row.warDetails"
-                      role="img"
-                      [attr.aria-label]="row.warDetails ?? 'Guerra'"
-                    >⚔️</span>
-                  }
-                  @if (row.electionState) {
-                    <span
-                      class="bgs-state-icon bgs-state-icon--election"
-                      [class.bgs-state-icon--pending]="row.electionState === 'pending'"
-                      [title]="row.electionDetails"
-                      role="img"
-                      [attr.aria-label]="row.electionDetails ?? 'Elezioni'"
-                    >🗳️</span>
-                  }
-                  @if (!row.retreatState && !row.warState && !row.electionState) {
+                  @if (row.stateEntries.length > 0) {
+                    <button
+                      type="button"
+                      class="bgs-state-button"
+                      [matMenuTriggerFor]="stateMenu"
+                      [matMenuTriggerData]="{ row }"
+                      [attr.aria-label]="'Dettagli dello stato di ' + row.systemName"
+                    >
+                      @if (row.retreatState) {
+                        <span
+                          class="bgs-state-icon bgs-state-icon--retreat"
+                          [class.bgs-state-icon--pending]="row.retreatState === 'pending'"
+                          [title]="row.retreatDetails"
+                          aria-hidden="true"
+                        >⚠️</span>
+                      }
+                      @if (row.warState) {
+                        <span
+                          class="bgs-state-icon"
+                          [class.bgs-state-icon--pending]="row.warState === 'pending'"
+                          [title]="row.warDetails"
+                          aria-hidden="true"
+                        >⚔️</span>
+                      }
+                      @if (row.electionState) {
+                        <span
+                          class="bgs-state-icon bgs-state-icon--election"
+                          [class.bgs-state-icon--pending]="row.electionState === 'pending'"
+                          [title]="row.electionDetails"
+                          aria-hidden="true"
+                        >🗳️</span>
+                      }
+                    </button>
+                  } @else {
                     <span>—</span>
                   }
                 </td>
@@ -652,6 +658,49 @@
         </tbody>
       </table>
     </div>
+
+    <!-- State details, opened from the State column's icons; one menu shared by every row. -->
+    <mat-menu #stateMenu="matMenu" class="bgs-state-menu" xPosition="before">
+      <ng-template matMenuContent let-row="row">
+        <div class="bgs-state-panel" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+          <p class="bgs-state-panel-system">{{ row.systemName }}</p>
+          @for (entry of row.stateEntries; track $index) {
+            <section class="bgs-state-entry">
+              <p class="bgs-state-entry-title">
+                {{ stateEntryTitle(entry) }}
+                <span class="bgs-state-entry-status" [class.bgs-state-entry-status--pending]="entry.status === 'pending'">
+                  {{ entry.status === 'pending' ? 'in pending' : 'in corso' }}
+                </span>
+              </p>
+              <ul class="bgs-state-factions">
+                @for (name of entry.factions; track name) {
+                  <li [class.bgs-state-faction--own]="name === factionName">
+                    <span>{{ name }}</span>
+                    <span class="bgs-state-faction-influence">{{ factionInfluenceLabel(row, name) }}</span>
+                  </li>
+                }
+              </ul>
+              @if (entry.kind !== 'retreat') {
+                <p class="bgs-state-score">
+                  @if (entry.status === 'pending') {
+                    Punteggio: Draw; 0-0, il conflitto non è ancora iniziato.
+                  } @else {
+                    Punteggio (giorni vinti): Spansh non lo riporta.
+                    <a
+                      [href]="'https://inara.cz/elite/starsystem/?search=' + encodeURIComponent(row.systemName)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="bgs-system-link"
+                    >Vedi su Inara</a>
+                  }
+                </p>
+              }
+            </section>
+          }
+          <p class="bgs-state-panel-age">Dato Spansh: {{ freshnessFor(row).title }}</p>
+        </div>
+      </ng-template>
+    </mat-menu>
 
     <div class="bgs-pager">
       <button

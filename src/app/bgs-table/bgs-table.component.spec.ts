@@ -28,6 +28,7 @@ function row(systemName: string): BgsRow {
     electionDetails: null,
     retreatState: null,
     retreatDetails: null,
+    stateEntries: [],
     expansionState: null,
     bodyCount: null,
     population: null,
@@ -180,6 +181,32 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     await fixture.whenStable();
     expect(visibleRows().map(r => r.systemName)).toEqual(['Wong Sher', 'Sol', 'alpha Centauri', 'Achenar']);
     expect(header.textContent).toContain('▼');
+  });
+
+  it('opens the State details panel from the State icons, with factions, influence and status', async () => {
+    const misir: BgsRow = {
+      ...row('Misir'),
+      warState: 'active',
+      warDetails: 'CivilWar: Flotta Stellare vs Earth Defense Fleet',
+      factions: [
+        { name: 'Earth Defense Fleet', influencePercent: 30 },
+        { name: 'Flotta Stellare', influencePercent: 25 },
+      ],
+      stateEntries: [{ kind: 'war', state: 'CivilWar', status: 'active', factions: ['Flotta Stellare', 'Earth Defense Fleet'] }],
+    };
+    service.getAllRows.mockResolvedValue([misir]);
+    const host: HTMLElement = fixture.nativeElement;
+    host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!.click();
+    await fixture.whenStable();
+
+    host.querySelector<HTMLButtonElement>('.bgs-state-button')!.click();
+    await fixture.whenStable();
+
+    const panel = document.querySelector('.bgs-state-panel')!;
+    expect(panel.textContent).toContain('Civil War');
+    expect(panel.textContent).toContain('in corso');
+    expect(panel.textContent).toContain('Earth Defense Fleet');
+    expect(panel.textContent).toContain('25,0%');
   });
 
   /** Types into a quick-filter name field the way a user does (marking it dirty), then leaves it. */

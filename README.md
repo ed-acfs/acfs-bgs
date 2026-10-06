@@ -6,7 +6,7 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 
 - fazione che controlla il sistema e grafico dell'influenza di tutte le fazioni presenti;
 - influenza di Flotta Stellare e **margine**: vantaggio sulla seconda fazione dove controlliamo, distacco da chi controlla altrove;
-- stati in corso o in arrivo: guerra, elezione, ritirata;
+- stati in corso o in arrivo: guerra, elezione, ritirata; cliccando l'icona si vedono le fazioni coinvolte e la loro influenza;
 - età del dato, cioè quanto tempo fa il sistema è stato aggiornato;
 - priorità di intervento, da P1 (massima) a P5;
 - architetto e fazione preferita dei sistemi colonizzati;

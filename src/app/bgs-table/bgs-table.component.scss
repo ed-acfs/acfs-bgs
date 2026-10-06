@@ -459,6 +459,102 @@
   text-align: center;
 }
 
+// The State icons are one button that opens the details panel below.
+.bgs-state-button {
+  padding: 2px 4px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--color-border-muted);
+    background-color: var(--color-surface-5);
+  }
+
+  .bgs-state-icon {
+    cursor: pointer;
+  }
+}
+
+.bgs-state-panel {
+  padding: 4px 16px 8px;
+  min-width: 240px;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.bgs-state-panel-system {
+  margin: 4px 0 8px;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.bgs-state-entry + .bgs-state-entry {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-surface-5);
+}
+
+.bgs-state-entry-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.bgs-state-entry-status {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background-color: color-mix(in srgb, var(--color-danger) 20%, transparent);
+  color: var(--color-text-bright);
+}
+
+.bgs-state-entry-status--pending {
+  background-color: var(--color-surface-5);
+  color: var(--color-text-2);
+}
+
+.bgs-state-factions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 2px 0;
+  }
+}
+
+.bgs-state-faction--own {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.bgs-state-faction-influence {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bgs-state-score {
+  margin: 6px 0 0;
+  color: var(--color-text-2);
+  font-size: 0.8rem;
+}
+
+.bgs-state-panel-age {
+  margin: 10px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
 .bgs-state-icon {
   display: inline-block;
   font-size: 1.15rem;
