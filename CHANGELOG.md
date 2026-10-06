@@ -2,6 +2,16 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.9.4] - 2026-10-06 — Ordinamento per nome
+
+### Tabella
+
+- Anche l'intestazione **Sistema** ordina la tabella: alfabetico per nome del sistema, senza distinguere maiuscole e minuscole; un secondo clic inverte l'ordine. Era l'unica colonna, insieme a Stato, che non si poteva ordinare.
+
+### Test
+
+- Nuovo test: ordinamento per nome dall'intestazione, nei due versi. Passano 210 test dell'app.
+
 ## [0.9.3] - 2026-10-06 — Fazione preferita senza architetto
 
 ### Registro

@@ -164,6 +164,22 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     await fixture.whenStable();
     expect(host.querySelector('#bgs-legend')).toBeNull();
   });
+
+  it('sorts by system name from the Sistema header, case-insensitively, and flips on a second click', async () => {
+    service.getAllRows.mockResolvedValue([row('Wong Sher'), row('alpha Centauri'), row('Sol'), row('Achenar')]);
+    const host: HTMLElement = fixture.nativeElement;
+    const header = host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!;
+
+    header.click();
+    await fixture.whenStable();
+    expect(visibleRows().map(r => r.systemName)).toEqual(['Achenar', 'alpha Centauri', 'Sol', 'Wong Sher']);
+    expect(header.textContent).toContain('▲');
+
+    header.click();
+    await fixture.whenStable();
+    expect(visibleRows().map(r => r.systemName)).toEqual(['Wong Sher', 'Sol', 'alpha Centauri', 'Achenar']);
+    expect(header.textContent).toContain('▼');
+  });
 });
 
 describe('comparePriorityRows', () => {
