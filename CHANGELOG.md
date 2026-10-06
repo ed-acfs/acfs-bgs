@@ -2,6 +2,17 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.9.6] - 2026-10-06 — Filtri per nome più chiari
+
+### Filtri
+
+- I campi Nome di **Architetto** e **Fazione** applicano il filtro anche quando si esce dal campo, non solo con Invio o scegliendo un suggerimento: prima, scritto un nome e cliccato altrove, non succedeva nulla e niente diceva di premere Invio. Il campo Architetto parte col proprio nome già scritto, quindi all'uscita filtra solo se il testo è stato modificato.
+- Filtrando per **Flotta Stellare** compare un avviso: la fazione è presente in tutti i sistemi della tabella, quindi il filtro li tiene tutti; per i sistemi che controlliamo c'è "Controllati".
+
+### Test
+
+- Tre nuovi test: filtro applicato all'uscita dal campo, nessun filtro se il campo non è stato modificato, avviso per la nostra fazione. Passano 213 test dell'app.
+
 ## [0.9.5] - 2026-10-06 — Tabella leggibile su telefono
 
 ### Interfaccia mobile

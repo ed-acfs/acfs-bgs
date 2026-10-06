@@ -699,6 +699,7 @@ export class BgsTableComponent implements OnDestroy {
   }
 
   protected applyArchitectFilterName(): void {
+    this.architectFilterControl.markAsPristine();
     const name = this.architectFilterControl.value.trim();
     if (!name) {
       this.setArchitectFilterMode('all');
@@ -707,6 +708,17 @@ export class BgsTableComponent implements OnDestroy {
     this.architectFilterMode.set('name');
     this.architectFilterName.set(name);
     this.pageIndex.set(0);
+  }
+
+  /**
+   * Leaving the field applies what was typed, so Enter isn't the only (invisible) way to run
+   * the filter. Only after an edit: the field starts out holding the user's own name, and
+   * merely clicking in and out of it shouldn't switch the filter on.
+   */
+  protected onArchitectFilterBlur(): void {
+    if (this.architectFilterControl.dirty) {
+      this.applyArchitectFilterName();
+    }
   }
 
   protected setFactionFilterMode(mode: 'all' | 'controlled'): void {
@@ -722,6 +734,7 @@ export class BgsTableComponent implements OnDestroy {
   }
 
   protected applyFactionFilterName(): void {
+    this.factionFilterControl.markAsPristine();
     const name = this.factionFilterControl.value.trim();
     if (!name) {
       this.setFactionFilterMode('all');
@@ -731,6 +744,23 @@ export class BgsTableComponent implements OnDestroy {
     this.factionFilterName.set(name);
     this.pageIndex.set(0);
   }
+
+  /** Same as {@link onArchitectFilterBlur}, for the Faction name field. */
+  protected onFactionFilterBlur(): void {
+    if (this.factionFilterControl.dirty) {
+      this.applyFactionFilterName();
+    }
+  }
+
+  /**
+   * The table only lists systems where the squadron's faction is present, so filtering by its
+   * own name keeps every row and looks like the filter did nothing; point to "Controllati".
+   */
+  protected readonly factionFilterHint = computed(() =>
+    this.factionFilterMode() === 'name' && this.factionFilterName().toLowerCase() === FACTION_NAME.toLowerCase()
+      ? `${FACTION_NAME} è presente in tutti i sistemi: per quelli che controlliamo usa "Controllati".`
+      : null,
+  );
 
   /**
    * Sorts the whole table by the given column, toggling direction on a repeat click. A fresh

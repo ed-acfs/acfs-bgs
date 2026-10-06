@@ -163,6 +163,7 @@
             aria-label="Filtra per nome dell'architetto"
             maxlength="120"
             (keyup.enter)="applyArchitectFilterName()"
+            (blur)="onArchitectFilterBlur()"
           />
           <mat-autocomplete
             #architectFilterAuto="matAutocomplete"
@@ -208,6 +209,7 @@
             aria-label="Filtra per nome della fazione"
             maxlength="120"
             (keyup.enter)="applyFactionFilterName()"
+            (blur)="onFactionFilterBlur()"
           />
           <mat-autocomplete
             #factionFilterAuto="matAutocomplete"
@@ -218,6 +220,9 @@
             }
           </mat-autocomplete>
         </mat-form-field>
+        @if (factionFilterHint(); as hint) {
+          <span class="bgs-filter-hint" role="status">{{ hint }}</span>
+        }
       </div>
     </div>
   </section>

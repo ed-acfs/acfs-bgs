@@ -135,6 +135,13 @@
   font-size: 0.85rem;
 }
 
+.bgs-filter-hint {
+  max-width: 280px;
+  color: var(--color-warning);
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
 // A row of mutually exclusive (or independent, for "Mostra") options joined into one control.
 .bgs-segmented {
   display: inline-flex;
