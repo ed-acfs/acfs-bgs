@@ -34,7 +34,7 @@
         <mat-label>Nota finale</mat-label>
         <input matInput [value]="store.meta().footerNote" (change)="store.updateMeta({ footerNote: $any($event.target).value })" />
       </mat-form-field>
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="orders-signature-field">
         <mat-label>Firma</mat-label>
         <input matInput [value]="store.meta().signature" (change)="store.updateMeta({ signature: $any($event.target).value })" />
       </mat-form-field>

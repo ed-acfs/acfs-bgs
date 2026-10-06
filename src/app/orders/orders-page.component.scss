@@ -197,6 +197,7 @@ h2 {
 }
 
 .orders-preview-text {
+  box-sizing: border-box;
   width: 100%;
   font-family: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.85rem;
@@ -212,4 +213,39 @@ h2 {
   display: flex;
   gap: 12px;
   margin-top: 8px;
+}
+
+// On a phone every field takes the whole line instead of a ragged mix of widths; only the
+// signature keeps its Blocca button beside it, and Priorità stays a short number box.
+@media (max-width: 600px) {
+  .orders-container h1 {
+    font-size: 1.35rem;
+  }
+
+  .orders-meta > mat-form-field,
+  .orders-add-bar > mat-form-field,
+  .orders-item-row > mat-form-field {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .orders-meta > mat-form-field.orders-signature-field {
+    flex: 1 1 0;
+  }
+
+  .orders-item-row > mat-form-field.orders-priority-field {
+    flex: 0 0 96px;
+  }
+
+  .orders-add-bar > button {
+    flex: 1 1 100%;
+  }
+
+  .orders-section {
+    padding: 12px 10px 4px 12px;
+  }
+
+  .orders-item {
+    padding: 10px;
+  }
 }
