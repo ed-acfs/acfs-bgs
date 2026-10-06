@@ -220,11 +220,11 @@
             }
           </mat-autocomplete>
         </mat-form-field>
-        @if (factionFilterHint(); as hint) {
-          <span class="bgs-filter-hint" role="status">{{ hint }}</span>
-        }
       </div>
     </div>
+    @if (factionFilterHint(); as hint) {
+      <p class="bgs-filter-hint" role="status">{{ hint }}</p>
+    }
   </section>
 
   @if (legendOpen()) {

@@ -135,8 +135,10 @@
   font-size: 0.85rem;
 }
 
+// A line of its own under the filter rows, so it never pushes a filter group onto a new line.
 .bgs-filter-hint {
-  max-width: 280px;
+  margin: -4px 0 0;
+  text-align: right;
   color: var(--color-warning);
   font-size: 0.8rem;
   line-height: 1.3;
