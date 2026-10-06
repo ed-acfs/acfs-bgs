@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { BgsRow } from '../../core/bgs';
+import { FACTION_NAME } from '../../core/config';
 import { BgsPage, BgsService } from '../bgs.service';
 import { BgsTableComponent, comparePriorityRows } from './bgs-table.component';
 
@@ -179,6 +180,39 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     await fixture.whenStable();
     expect(visibleRows().map(r => r.systemName)).toEqual(['Wong Sher', 'Sol', 'alpha Centauri', 'Achenar']);
     expect(header.textContent).toContain('▼');
+  });
+
+  /** Types into a quick-filter name field the way a user does (marking it dirty), then leaves it. */
+  async function typeAndLeave(label: string, text: string): Promise<void> {
+    const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>(`input[aria-label="${label}"]`)!;
+    input.dispatchEvent(new Event('focus'));
+    input.value = text;
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new Event('blur'));
+    await fixture.whenStable();
+  }
+
+  it('applies a typed faction name when leaving the field, without Enter', async () => {
+    await typeAndLeave('Filtra per nome della fazione', 'Canonn');
+    expect(component['factionFilterMode']()).toBe('name');
+    expect(component['factionFilterName']()).toBe('Canonn');
+  });
+
+  it('does not switch the architect filter on when the field is only clicked in and out of', async () => {
+    const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input[aria-label="Filtra per nome dell\'architetto"]')!;
+    input.dispatchEvent(new Event('focus'));
+    input.dispatchEvent(new Event('blur'));
+    await fixture.whenStable();
+    expect(component['architectFilterMode']()).toBe('all');
+  });
+
+  it("explains that filtering by the squadron's own faction keeps every system", async () => {
+    await typeAndLeave('Filtra per nome della fazione', FACTION_NAME.toUpperCase());
+    const hint = (fixture.nativeElement as HTMLElement).querySelector('.bgs-filter-hint');
+    expect(hint?.textContent).toContain('Controllati');
+
+    await typeAndLeave('Filtra per nome della fazione', 'Canonn');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.bgs-filter-hint')).toBeNull();
   });
 });
 
