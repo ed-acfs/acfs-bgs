@@ -14,8 +14,6 @@ export const de: Dictionary = {
   'header.helpAria': 'Kurzanleitung',
   'header.legend': 'Legende',
   'header.legendAria': 'Legende der Tabelle',
-  'header.orders': 'Befehle',
-  'header.ordersAria': 'Offizielle Befehle (auf Italienisch)',
   'header.export': 'Exportieren',
   'header.exporting': 'Export läuft…',
   'header.exportAria': 'Daten exportieren',
@@ -98,7 +96,6 @@ export const de: Dictionary = {
   'legend.distance': 'Entfernung vom System im Feld „{distanceFrom}“',
   'legend.info': 'Details des Systems',
   'legend.watchlist': 'orange: das System steht auf der Watchlist',
-  'legend.orders': 'zu den Offiziellen Befehlen hinzufügen (auf Italienisch)',
   'legend.services': 'Dienste der Stationen',
   'legend.servicesNote': 'Station und Entfernung vom Stern im Tooltip und in den Details des Systems.',
   'legend.traderUnknown': 'Material Trader unbekannten Typs',
@@ -134,7 +131,6 @@ export const de: Dictionary = {
 
   // Rows
   'row.copy': '{system} kopieren',
-  'row.addToOrders': '{system} zu den Befehlen hinzufügen',
   'row.stateDetails': 'Details zum Zustand von {system}',
   'row.assign': 'Zuordnen',
   'row.assignTitle': 'Architekten von {system} registrieren',
@@ -247,7 +243,7 @@ export const de: Dictionary = {
   'help.table2':
     'Die Suche oben sortiert nach Entfernung von einem beliebigen System. Die Schnellfilter beschränken die Liste auf Kriege/Wahlen, veraltete Systeme, nur kontrollierte Systeme oder nur Systeme mit einem ACFS-Architekten.',
   'help.table3':
-    'Das Symbol ⓘ öffnet die Details des Systems (vertretene Fraktionen, Stationen, ein etwaiger Watchlist-Eintrag). Das Symbol 📋 fügt das System den Offiziellen Befehlen hinzu. Die Schaltfläche Legende erklärt Farben und Symbole der Tabelle.',
+    'Das Symbol ⓘ öffnet die Details des Systems (vertretene Fraktionen, Stationen, ein etwaiger Watchlist-Eintrag). Die Schaltfläche Legende erklärt Farben und Symbole der Tabelle.',
   'help.internal': 'Werkzeuge des Geschwaders',
-  'help.internalNote': 'Die Zuordnung der Architekten und die Offiziellen Befehle sind interne Werkzeuge des Geschwaders und nur auf Italienisch verfügbar.',
+  'help.internalNote': 'Das Geschwader hat auch interne Werkzeuge, etwa die Zuordnung der Architekten: Sie sind nur auf Italienisch verfügbar.',
 };

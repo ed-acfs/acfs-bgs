@@ -1,7 +1,7 @@
 <div class="bgs-container">
   <div class="bgs-header">
     <div class="bgs-title">
-      <h1>ACFS BGS Tool 1.0</h1>
+      <h1>ACFS BGS Tool {{ version }}</h1>
       <p>{{ t('app.subtitle', { faction: factionName }) }}</p>
       @if (datasetSummary(); as summary) {
         <p class="bgs-dataset-info">{{ summary }}</p>
@@ -26,10 +26,13 @@
         <fa-icon [icon]="faListUl" aria-hidden="true"></fa-icon>
         {{ t('header.legend') }}
       </button>
-      <a mat-stroked-button routerLink="/ordini" [attr.aria-label]="t('header.ordersAria')">
-        <fa-icon [icon]="faClipboardList" aria-hidden="true"></fa-icon>
-        {{ t('header.orders') }}
-      </a>
+      <!-- The Ordini Ufficiali are internal to the squadron and Italian only: not offered in the other languages. -->
+      @if (i18n.isItalian()) {
+        <a mat-stroked-button routerLink="/ordini" aria-label="Ordini Ufficiali">
+          <fa-icon [icon]="faClipboardList" aria-hidden="true"></fa-icon>
+          Ordini
+        </a>
+      }
       <button
         mat-stroked-button
         type="button"
@@ -316,7 +319,9 @@
           <li><span class="bgs-legend-key"><span class="bgs-legend-muted">{{ i18n.decimal(12.3) }} ly</span></span><span>{{ t('legend.distance', { distanceFrom: t('toolbar.distanceFrom') }) }}</span></li>
           <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>{{ t('legend.info') }}</span></li>
           <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-accent" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>{{ t('legend.watchlist') }}</span></li>
-          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon></span><span>{{ t('legend.orders') }}</span></li>
+          @if (i18n.isItalian()) {
+            <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon></span><span>aggiungi agli Ordini Ufficiali</span></li>
+          }
         </ul>
       </div>
 
@@ -558,15 +563,17 @@
                   >
                     <fa-icon [icon]="faCircleInfo"></fa-icon>
                   </button>
-                  <button
-                    type="button"
-                    class="bgs-info-button"
-                    [title]="t('row.addToOrders', { system: row.systemName })"
-                    [attr.aria-label]="t('row.addToOrders', { system: row.systemName })"
-                    (click)="addToOrders(row)"
-                  >
-                    <fa-icon [icon]="faClipboardList"></fa-icon>
-                  </button>
+                  @if (i18n.isItalian()) {
+                    <button
+                      type="button"
+                      class="bgs-info-button"
+                      [title]="'Aggiungi ' + row.systemName + ' agli ordini'"
+                      [attr.aria-label]="'Aggiungi ' + row.systemName + ' agli ordini'"
+                      (click)="addToOrders(row)"
+                    >
+                      <fa-icon [icon]="faClipboardList"></fa-icon>
+                    </button>
+                  }
                   @for (service of serviceIcons(row); track service.key) {
                     <button
                       type="button"

@@ -4,7 +4,7 @@
  * must define exactly these keys (see `Dictionary`). `{name}` marks a placeholder.
  *
  * The Ordini Ufficiali page and the dialogs that change data (Architect Registry) stay Italian
- * only, so their strings aren't here.
+ * only, so their strings aren't here; the links to the Ordini only show in Italian.
  */
 export const it = {
   // Header
@@ -16,8 +16,6 @@ export const it = {
   'header.helpAria': 'Guida rapida',
   'header.legend': 'Legenda',
   'header.legendAria': 'Legenda della tabella',
-  'header.orders': 'Ordini',
-  'header.ordersAria': 'Ordini Ufficiali (in italiano)',
   'header.export': 'Esporta',
   'header.exporting': 'Esportazione…',
   'header.exportAria': 'Esporta i dati',
@@ -100,7 +98,6 @@ export const it = {
   'legend.distance': 'distanza dal sistema del box "{distanceFrom}"',
   'legend.info': 'dettagli del sistema',
   'legend.watchlist': 'in arancione: il sistema è nella Watchlist',
-  'legend.orders': 'aggiungi agli Ordini Ufficiali (in italiano)',
   'legend.services': 'Servizi delle stazioni',
   'legend.servicesNote': 'Stazione e distanza dalla stella nel tooltip e nei dettagli del sistema.',
   'legend.traderUnknown': 'Material Trader di tipo non noto',
@@ -136,7 +133,6 @@ export const it = {
 
   // Rows
   'row.copy': 'Copia {system}',
-  'row.addToOrders': 'Aggiungi {system} agli ordini',
   'row.stateDetails': 'Dettagli dello stato di {system}',
   'row.assign': 'Assegna',
   'row.assignTitle': "Registra l'architetto di {system}",
@@ -249,9 +245,9 @@ export const it = {
   'help.table2':
     'La ricerca in alto ordina per distanza da un sistema a scelta. I filtri rapidi restringono a guerre/elezioni, sistemi da aggiornare, solo controllati o solo con architetto ACFS.',
   'help.table3':
-    "L'icona ⓘ apre i dettagli del sistema (fazioni presenti, stazioni, eventuale voce in Watchlist). L'icona 📋 aggiunge il sistema agli Ordini Ufficiali. Il pulsante Legenda spiega colori e icone della tabella.",
+    "L'icona ⓘ apre i dettagli del sistema (fazioni presenti, stazioni, eventuale voce in Watchlist). L'icona 📋 aggiunge il sistema agli Ordini Ufficiali, spiegati qui sotto. Il pulsante Legenda spiega colori e icone della tabella.",
   // Shown only in the other languages: in Italian the guide explains these tools in full.
   'help.internal': 'Strumenti dello squadrone',
   'help.internalNote':
-    "L'assegnazione degli architetti e gli Ordini Ufficiali sono strumenti interni dello squadrone e sono solo in italiano.",
+    "Lo squadrone ha anche strumenti interni, come l'assegnazione degli architetti: sono solo in italiano.",
 } as const;

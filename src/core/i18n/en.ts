@@ -11,8 +11,6 @@ export const en: Dictionary = {
   'header.helpAria': 'Quick guide',
   'header.legend': 'Legend',
   'header.legendAria': 'Table legend',
-  'header.orders': 'Orders',
-  'header.ordersAria': 'Official Orders (in Italian)',
   'header.export': 'Export',
   'header.exporting': 'Exporting…',
   'header.exportAria': 'Export the data',
@@ -95,7 +93,6 @@ export const en: Dictionary = {
   'legend.distance': 'distance from the system in the "{distanceFrom}" box',
   'legend.info': 'system details',
   'legend.watchlist': 'orange: the system is on the Watchlist',
-  'legend.orders': 'add to the Official Orders (in Italian)',
   'legend.services': 'Station services',
   'legend.servicesNote': 'Station and distance from the star in the tooltip and in the system details.',
   'legend.traderUnknown': 'Material Trader of unknown type',
@@ -131,7 +128,6 @@ export const en: Dictionary = {
 
   // Rows
   'row.copy': 'Copy {system}',
-  'row.addToOrders': 'Add {system} to the orders',
   'row.stateDetails': 'State details for {system}',
   'row.assign': 'Assign',
   'row.assignTitle': 'Register the architect of {system}',
@@ -244,7 +240,7 @@ export const en: Dictionary = {
   'help.table2':
     'The search box at the top sorts by distance from a system of your choice. The quick filters narrow the list to wars/elections, systems that need an update, controlled systems only or systems with an ACFS architect only.',
   'help.table3':
-    'The ⓘ icon opens the system details (factions present, stations, any Watchlist entry). The 📋 icon adds the system to the Official Orders. The Legend button explains the colours and icons of the table.',
+    'The ⓘ icon opens the system details (factions present, stations, any Watchlist entry). The Legend button explains the colours and icons of the table.',
   'help.internal': 'Squadron tools',
-  'help.internalNote': 'Architect assignment and the Official Orders are internal squadron tools and are only available in Italian.',
+  'help.internalNote': 'The squadron also has internal tools, such as architect assignment: they are only available in Italian.',
 };

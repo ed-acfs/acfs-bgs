@@ -2,14 +2,19 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [0.12.0] - 2026-10-07 — Interfaccia in tedesco e in inglese
+## [1.0.0] - 2026-10-07 — Versione 1.0: in produzione, anche in tedesco e in inglese
+
+### Versione
+
+- Il tool è considerato finito e pronto per la produzione: da qui la **1.0.0**.
+- Il numero di versione nel titolo (e nella scheda del browser) non è più scritto a mano ("1.0" fisso): viene da `package.json`, quindi il sito pubblicato dice sempre quale versione sta girando.
 
 ### Lingue
 
 - **Nuovo**: la parte di consultazione del tool è anche in **tedesco** e in **inglese**: intestazione, filtri, colonne, tooltip, Legenda, riquadro degli stati, motivazioni della priorità, dettagli del sistema e Guida. Il tool è stato linkato a un giocatore tedesco.
 - Alla prima visita la lingua segue quella del browser; se non è italiano né tedesco, inglese. Le bandierine in alto (🇮🇹 🇩🇪 🇬🇧, disegnate in SVG perché Windows mostra le bandiere emoji come lettere) cambiano lingua al volo, e la scelta resta salvata nel browser (`acfs-bgs:lang`).
 - Numeri e date seguono la lingua: virgola decimale in italiano e tedesco, punto in inglese.
-- Restano in italiano gli **Ordini Ufficiali** (compreso il testo per Discord) e il modulo **Assegna**: sono strumenti interni dello squadrone. Nella Guida in tedesco e in inglese lo dice una nota al posto delle loro spiegazioni. Restano com'erano anche i nomi degli stati BGS, dei Material Trader e dei Technology Broker, come in gioco, e le motivazioni della Watchlist scritte nel foglio.
+- Restano in italiano gli **Ordini Ufficiali** (compreso il testo per Discord) e il modulo **Assegna**: sono strumenti interni dello squadrone. Nelle altre lingue il pulsante Ordini, l'icona 📋 sulle righe e la sua voce in Legenda non compaiono; nella Guida una nota dice che lo squadrone ha strumenti interni solo in italiano. Restano com'erano anche i nomi degli stati BGS, dei Material Trader e dei Technology Broker, come in gioco, e le motivazioni della Watchlist scritte nel foglio.
 - In tedesco alcune intestazioni sono abbreviate perché la tabella stia nello schermo come in italiano (Distanz, Stand, Bevorzugt). La terminologia segue Inara in tedesco; la farà rivedere un giocatore tedesco.
 
 ### Tecnica
@@ -21,7 +26,7 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
 ### Test
 
-- Undici nuovi test: scelta della lingua iniziale, segnaposto e numeri, motivazioni della priorità tutte tradotte, età del dato in tedesco e in inglese, e in tabella il cambio di lingua dalle bandierine. Passano 246 test dell'app.
+- Undici nuovi test: scelta della lingua iniziale, segnaposto e numeri, motivazioni della priorità tutte tradotte, età del dato in tedesco e in inglese, e in tabella il cambio di lingua dalle bandierine (con gli Ordini che spariscono fuori dall'italiano). Passano 246 test dell'app.
 
 ## [0.11.1] - 2026-10-07 — Niente forbice durante un conflitto
 

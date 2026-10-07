@@ -63,6 +63,7 @@ import { FreshnessInfo, computeFreshness } from '../../core/freshness';
 import { PriorityAssessment, computePriorityAssessment, prioritySortKey } from '../../core/priority';
 import { computeTickCoverage, formatTickCoverage } from '../../core/tick-coverage';
 import { readYourName } from '../your-name';
+import { version } from '../../../package.json';
 import { I18nService } from '../i18n.service';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { PriorityReason } from '../../core/priority';
@@ -237,6 +238,8 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly faWrench = faWrench;
   protected readonly faCircleQuestion = faCircleQuestion;
   protected readonly faListUl = faListUl;
+  /** The release, from package.json, next to the title: the published site says which version it runs. */
+  protected readonly version = version;
   /** The squadron's faction, named in the ACFS column header's tooltip and highlighted orange in the Factions chart. */
   protected readonly factionName = FACTION_NAME;
   protected readonly encodeURIComponent = encodeURIComponent;

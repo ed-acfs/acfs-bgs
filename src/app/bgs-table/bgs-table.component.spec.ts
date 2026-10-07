@@ -157,10 +157,14 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     const host: HTMLElement = fixture.nativeElement;
     const headerText = () => host.querySelector('[aria-controls="bgs-legend"]')!.textContent!.trim();
     expect(headerText()).toBe('Legenda');
+    expect(host.querySelector('a[routerLink="/ordini"]')).not.toBeNull();
 
     host.querySelector<HTMLButtonElement>('.lang-button[lang="de"]')!.click();
     await fixture.whenStable();
     expect(headerText()).toBe('Legende');
+    // The Ordini are internal and Italian only: no link to them in the other languages.
+    expect(host.querySelector('a[routerLink="/ordini"]')).toBeNull();
+    expect(host.querySelector('[title^="Aggiungi "]')).toBeNull();
     expect(host.querySelector('.bgs-pager-status')!.textContent).toContain('Seite 1');
     expect(host.querySelector('.bgs-pager-count')!.textContent).toBe('(4.106 Systeme)');
     expect(document.documentElement.lang).toBe('de');
