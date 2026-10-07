@@ -2,11 +2,11 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [1.0.0] - 2026-10-07 — Versione 1.0: in produzione, anche in tedesco e in inglese
+## [1.0.1] - 2026-10-07 — Versione 1.0: in produzione, anche in tedesco e in inglese
 
 ### Versione
 
-- Il tool è considerato finito e pronto per la produzione: da qui la **1.0.0**.
+- Il tool è considerato finito e pronto per la produzione: da qui la **1.0.1** (scelta dall'utente al posto della 1.0.0, per estetica).
 - Il numero di versione nel titolo (e nella scheda del browser) non è più scritto a mano ("1.0" fisso): viene da `package.json`, quindi il sito pubblicato dice sempre quale versione sta girando.
 
 ### Lingue
