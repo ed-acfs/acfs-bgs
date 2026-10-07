@@ -127,6 +127,11 @@ function factionKey(name: string): string {
 
 const OWN_KEY = factionKey(FACTION_NAME);
 
+/** Whether the Architect Registry names Flotta Stellare as preferred — recorded, not derived from the stations. */
+function registeredAsOurs(row: BgsRow): boolean {
+  return row.preferredFactionRecorded && row.preferredFaction !== null && factionKey(row.preferredFaction) === OWN_KEY;
+}
+
 /**
  * The scope gate (FR-4): whether a system is prioritised at all. The lead is always the
  * squadron's faction; the scope says how far we act on it.
@@ -236,19 +241,23 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
   // from the 2.5% that forces a Retreat, and used to fill P1 with systems nobody needed to
   // touch. Restricted to 4+ factions: in a 3-faction system there are only two rivals to beat,
   // so "lowest of three" isn't a meaningful risk signal on its own.
-  if (
-    scope === 'in-scope' &&
-    leadRankIndex !== -1 &&
-    leadRankIndex === row.factions.length - 1 &&
-    row.factions.length > 3 &&
-    leadInfluence !== null &&
-    leadInfluence < LAST_PLACE_DANGER_PERCENT
-  ) {
+  const lastOfFourOrMore =
+    scope === 'in-scope' && leadRankIndex !== -1 && leadRankIndex === row.factions.length - 1 && row.factions.length > 3;
+  if (lastOfFourOrMore && leadInfluence !== null && leadInfluence < LAST_PLACE_DANGER_PERCENT) {
     reasons.push({
       code: 'lead-lowest-should-control',
       label: `Ultima su 4 o più fazioni e sotto il ${LAST_PLACE_DANGER_PERCENT}%: mettersi al sicuro prima di puntare al controllo`,
       score: 90,
       params: { threshold: LAST_PLACE_DANGER_PERCENT },
+    });
+  } else if (lastOfFourOrMore && registeredAsOurs(row)) {
+    // Above the danger line, last place still matters where the squadron has said the system
+    // is ours: registering Flotta Stellare as preferred is how it marks a system worth growing
+    // in (decided 7 October 2026). P2: high, but below conflicts and the Watchlist.
+    reasons.push({
+      code: 'lead-lowest-preferred',
+      label: 'Ultima su 4 o più fazioni in un sistema registrato come nostro: mettersi al sicuro prima di puntare al controllo',
+      score: 70,
     });
   }
 

@@ -145,6 +145,31 @@ describe('computePriorityAssessment under the squadron policy', () => {
     expect(assessment.tier).toBe('P1');
   });
 
+  it('ranks last place among 4+ factions P2 above 5% where Flotta Stellare is the registered preferred faction', () => {
+    const lastOfFive = (registered: boolean) =>
+      computePriorityAssessment(
+        row({
+          preferredFaction: registered ? OWN : null,
+          preferredFactionRecorded: registered,
+          factionInfluence: 9,
+          factions: [
+            { name: 'A', influencePercent: 55 },
+            { name: 'B', influencePercent: 15 },
+            { name: 'C', influencePercent: 11 },
+            { name: 'D', influencePercent: 10 },
+            { name: OWN, influencePercent: 9 },
+          ],
+        }),
+        NOW,
+        'in-scope',
+      );
+    expect(lastOfFive(true).reasons[0]).toMatchObject({ code: 'lead-lowest-preferred', score: 70 });
+    expect(lastOfFive(true).tier).toBe('P2');
+    // Derived from the stations, not registered: the plain "last faction" trigger only.
+    expect(lastOfFive(false).reasons.some(r => r.code === 'lead-lowest-preferred')).toBe(false);
+    expect(lastOfFive(false).tier).toBe('P3');
+  });
+
   it('leaves last place among 4+ factions out of P1 at a healthy influence (HR 2251: 13,9%)', () => {
     const assessment = computePriorityAssessment(
       row({

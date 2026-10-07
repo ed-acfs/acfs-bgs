@@ -161,6 +161,7 @@ export const en: Dictionary = {
   'reason.lead-below-6': 'Influence below 6%',
   'reason.lead-lowest-ranked': 'Last faction in the system',
   'reason.lead-lowest-should-control': 'Last of 4 or more factions and below {threshold}%: get safe before going for control',
+  'reason.lead-lowest-preferred': 'Last of 4 or more factions in a system registered as ours: get safe before going for control',
   'reason.control-margin-3-7': 'In control with a lead of 3-7 points',
   'reason.lead-below-10': 'Influence below 10%',
   'reason.gap-to-leader': 'To take: {gap} points behind the controlling faction (weighted by population)',
