@@ -19,8 +19,11 @@ export type PriorityScope = 'in-scope' | 'assumed' | 'out-of-scope' | 'no-prefer
 /** One applicable trigger, already weighted — the tooltip lists these, highest first. */
 export interface PriorityReason {
   code: string;
+  /** The Italian text; the table translates `code` instead, filling in `params`. */
   label: string;
   score: number;
+  /** The variable parts of the label, for a translation: numbers already as numbers. */
+  params?: Record<string, string | number>;
 }
 
 /** Everything the Priority column needs to render and sort a row. */
@@ -262,6 +265,7 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
       code: 'gap-to-leader',
       label: `Da conquistare: ${gap.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} punti dietro chi controlla (pesato sulla popolazione)`,
       score: gapToLeaderScore(gap, row.population),
+      params: { gap },
     });
   }
 
@@ -297,6 +301,7 @@ function watchlistReasons(row: BgsRow): PriorityReason[] {
         code: 'below-watchlist-position',
         label: `${entry.faction} è ${currentPosition}ª, sotto la posizione richiesta (${entry.position}ª)`,
         score: 90,
+        params: { faction: entry.faction, current: currentPosition, required: entry.position },
       });
     }
   }
@@ -359,7 +364,7 @@ export function computePriorityAssessment(
     // simply not a priority target, badge or no badge.
     const scopeReason: PriorityReason =
       scope === 'out-of-scope'
-        ? { code: 'out-of-scope', label: `La fazione preferita è ${row.preferredFaction}: non intervenire`, score: 0 }
+        ? { code: 'out-of-scope', label: `La fazione preferita è ${row.preferredFaction}: non intervenire`, score: 0, params: { faction: row.preferredFaction ?? '' } }
         : { code: 'no-preference', label: 'Architetto assegnato senza fazione preferita: non è un obiettivo', score: 0 };
     return {
       tier: scope === 'out-of-scope' ? 'out-of-scope' : 'not-applicable',

@@ -16,6 +16,8 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 
 Il tool è pubblicato su **https://flottastellare.it/acfs-bgs-tool/** e controlla i dati ogni 30 minuti.
 
+La parte di consultazione (tabella, filtri, Legenda, Guida, dettagli dei sistemi) è in **italiano, tedesco e inglese**: alla prima visita segue la lingua del browser (inglese se non è nessuna delle tre), poi vale la bandierina scelta in alto, salvata nel browser. Gli Ordini Ufficiali e il modulo "Assegna" sono strumenti interni dello squadrone e restano in italiano.
+
 Il progetto è in sviluppo. Le fasi, le decisioni prese e le domande aperte sono in [ROADMAP.md](ROADMAP.md). Le modifiche fatte finora sono in [CHANGELOG.md](CHANGELOG.md).
 
 ## Dati
@@ -77,6 +79,7 @@ Fazione, capitale e indirizzi di dati, Sheet e Form sono in [src/core/config.jso
 | Cartella | Contenuto |
 |---|---|
 | `src/core/` | Logica pura: tipi dei dati, priorità, freschezza, stati BGS, registro architetti, export. Niente Angular né API del browser, così la stessa logica può girare anche in Node |
+| `src/core/i18n/` | I testi della parte di consultazione in italiano (`it.ts`, il riferimento), tedesco e inglese. Una chiave mancante in una lingua blocca la compilazione |
 | `src/app/` | L'app Angular: tabella, dialog, caricamento e cache dei dati |
 | `scripts/` | Script Node: scaricamento dei dati da Spansh e informazioni di build |
 | `apps-script/` | Script Google collegato al foglio, con cui "Assegna" scrive nel Registro Architetti dietro la password degli ufficiali. Si installa a mano nel foglio: istruzioni in `apps-script/README.md` |

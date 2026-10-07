@@ -950,7 +950,8 @@
 }
 
 // Below this width the 11 columns no longer fit: each system becomes a card with labelled
-// values, and the sortable headers become a row of "Ordina per" chips above the cards.
+// values, and the sortable headers become a row of "Ordina per" chips above the cards (the
+// label comes from the header row's data-sort-label, in the interface language).
 @media (max-width: 720px) {
   .bgs-table-wrap {
     overflow-x: visible;
@@ -974,7 +975,7 @@
       border-bottom: 1px solid var(--color-border-muted);
 
       &::before {
-        content: 'Ordina per';
+        content: attr(data-sort-label);
         margin-right: 4px;
         color: var(--color-text-muted);
         font-size: 0.72rem;

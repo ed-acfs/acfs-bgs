@@ -1,12 +1,19 @@
-<h2 mat-dialog-title class="info-title">Guida rapida</h2>
+<h2 mat-dialog-title class="info-title">{{ t('help.title') }}</h2>
 
 <mat-dialog-content>
   <section class="info-card">
-    <h3 class="info-heading">La tabella</h3>
-    <p>Un sistema per riga: fazione di controllo, influenza di Flotta Stellare (ACFS), Margine (vantaggio o distacco da chi controlla), Priorità, Stato (guerre, elezioni), Aggiornato (età del dato) e Architetto.</p>
-    <p>La ricerca in alto ordina per distanza da un sistema a scelta. I filtri rapidi restringono a guerre/elezioni, sistemi da aggiornare, solo controllati o solo con architetto ACFS.</p>
-    <p>L'icona <strong>ⓘ</strong> apre i dettagli del sistema (fazioni presenti, stazioni, eventuale voce in Watchlist). L'icona <strong>📋</strong> aggiunge il sistema agli Ordini Ufficiali — vedi sotto. Il pulsante <strong>Legenda</strong> spiega colori e icone della tabella.</p>
+    <h3 class="info-heading">{{ t('help.table') }}</h3>
+    <p>{{ t('help.table1', { faction: factionName }) }}</p>
+    <p>{{ t('help.table2') }}</p>
+    <p>{{ t('help.table3') }}</p>
   </section>
+
+  @if (!i18n.isItalian()) {
+    <section class="info-card">
+      <h3 class="info-heading">{{ t('help.internal') }}</h3>
+      <p>{{ t('help.internalNote') }}</p>
+    </section>
+  } @else {
 
   <section class="info-card">
     <h3 class="info-heading">Assegnare un architetto</h3>
@@ -23,8 +30,9 @@
     <p><strong>Dettaglio:</strong> il testo libero dopo "per ACFS &gt;" (o l'intera riga per una nota) — grassetto e corsivo si scrivono a mano in Markdown, come <code>**conquista**</code> o <code>di _Apgar City_</code>, perché la formulazione cambia troppo da caso a caso per automatizzarla del tutto.</p>
     <p><strong>Anteprima:</strong> il testo è pronto per Discord in basso — <strong>Copia</strong> lo mette negli appunti. La data si genera da sola nel calendario di gioco (l'anno reale più 1286).</p>
   </section>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-flat-button color="primary" type="button" mat-dialog-close>Chiudi</button>
+  <button mat-flat-button color="primary" type="button" mat-dialog-close>{{ t('info.close') }}</button>
 </mat-dialog-actions>

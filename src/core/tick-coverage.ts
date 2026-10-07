@@ -1,4 +1,5 @@
 import { BgsRow } from './bgs';
+import { Lang, translate } from './i18n';
 import { parseUpdatedAt } from './freshness';
 import { PriorityTier, computePriorityAssessment } from './priority';
 
@@ -41,6 +42,6 @@ export function computeTickCoverage(rows: readonly BgsRow[], tickAt: string | nu
 }
 
 /** The header line, e.g. "214/389 aggiornati dall'ultimo tick · P1-P2: 18/25". */
-export function formatTickCoverage(coverage: TickCoverage): string {
-  return `${coverage.updated}/${coverage.total} aggiornati dall'ultimo tick · P1-P2: ${coverage.topUpdated}/${coverage.topTotal}`;
+export function formatTickCoverage(coverage: TickCoverage, lang: Lang = 'it'): string {
+  return translate(lang, 'app.tickCoverage', { ...coverage });
 }

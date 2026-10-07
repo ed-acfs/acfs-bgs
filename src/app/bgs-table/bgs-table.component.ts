@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, computed, effect, inject, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -64,6 +63,10 @@ import { FreshnessInfo, computeFreshness } from '../../core/freshness';
 import { PriorityAssessment, computePriorityAssessment, prioritySortKey } from '../../core/priority';
 import { computeTickCoverage, formatTickCoverage } from '../../core/tick-coverage';
 import { readYourName } from '../your-name';
+import { I18nService } from '../i18n.service';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
+import { PriorityReason } from '../../core/priority';
+import { isMessageKey } from '../../core/i18n';
 
 /**
  * How the table is currently ordered:
@@ -106,20 +109,6 @@ interface AnchorPoint {
 const SUGGESTION_DEBOUNCE_MS = 300;
 /** Minimum query length before firing a typeahead lookup. */
 const SUGGESTION_MIN_LENGTH = 3;
-
-/** Day, month and time in UTC (game time), e.g. "4 ott, 21:28". */
-const UTC_TIME_FORMAT = new Intl.DateTimeFormat('it-IT', {
-  day: 'numeric',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-  timeZone: 'UTC',
-});
-
-/** A 0-100 influence as the table shows it, Italian style: "42,5%". */
-function formatPercent(value: number): string {
-  return `${value.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
-}
 
 function columnValue(row: BgsRow, column: SortColumn): string | number | null {
   switch (column) {
@@ -208,7 +197,6 @@ function toAnchorPoint(system: TypeaheadSystem): AnchorPoint {
 @Component({
   selector: 'app-bgs-table',
   imports: [
-    DecimalPipe,
     ReactiveFormsModule,
     RouterLink,
     MatAutocompleteModule,
@@ -219,6 +207,7 @@ function toAnchorPoint(system: TypeaheadSystem): AnchorPoint {
     MatSelectModule,
     FaIconComponent,
     AcfsLogoComponent,
+    LanguageSwitcherComponent,
   ],
   templateUrl: './bgs-table.component.html',
   styleUrl: './bgs-table.component.scss',
@@ -228,6 +217,9 @@ export class BgsTableComponent implements OnDestroy {
   private readonly bgsService = inject(BgsService);
   private readonly dialog = inject(MatDialog);
   private readonly ordersStore = inject(OrdersStore);
+  protected readonly i18n = inject(I18nService);
+  /** The message for a key in the current language; reading it in a template re-renders on a language switch. */
+  protected readonly t = this.i18n.t;
 
   protected readonly faChevronLeft = faChevronLeft;
   protected readonly faChevronRight = faChevronRight;
@@ -286,8 +278,8 @@ export class BgsTableComponent implements OnDestroy {
     if (!info) {
       return null;
     }
-    const downloaded = `Dati Spansh aggiornati il ${UTC_TIME_FORMAT.format(Date.parse(info.generatedAt))} UTC`;
-    return info.tickAt ? `${downloaded} · ultimo tick ${UTC_TIME_FORMAT.format(Date.parse(info.tickAt))} UTC` : downloaded;
+    const downloaded = this.t('app.datasetDownloaded', { time: this.i18n.utcTime(Date.parse(info.generatedAt)) });
+    return info.tickAt ? `${downloaded} · ${this.t('app.lastTick', { time: this.i18n.utcTime(Date.parse(info.tickAt)) })}` : downloaded;
   });
   /** Every row, loaded once for the tick counter; {@link fullDataset} takes over once loaded, since it carries new assignments. */
   private readonly coverageRows = signal<BgsRow[] | null>(null);
@@ -295,7 +287,7 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly tickCoverageSummary = computed(() => {
     const rows = this.fullDataset() ?? this.coverageRows();
     const coverage = rows ? computeTickCoverage(rows, this.datasetInfo()?.tickAt ?? null, this.now()) : null;
-    return coverage ? formatTickCoverage(coverage) : null;
+    return coverage ? formatTickCoverage(coverage, this.i18n.lang()) : null;
   });
 
   protected readonly mode = signal<Mode>('paged');
@@ -588,7 +580,7 @@ export class BgsTableComponent implements OnDestroy {
     try {
       exportRowsToJson(rows, this.now());
     } catch {
-      this.exportError.set('Esportazione non riuscita. Riprova.');
+      this.exportError.set(this.t('export.failed'));
     }
   }
 
@@ -601,7 +593,7 @@ export class BgsTableComponent implements OnDestroy {
     try {
       exportRowsToCsv(rows, this.now());
     } catch {
-      this.exportError.set('Esportazione non riuscita. Riprova.');
+      this.exportError.set(this.t('export.failed'));
     }
   }
 
@@ -618,12 +610,12 @@ export class BgsTableComponent implements OnDestroy {
       await this.ensureFullDataset();
       const rows = this.filteredDataset();
       if (!rows) {
-        this.exportError.set('Caricamento dei dati da esportare non riuscito.');
+        this.exportError.set(this.t('export.loadFailed'));
         return null;
       }
       return rows;
     } catch {
-      this.exportError.set('Esportazione non riuscita. Riprova.');
+      this.exportError.set(this.t('export.failed'));
       return null;
     } finally {
       this.exporting.set(false);
@@ -732,13 +724,13 @@ export class BgsTableComponent implements OnDestroy {
     }
     return [...groups].map(([key, services]) => {
       const { kind, type } = services[0];
-      const label = `${SERVICE_LABELS[kind]}: ${type ?? 'tipo non noto'}`;
+      const label = `${SERVICE_LABELS[kind]}: ${type ?? this.t('service.unknownType')}`;
       return {
         key,
         kind,
         icon: kind === 'material-trader' ? (TRADER_ICONS[type ?? ''] ?? faFlask) : faWrench,
-        title: [label, ...services.map(describeStation)].join('\n'),
-        ariaLabel: `${label} a ${row.systemName}`,
+        title: [label, ...services.map(service => describeStation(service, this.i18n.integer))].join('\n'),
+        ariaLabel: this.t('service.at', { service: label, system: row.systemName }),
       };
     });
   }
@@ -815,7 +807,7 @@ export class BgsTableComponent implements OnDestroy {
    */
   protected readonly factionFilterHint = computed(() =>
     this.factionFilterMode() === 'name' && this.factionFilterName().toLowerCase() === FACTION_NAME.toLowerCase()
-      ? `${FACTION_NAME} è presente in tutti i sistemi: per quelli che controlliamo usa "Controllati".`
+      ? this.t('filter.ownFactionHint', { faction: FACTION_NAME, controlled: this.t('filter.controlled') })
       : null,
   );
 
@@ -846,7 +838,7 @@ export class BgsTableComponent implements OnDestroy {
 
   /** The Freshness column's pill contents for a row, recomputed as {@link now} ticks forward. */
   protected freshnessFor(row: BgsRow): FreshnessInfo {
-    return computeFreshness(row.updatedAt, this.now());
+    return computeFreshness(row.updatedAt, this.now(), this.i18n.lang());
   }
 
   /** The Priority column's badge contents for a row, recomputed as {@link now} ticks forward (its recon-age flag depends on elapsed time, though it no longer affects the score itself). */
@@ -857,15 +849,28 @@ export class BgsTableComponent implements OnDestroy {
   /** Hover text for the Priority pill: the reasons list, plus a refresh request when the reading is stale — informational, since staleness no longer changes the score. */
   protected priorityTitle(priority: PriorityAssessment): string {
     if (priority.tier === 'out-of-scope') {
-      return 'Non lavorare il BGS in questo sistema';
+      return this.t('priority.outOfScope');
     }
-    const reasons = priority.reasons.map(r => r.label).join('\n');
-    return priority.needsRecon ? `${reasons}\nDato vecchio: passa nel sistema per aggiornarlo.` : reasons;
+    const reasons = priority.reasons.map(reason => this.reasonLabel(reason)).join('\n');
+    return priority.needsRecon ? `${reasons}\n${this.t('priority.staleData')}` : reasons;
+  }
+
+  /** A priority reason in the current language, from its code; the Italian label if the code is new to the dictionary. */
+  private reasonLabel(reason: PriorityReason): string {
+    const key = `reason.${reason.code}`;
+    if (!isMessageKey(key)) {
+      return reason.label;
+    }
+    const params = { ...reason.params };
+    if (typeof params['gap'] === 'number') {
+      params['gap'] = this.i18n.decimal(params['gap']);
+    }
+    return this.t(key, params);
   }
 
   /** Accessible text equivalent of the Factions mini bar chart, for screen readers. */
   protected factionsSummary(row: BgsRow): string {
-    return row.factions.map(f => `${f.name}: ${formatPercent(f.influencePercent)}`).join(', ');
+    return row.factions.map(f => `${f.name}: ${this.i18n.percent(f.influencePercent)}`).join(', ');
   }
 
   /**
@@ -901,10 +906,14 @@ export class BgsTableComponent implements OnDestroy {
     if (rivals.length === 0) {
       return null;
     }
-    const lines = rivals.map(
-      rival => `${rival.name} (${formatPercent(rival.influencePercent)}): ${rival.points > 0 ? 'sopra' : 'sotto'} di ${formatPercent(Math.abs(rival.points)).replace('%', '')} punti`,
+    const lines = rivals.map(rival =>
+      this.t(rival.points > 0 ? 'influence.above' : 'influence.below', {
+        faction: rival.name,
+        influence: this.i18n.percent(rival.influencePercent),
+        points: this.i18n.decimal(Math.abs(rival.points)),
+      }),
     );
-    return [`Fazioni a ${CONFLICT_MARGIN_POINTS} punti o meno: possibile conflitto`, ...lines].join('\n');
+    return [this.t('influence.closeHeader', { points: CONFLICT_MARGIN_POINTS }), ...lines].join('\n');
   }
 
   /** Whether to warn that a Retreat should start at the next tick (see {@link retreatExpected}). */
@@ -914,7 +923,11 @@ export class BgsTableComponent implements OnDestroy {
 
   /** Hover text for the expected-Retreat warning in the State column. */
   protected retreatExpectedTitle(row: BgsRow): string {
-    return `${FACTION_NAME} al ${formatPercent(row.factionInfluence ?? 0)}: Retreat probabile al prossimo tick (soglia ${formatPercent(RETREAT_INFLUENCE_PERCENT)})`;
+    return this.t('retreat.expected', {
+      faction: FACTION_NAME,
+      influence: this.i18n.percent(row.factionInfluence ?? 0),
+      threshold: this.i18n.percent(RETREAT_INFLUENCE_PERCENT),
+    });
   }
 
   /**
@@ -930,19 +943,19 @@ export class BgsTableComponent implements OnDestroy {
     return row.margin?.controlled ? marginSemaphore(row.margin.points) : null;
   }
 
-  /** The Distance cell's text: light-years from {@link anchor}, Italian style ("12,3 ly"). */
+  /** The Distance cell's text: light-years from {@link anchor}, in the language's style ("12,3 ly"). */
   protected distanceLabel(row: BgsRow): string {
     const anchor = this.anchor();
     if (!anchor) {
       return '—';
     }
     const ly = distanceLy(anchor, row);
-    return `${ly.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ly`;
+    return `${this.i18n.decimal(ly)} ly`;
   }
 
   protected distanceTitle(row: BgsRow): string {
     const anchor = this.anchor();
-    return anchor ? `Distanza in linea retta da ${anchor.systemName}` : '';
+    return anchor ? this.t('row.distanceTitle', { system: anchor.systemName }) : '';
   }
 
   /** Sorts by distance from the system the Distance column is measured from (same as the search button). */
@@ -965,30 +978,30 @@ export class BgsTableComponent implements OnDestroy {
    */
   protected stakesLabel(score: ConflictScore): string | null {
     const parts = [
-      score.ourStake ? `${score.ourStake} (nostra)` : null,
-      score.theirStake ? `${score.theirStake} di ${score.opponent}` : null,
+      score.ourStake ? this.t('state.ourStake', { station: score.ourStake }) : null,
+      score.theirStake ? this.t('state.theirStake', { station: score.theirStake, faction: score.opponent }) : null,
     ].filter(part => part !== null);
     return parts.length > 0 ? parts.join('; ') : null;
   }
 
   /** When EliteBGS last updated a conflict score, in the same words as the Spansh data's age. */
   protected scoreAgeTitle(updatedAt: string | null): string {
-    return computeFreshness(updatedAt, this.now()).title;
+    return computeFreshness(updatedAt, this.now(), this.i18n.lang()).title;
   }
 
-  /** A faction's influence in the row's system, Italian style ("42,5%"), or '—' if it isn't listed. */
+  /** A faction's influence in the row's system ("42,5%"), or '—' if it isn't listed. */
   protected factionInfluenceLabel(row: BgsRow, factionName: string): string {
     const faction = row.factions.find(f => f.name === factionName);
-    return faction ? formatPercent(faction.influencePercent) : '—';
+    return faction ? this.i18n.percent(faction.influencePercent) : '—';
   }
 
-  /** The Margin cell's text: signed points, Italian style ("+12,4", "−3,0"). */
+  /** The Margin cell's text: signed points in the language's style ("+12,4", "−3,0"). */
   protected marginLabel(row: BgsRow): string {
     if (!row.margin) {
       return '—';
     }
     const points = row.margin.points;
-    const magnitude = Math.abs(points).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const magnitude = this.i18n.decimal(Math.abs(points));
     const warning = this.marginAtRisk(row) ? '⚠️ ' : '';
     return `${warning}${points < 0 ? '−' : '+'}${magnitude}`;
   }
@@ -997,22 +1010,23 @@ export class BgsTableComponent implements OnDestroy {
   protected marginTitle(row: BgsRow): string {
     const margin = row.margin;
     if (!margin) {
-      return 'Nessuna fazione con cui fare il confronto';
+      return this.t('margin.none');
     }
-    const versus = `${margin.versus} (${formatPercent(margin.versusInfluence)})`;
+    const versus = `${margin.versus} (${this.i18n.percent(margin.versusInfluence)})`;
+    const atRisk = this.marginAtRisk(row);
     if (!margin.controlled) {
-      const chance = this.marginAtRisk(row) ? `\nEntro ${CONFLICT_MARGIN_POINTS} punti: possibile conflitto per il controllo` : '';
-      return `Distacco da chi controlla il sistema: ${versus}${chance}`;
+      const chance = atRisk ? `\n${this.t('margin.gapRisk', { points: CONFLICT_MARGIN_POINTS })}` : '';
+      return `${this.t('margin.gap', { versus })}${chance}`;
     }
-    const risk = this.marginAtRisk(row) ? `\nEntro ${CONFLICT_MARGIN_POINTS} punti: rischio di conflitto per il controllo` : '';
-    return `Vantaggio sulla seconda fazione: ${versus}${risk}`;
+    const risk = atRisk ? `\n${this.t('margin.leadRisk', { points: CONFLICT_MARGIN_POINTS })}` : '';
+    return `${this.t('margin.lead', { versus })}${risk}`;
   }
 
   /** Hover text for the System Name link: the Inara hint plus body count and population. */
   protected systemNameTitle(row: BgsRow): string {
-    const bodyCount = row.bodyCount !== null ? row.bodyCount.toLocaleString('it-IT') : '—';
-    const population = row.population !== null ? row.population.toLocaleString('it-IT') : '—';
-    return `Apri ${row.systemName} su Inara\nCorpi celesti: ${bodyCount}\nPopolazione: ${population}`;
+    const bodies = row.bodyCount !== null ? this.i18n.integer(row.bodyCount) : '—';
+    const population = row.population !== null ? this.i18n.integer(row.population) : '—';
+    return this.t('row.systemTitle', { system: row.systemName, bodies, population });
   }
 
   /**
@@ -1068,8 +1082,8 @@ export class BgsTableComponent implements OnDestroy {
   /** Hover/aria text for a row's info button: the Priority Watchlist reason if listed, otherwise plain system info. */
   protected infoButtonTitle(row: BgsRow): string {
     return row.watchlist.length > 0
-      ? `Perché ${row.systemName} è nella Watchlist`
-      : `Informazioni su ${row.systemName}`;
+      ? this.t('row.watchlistInfo', { system: row.systemName })
+      : this.t('row.info', { system: row.systemName });
   }
 
   /** Opens the system info dialog from the info button next to System Name, on every row. */
@@ -1165,7 +1179,7 @@ export class BgsTableComponent implements OnDestroy {
       const match = (response.min_max ?? []).find(s => s.name.toLowerCase() === name.toLowerCase());
       if (!match) {
         this.loading.set(false);
-        this.searchError.set(`Sistema "${name}" non trovato.`);
+        this.searchError.set(this.t('search.notFound', { name }));
         return;
       }
       this.typeaheadCache.set(match.name.toLowerCase(), match);
@@ -1176,7 +1190,7 @@ export class BgsTableComponent implements OnDestroy {
       this.selectAnchorPoint(toAnchorPoint(match));
     } catch {
       this.loading.set(false);
-      this.searchError.set(`Ricerca di "${name}" non riuscita. Riprova.`);
+      this.searchError.set(this.t('search.failed', { name }));
     }
   }
 
@@ -1265,7 +1279,7 @@ export class BgsTableComponent implements OnDestroy {
     } catch (error) {
       this.loading.set(false);
       this.errorMessage.set(
-        error instanceof Error ? `Caricamento dei dati BGS non riuscito: ${error.message}` : 'Caricamento dei dati BGS non riuscito.',
+        error instanceof Error ? this.t('load.failedWith', { error: error.message }) : this.t('load.failed'),
       );
       return false;
     }
@@ -1292,7 +1306,7 @@ export class BgsTableComponent implements OnDestroy {
         this.fullDataset.set(all);
       } catch (error) {
         this.errorMessage.set(
-          error instanceof Error ? `Caricamento dell'intero dataset non riuscito: ${error.message}` : "Caricamento dell'intero dataset non riuscito.",
+          error instanceof Error ? this.t('load.fullFailedWith', { error: error.message }) : this.t('load.fullFailed'),
         );
       } finally {
         this.loading.set(false);
@@ -1337,8 +1351,8 @@ const TRADER_ICONS: Record<string, IconDefinition> = {
   Encoded: faMicrochip,
 };
 
-/** "Vaucanson Hub, 282 ls" for a service's tooltip line. */
-function describeStation(service: SystemService): string {
-  const distance = service.distanceToArrival === null ? '' : `, ${service.distanceToArrival.toLocaleString('it-IT')} ls`;
+/** "Vaucanson Hub, 282 ls" for a service's tooltip line, with the distance in the language's style. */
+function describeStation(service: SystemService, formatInteger: (value: number) => string): string {
+  const distance = service.distanceToArrival === null ? '' : `, ${formatInteger(service.distanceToArrival)} ls`;
   return `${service.station}${distance}`;
 }
