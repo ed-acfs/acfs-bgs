@@ -878,20 +878,21 @@ export class BgsTableComponent implements OnDestroy {
     return (
       margin !== null &&
       Math.abs(margin.points) <= CONFLICT_MARGIN_POINTS &&
-      !alreadyInConflict(row, margin.versus, margin.points)
+      !alreadyInConflict(row)
     );
   }
 
   /**
    * Factions next to ours in the ranking within {@link CONFLICT_MARGIN_POINTS}, other than the
    * one the Margine column already measures us against (the controller, or our runner-up where
-   * we control): those flag the ACFS cell instead. A faction we're already in conflict with
-   * isn't a warning any more (see {@link alreadyInConflict}).
+   * we control): those flag the ACFS cell instead. None while we're already in a conflict here
+   * (see {@link alreadyInConflict}).
    */
   protected closeRivals(row: BgsRow): CloseFaction[] {
-    return closeFactions(row.factions).filter(
-      faction => faction.name !== row.margin?.versus && !alreadyInConflict(row, faction.name, faction.points),
-    );
+    if (alreadyInConflict(row)) {
+      return [];
+    }
+    return closeFactions(row.factions).filter(faction => faction.name !== row.margin?.versus);
   }
 
   /** Hover text for the ACFS cell: the close factions, if any. */

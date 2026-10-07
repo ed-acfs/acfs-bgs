@@ -288,7 +288,21 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
       margin: { points: 0, versus: 'Canonn', versusInfluence: 42.3, controlled: false },
       stateEntries: [{ kind: 'election', state: 'Election', status: 'active', factions: [FACTION_NAME, 'Canonn'], score: null }],
     };
-    service.getAllRows.mockResolvedValue([close, edge, far, sinking, geras, voting]);
+    // At war with another faction, a neighbour 2,6 points below: our influence is frozen, no warning.
+    const fighting: BgsRow = {
+      ...row('Fighting'),
+      controllingFaction: 'LP 254-27 Free',
+      factionInfluence: 9.6,
+      factions: [
+        { name: 'LP 254-27 Free', influencePercent: 64.9 },
+        { name: 'Rivals', influencePercent: 9.6 },
+        { name: FACTION_NAME, influencePercent: 9.6 },
+        { name: 'Neighbours', influencePercent: 7 },
+      ],
+      margin: { points: -55.3, versus: 'LP 254-27 Free', versusInfluence: 64.9, controlled: false },
+      stateEntries: [{ kind: 'war', state: 'War', status: 'active', factions: [FACTION_NAME, 'Rivals'], score: null }],
+    };
+    service.getAllRows.mockResolvedValue([close, edge, far, sinking, geras, voting, fighting]);
     const host: HTMLElement = fixture.nativeElement;
     host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!.click();
     await fixture.whenStable();
