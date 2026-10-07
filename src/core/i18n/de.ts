@@ -163,7 +163,7 @@ export const de: Dictionary = {
   'reason.control-margin-under-3': 'Kontrolle mit weniger als 3 Punkten Vorsprung',
   'reason.lead-below-6': 'Einfluss unter 6%',
   'reason.lead-lowest-ranked': 'Letzte Fraktion im System',
-  'reason.lead-lowest-should-control': 'Letzte von 4 oder mehr Fraktionen: erst absichern, dann die Kontrolle anstreben',
+  'reason.lead-lowest-should-control': 'Letzte von 4 oder mehr Fraktionen und unter {threshold}%: erst absichern, dann die Kontrolle anstreben',
   'reason.control-margin-3-7': 'Kontrolle mit 3-7 Punkten Vorsprung',
   'reason.lead-below-10': 'Einfluss unter 10%',
   'reason.gap-to-leader': 'Zu erobern: {gap} Punkte hinter der kontrollierenden Fraktion (nach Bevölkerung gewichtet)',

@@ -127,22 +127,40 @@ describe('computePriorityAssessment under the squadron policy', () => {
     expect(assessment.reasons.some(r => r.code === 'gap-to-leader')).toBe(true);
   });
 
-  it('fires the last-place trigger in an unregistered system of 4+ factions', () => {
+  it('fires the last-place trigger in an unregistered system of 4+ factions below 5%', () => {
     const assessment = computePriorityAssessment(
       row({
-        factionInfluence: 12,
+        factionInfluence: 4.5,
         factions: [
-          { name: 'A', influencePercent: 40 },
+          { name: 'A', influencePercent: 45.5 },
           { name: 'B', influencePercent: 30 },
-          { name: 'C', influencePercent: 18 },
-          { name: OWN, influencePercent: 12 },
+          { name: 'C', influencePercent: 20 },
+          { name: OWN, influencePercent: 4.5 },
         ],
       }),
       NOW,
       'in-scope',
     );
-    expect(assessment.reasons[0]).toMatchObject({ code: 'lead-lowest-should-control', score: 90 });
+    expect(assessment.reasons[0]).toMatchObject({ code: 'lead-lowest-should-control', score: 90, params: { threshold: 5 } });
     expect(assessment.tier).toBe('P1');
+  });
+
+  it('leaves last place among 4+ factions out of P1 at a healthy influence (HR 2251: 13,9%)', () => {
+    const assessment = computePriorityAssessment(
+      row({
+        factionInfluence: 13.9,
+        factions: [
+          { name: 'A', influencePercent: 40 },
+          { name: 'B', influencePercent: 30 },
+          { name: 'C', influencePercent: 16.1 },
+          { name: OWN, influencePercent: 13.9 },
+        ],
+      }),
+      NOW,
+      'in-scope',
+    );
+    expect(assessment.reasons.some(r => r.code === 'lead-lowest-should-control')).toBe(false);
+    expect(assessment.tier).not.toBe('P1');
   });
 
   it('shows the conflict itself, not "assign an architect", for a war in an unregistered system', () => {
@@ -406,16 +424,16 @@ describe('computePriorityAssessment', () => {
     expect(healthyButLast.score).toBe(quietCrowded.score);
   });
 
-  it('sends a system that prefers us to P1 when our faction is weakest of 4+, even at a healthy influence — safety before control', () => {
+  it('sends a system that prefers us to P1 when our faction is weakest of 4+ and below 5% — safety before control', () => {
     const confirmedButLast = computePriorityAssessment(
       row({
         preferredFaction: OWN,
-        factionInfluence: 20,
+        factionInfluence: 4.8,
         factions: [
-          { name: 'Rival A', influencePercent: 30 },
-          { name: 'Rival B', influencePercent: 28 },
-          { name: 'Rival C', influencePercent: 22 },
-          { name: OWN, influencePercent: 20 },
+          { name: 'Rival A', influencePercent: 40 },
+          { name: 'Rival B', influencePercent: 33 },
+          { name: 'Rival C', influencePercent: 22.2 },
+          { name: OWN, influencePercent: 4.8 },
         ],
         updatedAt: current,
       }),
@@ -427,16 +445,16 @@ describe('computePriorityAssessment', () => {
     expect(confirmedButLast.tier).toBe('P1');
   });
 
-  it('also sends a "not a colony" system to P1 when our faction is weakest of 4+ — still ours to protect from a forced withdrawal', () => {
+  it('also sends a "not a colony" system to P1 when our faction is weakest of 4+ and below 5% — still ours to protect from a forced withdrawal', () => {
     const notAColonyButLast = computePriorityAssessment(
       row({
         notAColony: true,
-        factionInfluence: 20,
+        factionInfluence: 4.8,
         factions: [
-          { name: 'Rival A', influencePercent: 30 },
-          { name: 'Rival B', influencePercent: 28 },
-          { name: 'Rival C', influencePercent: 22 },
-          { name: OWN, influencePercent: 20 },
+          { name: 'Rival A', influencePercent: 40 },
+          { name: 'Rival B', influencePercent: 33 },
+          { name: 'Rival C', influencePercent: 22.2 },
+          { name: OWN, influencePercent: 4.8 },
         ],
         updatedAt: current,
       }),

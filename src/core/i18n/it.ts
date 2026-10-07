@@ -165,7 +165,7 @@ export const it = {
   'reason.control-margin-under-3': 'Controllo con meno di 3 punti di vantaggio',
   'reason.lead-below-6': 'Influenza sotto il 6%',
   'reason.lead-lowest-ranked': 'Ultima fazione del sistema',
-  'reason.lead-lowest-should-control': 'Ultima su 4 o più fazioni: mettersi al sicuro prima di puntare al controllo',
+  'reason.lead-lowest-should-control': 'Ultima su 4 o più fazioni e sotto il {threshold}%: mettersi al sicuro prima di puntare al controllo',
   'reason.control-margin-3-7': 'Controllo con 3-7 punti di vantaggio',
   'reason.lead-below-10': 'Influenza sotto il 10%',
   'reason.gap-to-leader': 'Da conquistare: {gap} punti dietro chi controlla (pesato sulla popolazione)',

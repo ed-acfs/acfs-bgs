@@ -2,7 +2,7 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [1.1.0] - 2026-10-07 — La priorità segue i semafori
+## [1.1.0] - 2026-10-07 — Priorità più leggibile: semafori e meno falsi P1
 
 ### Priorità
 
@@ -10,10 +10,13 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 - Ora i due semafori fanno da pavimento, letti come dice la Legenda: nessun verde e almeno un rosso → **P3**; entrambi gialli, oppure un verde e un rosso → **P4**; almeno un verde e nessun rosso → nessun effetto. Le soglie sono quelle dei semafori in `config.json` (influenza 50/40%, vantaggio 30/18 punti). I motivi più gravi (vantaggio sotto 7 punti, influenza bassa, conflitti) restano sopra.
 - Il motivo "Controllo con 7-15 punti di vantaggio" (P4) non c'è più: sotto i 18 punti il semaforo del margine è sempre rosso, quindi lo copre la regola nuova.
 - Effetto con i dati del 7 ottobre: 32 sistemi salgono di fascia, nessuno scende. 5 passano da P5 a P3 (fra cui SPOCS 253), 5 da P4 a P3, 22 da P5 a P4.
+- **"Ultima su 4 o più fazioni" solo sotto il 5%**: la regola ereditata dai Canonn dava 90 punti (P1) a qualunque sistema in cui Flotta Stellare fosse l'ultima di 4 o più fazioni, anche a un'influenza tranquilla (HR 2251 al 13,9%, lontano dal 2,5% del Retreat). Il 7 ottobre portava in P1 10 sistemi su 16. Ora scatta solo sotto il 5%; sopra resta "Ultima fazione del sistema", pesata sul numero di fazioni e sotto il 10%, che porta in P3-P4.
+- I conflitti di Flotta Stellare restano sempre P1, anche dove non controlliamo (decisione dell'utente).
+- Risultato con i dati del 7 ottobre: 6 P1 (5 conflitti e un sistema della Watchlist), 3 P2, 33 P3, 44 P4, 300 P5.
 
 ### Test
 
-- Quattro nuovi test sulla priorità dei sistemi controllati (SPOCS 253, semafori gialli, misti, verdi). Passano 250 test dell'app.
+- Cinque nuovi test sulla priorità: sistemi controllati (SPOCS 253, semafori gialli, misti, verdi) e ultima su 4 fazioni a influenza tranquilla (HR 2251). Passano 251 test dell'app.
 
 ## [1.0.1] - 2026-10-07 — Versione 1.0: in produzione, anche in tedesco e in inglese
 
