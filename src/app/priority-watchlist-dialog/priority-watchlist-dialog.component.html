@@ -7,42 +7,42 @@
       @for (entry of entries; track entry.faction) {
         <div class="info-entry">
           <p class="info-details">{{ entry.details }}</p>
-          <p class="info-target">Posizione da mantenere: {{ entry.position }}ª o meglio</p>
+          <p class="info-target">{{ t('info.watchlistTarget', { position: entry.position }) }}</p>
         </div>
       }
     </section>
   }
 
-  <section class="info-stats" aria-label="Riepilogo del sistema">
+  <section class="info-stats" [attr.aria-label]="t('info.summaryAria')">
     <div class="info-stat info-stat--wide">
-      <span class="info-stat-label">Fazione di controllo</span>
+      <span class="info-stat-label">{{ t('info.controlling') }}</span>
       <span class="info-stat-value">{{ row.controllingFaction ?? '—' }}</span>
     </div>
     <div class="info-stat">
-      <span class="info-stat-label">Popolazione</span>
-      <span class="info-stat-value">{{ row.population === null ? '—' : (row.population | number) }}</span>
+      <span class="info-stat-label">{{ t('info.population') }}</span>
+      <span class="info-stat-value">{{ row.population === null ? '—' : i18n.integer(row.population) }}</span>
     </div>
     <div class="info-stat">
-      <span class="info-stat-label">Stazioni</span>
-      <span class="info-stat-value">{{ row.stationCount === null ? '—' : (row.stationCount | number) }}</span>
+      <span class="info-stat-label">{{ t('info.stations') }}</span>
+      <span class="info-stat-value">{{ row.stationCount === null ? '—' : i18n.integer(row.stationCount) }}</span>
     </div>
     <div class="info-stat">
-      <span class="info-stat-label">Corpi celesti</span>
-      <span class="info-stat-value">{{ row.bodyCount === null ? '—' : (row.bodyCount | number) }}</span>
+      <span class="info-stat-label">{{ t('info.bodies') }}</span>
+      <span class="info-stat-value">{{ row.bodyCount === null ? '—' : i18n.integer(row.bodyCount) }}</span>
     </div>
   </section>
 
   <section class="info-card info-card--table">
-    <h3 class="info-heading">Stazioni</h3>
+    <h3 class="info-heading">{{ t('info.stations') }}</h3>
     @if (row.stations.length > 0) {
       <div class="info-table-wrap">
         <table class="info-table">
           <thead>
             <tr>
-              <th scope="col">Nome</th>
-              <th scope="col">Tipo</th>
-              <th scope="col">Fazione</th>
-              <th scope="col">Servizi</th>
+              <th scope="col">{{ t('info.name') }}</th>
+              <th scope="col">{{ t('info.type') }}</th>
+              <th scope="col">{{ t('info.faction') }}</th>
+              <th scope="col">{{ t('info.services') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -58,7 +58,7 @@
                     —
                   }
                   @if (station.distanceToArrival != null) {
-                    <span class="info-service-distance">{{ station.distanceToArrival | number }} ls</span>
+                    <span class="info-service-distance">{{ i18n.integer(station.distanceToArrival) }} ls</span>
                   }
                 </td>
               </tr>
@@ -67,21 +67,21 @@
         </table>
       </div>
     } @else {
-      <p class="info-empty">Nessuna stazione registrata.</p>
+      <p class="info-empty">{{ t('info.noStations') }}</p>
     }
   </section>
 
   <section class="info-card info-card--table">
-    <h3 class="info-heading">Fazioni</h3>
+    <h3 class="info-heading">{{ t('info.factions') }}</h3>
     <div class="info-table-wrap">
       <table class="info-table">
         <thead>
           <tr>
-            <th scope="col">Nome</th>
-            <th scope="col">Alleanza</th>
-            <th scope="col">Governo</th>
-            <th scope="col" class="info-num">Influenza</th>
-            <th scope="col">Stati attivi</th>
+            <th scope="col">{{ t('info.name') }}</th>
+            <th scope="col">{{ t('info.allegiance') }}</th>
+            <th scope="col">{{ t('info.government') }}</th>
+            <th scope="col" class="info-num">{{ t('info.influence') }}</th>
+            <th scope="col">{{ t('info.activeStates') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -90,7 +90,7 @@
               <td>{{ faction.name }}</td>
               <td>{{ faction.allegiance ?? '—' }}</td>
               <td>{{ faction.government ?? '—' }}</td>
-              <td class="info-num">{{ faction.influencePercent | number: '1.1-1' }}%</td>
+              <td class="info-num">{{ i18n.percent(faction.influencePercent) }}</td>
               <td>{{ faction.activeStates.length > 0 ? faction.activeStates.join(', ') : '—' }}</td>
             </tr>
           }
@@ -101,5 +101,5 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-flat-button color="primary" type="button" mat-dialog-close>Chiudi</button>
+  <button mat-flat-button color="primary" type="button" mat-dialog-close>{{ t('info.close') }}</button>
 </mat-dialog-actions>

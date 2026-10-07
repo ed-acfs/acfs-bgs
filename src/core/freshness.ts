@@ -1,3 +1,5 @@
+import { Lang, MessageKey, formatUtcTime, translate } from './i18n';
+
 /**
  * How stale a system's BGS reading is, in ticks-elapsed terms. Ticks aren't directly
  * observable (see the module doc below), so this approximates "ticks elapsed" with
@@ -60,82 +62,71 @@ function bandFor(days: number): FreshnessBand {
   return 'weeks';
 }
 
-const BAND_WORDS: Record<FreshnessBand, string> = {
-  current: 'Aggiornato',
-  oneTick: 'Indietro di 1 tick',
-  days: 'Indietro di giorni',
-  weeks: 'Indietro di settimane',
-  unknown: 'Data di aggiornamento sconosciuta',
+const BAND_KEYS: Record<FreshnessBand, MessageKey> = {
+  current: 'fresh.band.current',
+  oneTick: 'fresh.band.oneTick',
+  days: 'fresh.band.days',
+  weeks: 'fresh.band.weeks',
+  unknown: 'fresh.band.unknown',
 };
 
-/** The game runs on UTC, so the hover text shows UTC rather than the viewer's local time. */
-const TIMESTAMP_FORMAT = new Intl.DateTimeFormat('it-IT', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-  timeZone: 'UTC',
-});
-
 /** Short pill label: rounds down throughout, and clamps at a year to bound the pill width. */
-function formatLabel(days: number): string {
+function formatLabel(days: number, lang: Lang): string {
   if (days === 0) {
-    return 'oggi';
+    return translate(lang, 'fresh.today');
   }
   if (days <= 6) {
-    return `${days}g`;
+    return translate(lang, 'fresh.daysShort', { n: days });
   }
   const weeks = Math.floor(days / 7);
   if (weeks >= WEEK_LABEL_CLAMP_WEEKS) {
-    return '1a+';
+    return translate(lang, 'fresh.yearPlus');
   }
-  return `${weeks}s`;
+  return translate(lang, 'fresh.weeksShort', { n: weeks });
 }
 
 /** The age phrase used in the accessible name, e.g. "oggi", "5 giorni fa", "3 settimane fa". */
-function formatAgeWords(days: number): string {
+function formatAgeWords(days: number, lang: Lang): string {
   if (days === 0) {
-    return 'oggi';
+    return translate(lang, 'fresh.today');
   }
   if (days === 1) {
-    return '1 giorno fa';
+    return translate(lang, 'fresh.dayAgo');
   }
   if (days <= 6) {
-    return `${days} giorni fa`;
+    return translate(lang, 'fresh.daysAgo', { n: days });
   }
   const weeks = Math.floor(days / 7);
   if (weeks >= WEEK_LABEL_CLAMP_WEEKS) {
-    return 'più di un anno fa';
+    return translate(lang, 'fresh.yearAgo');
   }
-  return weeks === 1 ? '1 settimana fa' : `${weeks} settimane fa`;
+  return weeks === 1 ? translate(lang, 'fresh.weekAgo') : translate(lang, 'fresh.weeksAgo', { n: weeks });
 }
 
 /**
  * Computes everything a freshness pill needs from a system's raw `updated_at` string.
  * `nowMs` defaults to the real clock but is injectable for tests and for the table's
- * once-a-minute recompute timer.
+ * once-a-minute recompute timer. The texts are in `lang`, Italian by default.
  */
-export function computeFreshness(raw: string | null | undefined, nowMs: number = Date.now()): FreshnessInfo {
+export function computeFreshness(raw: string | null | undefined, nowMs: number = Date.now(), lang: Lang = 'it'): FreshnessInfo {
   const updatedAtMs = parseUpdatedAt(raw);
   if (updatedAtMs === null) {
     return {
       band: 'unknown',
       label: '—',
-      accessibleName: BAND_WORDS.unknown,
-      title: BAND_WORDS.unknown,
+      accessibleName: translate(lang, BAND_KEYS.unknown),
+      title: translate(lang, BAND_KEYS.unknown),
       sortValue: null,
     };
   }
 
   const days = daysElapsed(updatedAtMs, nowMs);
   const band = bandFor(days);
-  const label = formatLabel(days);
   return {
     band,
-    label,
-    accessibleName: `${BAND_WORDS[band]}, aggiornato ${formatAgeWords(days)}`,
-    title: `Aggiornato il ${TIMESTAMP_FORMAT.format(updatedAtMs)} UTC`,
+    label: formatLabel(days, lang),
+    accessibleName: translate(lang, 'fresh.accessible', { band: translate(lang, BAND_KEYS[band]), age: formatAgeWords(days, lang) }),
+    title: translate(lang, 'fresh.title', { time: formatUtcTime(lang, updatedAtMs, true) }),
     sortValue: updatedAtMs,
   };
 }

@@ -1,8 +1,8 @@
-import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { BgsRow, StationService } from '../../core/bgs';
+import { I18nService } from '../i18n.service';
 
 /** The system whose info the dialog shows. */
 export interface PriorityWatchlistDialogData {
@@ -17,20 +17,22 @@ export interface PriorityWatchlistDialogData {
  */
 @Component({
   selector: 'app-priority-watchlist-dialog',
-  imports: [DecimalPipe, MatButtonModule, MatDialogModule],
+  imports: [MatButtonModule, MatDialogModule],
   templateUrl: './priority-watchlist-dialog.component.html',
   styleUrl: './priority-watchlist-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PriorityWatchlistDialogComponent {
   private readonly data = inject<PriorityWatchlistDialogData>(MAT_DIALOG_DATA);
+  protected readonly i18n = inject(I18nService);
+  protected readonly t = this.i18n.t;
 
   protected readonly row = this.data.row;
   protected readonly entries = this.data.row.watchlist;
 
-  /** "Material Trader: Encoded", or "tipo non noto" when Spansh lists the service without its kind. */
+  /** "Material Trader: Encoded", or "unknown type" in the current language when Spansh lists the service without its kind. */
   protected serviceLabel(service: StationService): string {
     const name = service.kind === 'material-trader' ? 'Material Trader' : 'Technology Broker';
-    return `${name}: ${service.type ?? 'tipo non noto'}`;
+    return `${name}: ${service.type ?? this.t('service.unknownType')}`;
   }
 }

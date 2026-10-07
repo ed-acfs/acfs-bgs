@@ -1,8 +1,8 @@
 <div class="bgs-container">
   <div class="bgs-header">
     <div class="bgs-title">
-      <h1>ACFS BGS Tool 1.0</h1>
-      <p>Dove lavorare oggi: influenza di {{ factionName }}, stati e priorità nei sistemi in cui siamo presenti.</p>
+      <h1>ACFS BGS Tool {{ version }}</h1>
+      <p>{{ t('app.subtitle', { faction: factionName }) }}</p>
       @if (datasetSummary(); as summary) {
         <p class="bgs-dataset-info">{{ summary }}</p>
       }
@@ -11,9 +11,9 @@
       }
     </div>
     <div class="bgs-header-actions">
-      <button mat-stroked-button type="button" (click)="openHelpDialog()" aria-label="Guida rapida">
+      <button mat-stroked-button type="button" (click)="openHelpDialog()" [attr.aria-label]="t('header.helpAria')">
         <fa-icon [icon]="faCircleQuestion" aria-hidden="true"></fa-icon>
-        Guida
+        {{ t('header.help') }}
       </button>
       <button
         mat-stroked-button
@@ -21,29 +21,33 @@
         (click)="toggleLegend()"
         [attr.aria-expanded]="legendOpen()"
         aria-controls="bgs-legend"
-        aria-label="Legenda della tabella"
+        [attr.aria-label]="t('header.legendAria')"
       >
         <fa-icon [icon]="faListUl" aria-hidden="true"></fa-icon>
-        Legenda
+        {{ t('header.legend') }}
       </button>
-      <a mat-stroked-button routerLink="/ordini" aria-label="Ordini Ufficiali">
-        <fa-icon [icon]="faClipboardList" aria-hidden="true"></fa-icon>
-        Ordini
-      </a>
+      <!-- The Ordini Ufficiali are internal to the squadron and Italian only: not offered in the other languages. -->
+      @if (i18n.isItalian()) {
+        <a mat-stroked-button routerLink="/ordini" aria-label="Ordini Ufficiali">
+          <fa-icon [icon]="faClipboardList" aria-hidden="true"></fa-icon>
+          Ordini
+        </a>
+      }
       <button
         mat-stroked-button
         type="button"
         [matMenuTriggerFor]="exportMenu"
         [disabled]="exporting()"
-        aria-label="Esporta i dati"
+        [attr.aria-label]="t('header.exportAria')"
       >
         <fa-icon [icon]="faDownload" aria-hidden="true"></fa-icon>
-        {{ exporting() ? 'Esportazione…' : 'Esporta' }}
+        {{ exporting() ? t('header.exporting') : t('header.export') }}
       </button>
       <mat-menu #exportMenu="matMenu">
-        <button mat-menu-item type="button" (click)="exportJson()">Esporta in JSON</button>
-        <button mat-menu-item type="button" (click)="exportCsv()">Esporta in CSV</button>
+        <button mat-menu-item type="button" (click)="exportJson()">{{ t('header.exportJson') }}</button>
+        <button mat-menu-item type="button" (click)="exportCsv()">{{ t('header.exportCsv') }}</button>
       </mat-menu>
+      <app-language-switcher class="bgs-language"></app-language-switcher>
       @if (exportError(); as err) {
         <span class="bgs-export-error" role="alert" aria-live="assertive" aria-atomic="true">{{ err }}</span>
       }
@@ -51,18 +55,18 @@
     <app-acfs-logo [animating]="loading()" class="bgs-logo"></app-acfs-logo>
   </div>
 
-  <section class="bgs-toolbar" aria-label="Ricerca e filtri">
+  <section class="bgs-toolbar" [attr.aria-label]="t('toolbar.aria')">
     <div class="bgs-toolbar-row">
       <div class="bgs-filter-group">
-        <span class="bgs-filter-label">Distanza da</span>
+        <span class="bgs-filter-label">{{ t('toolbar.distanceFrom') }}</span>
         <mat-form-field appearance="outline" class="bgs-dense bgs-search-field" subscriptSizing="dynamic">
           <input
             matInput
             [formControl]="systemSearchControl"
             [matAutocomplete]="systemAuto"
             maxlength="128"
-            placeholder="Sistema…"
-            aria-label="Ordina per distanza dal sistema"
+            [placeholder]="t('toolbar.systemPlaceholder')"
+            [attr.aria-label]="t('toolbar.systemAria')"
             (input)="onSearchInput()"
             (keyup.enter)="onSystemSearchSubmit()"
           />
@@ -77,8 +81,8 @@
           class="bgs-search-button"
           (click)="onSystemSearchSubmit()"
           [disabled]="loading()"
-          aria-label="Ordina per distanza da questo sistema"
-          title="Ordina per distanza da questo sistema"
+          [attr.aria-label]="t('toolbar.searchButton')"
+          [title]="t('toolbar.searchButton')"
         >
           <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
         </button>
@@ -88,9 +92,9 @@
       </div>
 
       <div class="bgs-filter-group bgs-toolbar-end">
-        <span class="bgs-filter-label">Righe</span>
+        <span class="bgs-filter-label">{{ t('toolbar.rows') }}</span>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="bgs-dense bgs-page-size-field">
-          <mat-select [value]="pageSize()" (selectionChange)="setPageSize($event.value)" aria-label="Righe per pagina">
+          <mat-select [value]="pageSize()" (selectionChange)="setPageSize($event.value)" [attr.aria-label]="t('toolbar.rowsAria')">
             @for (size of pageSizeOptions; track size) {
               <mat-option [value]="size">{{ size }}</mat-option>
             }
@@ -101,60 +105,60 @@
 
     <div class="bgs-toolbar-row">
       <div class="bgs-filter-group">
-        <span class="bgs-filter-label">Mostra</span>
-        <div class="bgs-segmented" role="group" aria-label="Mostra solo">
+        <span class="bgs-filter-label">{{ t('toolbar.show') }}</span>
+        <div class="bgs-segmented" role="group" [attr.aria-label]="t('toolbar.showAria')">
           <button
             type="button"
             class="bgs-segment"
             [class.bgs-segment--active]="warElectionOnly()"
             [attr.aria-pressed]="warElectionOnly()"
             (click)="toggleWarElection()"
-            title="Solo i sistemi con guerre o elezioni in corso o in arrivo"
-          >Guerre/Elezioni</button>
+            [title]="t('filter.warElectionTitle')"
+          >{{ t('filter.warElection') }}</button>
           <button
             type="button"
             class="bgs-segment"
             [class.bgs-segment--active]="needsReconOnly()"
             [attr.aria-pressed]="needsReconOnly()"
             (click)="toggleNeedsRecon()"
-            title="Solo i sistemi con dati vecchi di almeno 2 giorni"
-          >Da aggiornare</button>
+            [title]="t('filter.needsReconTitle')"
+          >{{ t('filter.needsRecon') }}</button>
           <button
             type="button"
             class="bgs-segment"
             [class.bgs-segment--active]="servicesOnly()"
             [attr.aria-pressed]="servicesOnly()"
             (click)="toggleServices()"
-            title="Solo i sistemi con un Material Trader o un Technology Broker"
-          >Servizi</button>
+            [title]="t('filter.servicesTitle')"
+          >{{ t('filter.services') }}</button>
         </div>
       </div>
 
       <div class="bgs-filter-group">
-        <span class="bgs-filter-label">Architetto</span>
-        <div class="bgs-segmented" role="group" aria-label="Filtra per architetto">
+        <span class="bgs-filter-label">{{ t('filter.architect') }}</span>
+        <div class="bgs-segmented" role="group" [attr.aria-label]="t('filter.architectAria')">
           <button
             type="button"
             class="bgs-segment"
             [class.bgs-segment--active]="architectFilterMode() === 'all'"
             [attr.aria-pressed]="architectFilterMode() === 'all'"
             (click)="setArchitectFilterMode('all')"
-          >Tutti</button>
+          >{{ t('filter.all') }}</button>
           <button
             type="button"
             class="bgs-segment"
             [class.bgs-segment--active]="architectFilterMode() === 'none'"
             [attr.aria-pressed]="architectFilterMode() === 'none'"
             (click)="setArchitectFilterMode('none')"
-            title="Solo i sistemi senza architetto registrato"
-          >Nessuno</button>
+            [title]="t('filter.noneTitle')"
+          >{{ t('filter.none') }}</button>
           <button
             type="button"
             class="bgs-segment"
             [class.bgs-segment--active]="architectFilterMode() === 'squadron'"
             [attr.aria-pressed]="architectFilterMode() === 'squadron'"
             (click)="setArchitectFilterMode('squadron')"
-            title="Solo i sistemi con un architetto registrato come membro ACFS"
+            [title]="t('filter.squadronTitle')"
           >ACFS</button>
         </div>
         <mat-form-field
@@ -167,8 +171,8 @@
             matInput
             [formControl]="architectFilterControl"
             [matAutocomplete]="architectFilterAuto"
-            placeholder="Nome…"
-            aria-label="Filtra per nome dell'architetto"
+            [placeholder]="t('filter.namePlaceholder')"
+            [attr.aria-label]="t('filter.architectNameAria')"
             maxlength="120"
             (keyup.enter)="applyArchitectFilterName()"
             (blur)="onArchitectFilterBlur()"
@@ -185,23 +189,23 @@
       </div>
 
       <div class="bgs-filter-group">
-        <span class="bgs-filter-label">Fazione</span>
-        <div class="bgs-segmented" role="group" aria-label="Filtra per fazione">
+        <span class="bgs-filter-label">{{ t('filter.faction') }}</span>
+        <div class="bgs-segmented" role="group" [attr.aria-label]="t('filter.factionAria')">
           <button
             type="button"
             class="bgs-segment"
             [class.bgs-segment--active]="factionFilterMode() === 'all'"
             [attr.aria-pressed]="factionFilterMode() === 'all'"
             (click)="setFactionFilterMode('all')"
-          >Tutti</button>
+          >{{ t('filter.all') }}</button>
           <button
             type="button"
             class="bgs-segment"
             [class.bgs-segment--active]="factionFilterMode() === 'controlled'"
             [attr.aria-pressed]="factionFilterMode() === 'controlled'"
             (click)="setFactionFilterMode('controlled')"
-            [title]="'Solo i sistemi controllati da ' + factionName"
-          >Controllati</button>
+            [title]="t('filter.controlledTitle', { faction: factionName })"
+          >{{ t('filter.controlled') }}</button>
         </div>
         <mat-form-field
           appearance="outline"
@@ -213,8 +217,8 @@
             matInput
             [formControl]="factionFilterControl"
             [matAutocomplete]="factionFilterAuto"
-            placeholder="Nome…"
-            aria-label="Filtra per nome della fazione"
+            [placeholder]="t('filter.namePlaceholder')"
+            [attr.aria-label]="t('filter.factionNameAria')"
             maxlength="120"
             (keyup.enter)="applyFactionFilterName()"
             (blur)="onFactionFilterBlur()"
@@ -236,20 +240,20 @@
   </section>
 
   @if (legendOpen()) {
-    <section id="bgs-legend" class="bgs-legend" aria-label="Legenda">
+    <section id="bgs-legend" class="bgs-legend" [attr.aria-label]="t('header.legend')">
       <div class="bgs-legend-group">
-        <h2 class="bgs-legend-title">Aggiornato</h2>
-        <p class="bgs-legend-note">Età del dato Spansh, in giorni (circa un tick al giorno).</p>
+        <h2 class="bgs-legend-title">{{ t('legend.freshness') }}</h2>
+        <p class="bgs-legend-note">{{ t('legend.freshnessNote') }}</p>
         <ul>
-          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--current"><span class="bgs-freshness-dot" aria-hidden="true"></span>oggi</span></span><span>aggiornato oggi</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--oneTick"><span class="bgs-freshness-dot" aria-hidden="true"></span>1g</span></span><span>indietro di un tick</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--days"><span class="bgs-freshness-dot" aria-hidden="true"></span>4g</span></span><span>indietro di 2-6 giorni</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--weeks"><span class="bgs-freshness-dot" aria-hidden="true"></span>3s</span></span><span>settimane (s) o anni (a)</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--current"><span class="bgs-freshness-dot" aria-hidden="true"></span>{{ t('fresh.today') }}</span></span><span>{{ t('legend.freshnessCurrent') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--oneTick"><span class="bgs-freshness-dot" aria-hidden="true"></span>{{ t('fresh.daysShort', { n: 1 }) }}</span></span><span>{{ t('legend.freshnessOneTick') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--days"><span class="bgs-freshness-dot" aria-hidden="true"></span>{{ t('fresh.daysShort', { n: 4 }) }}</span></span><span>{{ t('legend.freshnessDays') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-freshness-pill bgs-freshness-pill--weeks"><span class="bgs-freshness-dot" aria-hidden="true"></span>{{ t('fresh.weeksShort', { n: 3 }) }}</span></span><span>{{ t('legend.freshnessWeeks') }}</span></li>
         </ul>
       </div>
 
       <div class="bgs-legend-group">
-        <h2 class="bgs-legend-title">Fazioni e Stato</h2>
+        <h2 class="bgs-legend-title">{{ t('legend.factionsState') }}</h2>
         <ul>
           <li>
             <span class="bgs-legend-key">
@@ -259,83 +263,85 @@
                 <span class="bgs-faction-bar" style="height: 15%"></span>
               </span>
             </span>
-            <span>influenza delle fazioni, in arancione {{ factionName }}</span>
+            <span>{{ t('legend.factionsChart', { faction: factionName }) }}</span>
           </li>
-          <li><span class="bgs-legend-key"><span class="bgs-state-icon" aria-hidden="true">⚔️</span></span><span>guerra di {{ factionName }}</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--election" aria-hidden="true">🗳️</span></span><span>elezione di {{ factionName }}</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat" aria-hidden="true">⚠️</span></span><span>ritirata di {{ factionName }}</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--pending" aria-hidden="true">⚔️</span></span><span>in grigio: in arrivo (pending)</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat bgs-state-icon--expected" aria-hidden="true">⚠️</span></span><span>tratteggiato: influenza al {{ retreatInfluencePercent | number: '1.1-1' }}% o meno, Retreat probabile al prossimo tick</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon" aria-hidden="true">⚔️</span></span><span>{{ t('legend.war', { faction: factionName }) }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--election" aria-hidden="true">🗳️</span></span><span>{{ t('legend.election', { faction: factionName }) }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat" aria-hidden="true">⚠️</span></span><span>{{ t('legend.retreat', { faction: factionName }) }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--pending" aria-hidden="true">⚔️</span></span><span>{{ t('legend.pending') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat bgs-state-icon--expected" aria-hidden="true">⚠️</span></span><span>{{ t('legend.retreatExpected', { threshold: i18n.percent(retreatInfluencePercent) }) }}</span></li>
         </ul>
       </div>
 
       <div class="bgs-legend-group">
-        <h2 class="bgs-legend-title">Priorità</h2>
-        <p class="bgs-legend-note">Dove lavorare per primi. Il tooltip spiega il perché.</p>
+        <h2 class="bgs-legend-title">{{ t('legend.priority') }}</h2>
+        <p class="bgs-legend-note">{{ t('legend.priorityNote') }}</p>
         <ul>
-          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--P1">P1</span></span><span>urgente</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--P2">P2</span> <span class="bgs-priority-pill bgs-priority-pill--P3">P3</span></span><span>da seguire</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--P4">P4</span> <span class="bgs-priority-pill bgs-priority-pill--P5">P5</span></span><span>tranquillo</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--out-of-scope">⛔</span></span><span>fazione preferita di un altro: accordo da rispettare</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--P1">P1</span></span><span>{{ t('legend.priorityUrgent') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--P2">P2</span> <span class="bgs-priority-pill bgs-priority-pill--P3">P3</span></span><span>{{ t('legend.priorityFollow') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--P4">P4</span> <span class="bgs-priority-pill bgs-priority-pill--P5">P5</span></span><span>{{ t('legend.priorityQuiet') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-priority-pill bgs-priority-pill--out-of-scope">⛔</span></span><span>{{ t('legend.priorityOutOfScope') }}</span></li>
         </ul>
       </div>
 
       <div class="bgs-legend-group">
-        <h2 class="bgs-legend-title">Influenza e Margine</h2>
-        <p class="bgs-legend-note">Semafori dei sistemi che controlliamo: almeno un verde, sistema tranquillo; almeno un rosso, da seguire.</p>
+        <h2 class="bgs-legend-title">{{ t('legend.influenceMargin') }}</h2>
+        <p class="bgs-legend-note">{{ t('legend.influenceMarginNote') }}</p>
         <ul>
           <li>
-            <span class="bgs-legend-key">Influenza</span>
+            <span class="bgs-legend-key">{{ t('legend.influence') }}</span>
             <span class="bgs-legend-scale">
               <span class="bgs-legend-sample bgs-light--green">{{ semaphoreThresholds.influence.green }}%+</span>
-              <span class="bgs-legend-sample bgs-light--yellow">{{ semaphoreThresholds.influence.yellow }}–{{ semaphoreThresholds.influence.green - 0.1 | number: '1.1-1' }}%</span>
+              <span class="bgs-legend-sample bgs-light--yellow">{{ semaphoreThresholds.influence.yellow }}–{{ i18n.percent(semaphoreThresholds.influence.green - 0.1) }}</span>
               <span class="bgs-legend-sample bgs-light--red">&lt; {{ semaphoreThresholds.influence.yellow }}%</span>
             </span>
           </li>
           <li>
-            <span class="bgs-legend-key">Margine</span>
+            <span class="bgs-legend-key">{{ t('legend.margin') }}</span>
             <span class="bgs-legend-scale">
               <span class="bgs-legend-sample bgs-light--green">+{{ semaphoreThresholds.margin.green }}</span>
-              <span class="bgs-legend-sample bgs-light--yellow">+{{ semaphoreThresholds.margin.yellow }}–{{ semaphoreThresholds.margin.green - 0.1 | number: '1.1-1' }}</span>
+              <span class="bgs-legend-sample bgs-light--yellow">+{{ semaphoreThresholds.margin.yellow }}–{{ i18n.decimal(semaphoreThresholds.margin.green - 0.1) }}</span>
               <span class="bgs-legend-sample bgs-light--red">&lt; +{{ semaphoreThresholds.margin.yellow }}</span>
             </span>
           </li>
-          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-light--red bgs-margin--risk">⚠️ +3,1</span></span><span>vantaggio di {{ conflictMarginPoints }} punti o meno: rischio conflitto per il controllo</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-margin--gap bgs-margin--risk">⚠️ −4,1</span></span><span>a {{ conflictMarginPoints }} punti o meno da chi controlla: possibile conflitto per il controllo</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--accent">12,5%</span></span><span>influenza dove non controlliamo</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--accent">⚠️ 6,0%</span></span><span>un'altra fazione a {{ conflictMarginPoints }} punti o meno, sopra o sotto di noi: possibile conflitto (nel tooltip quale)</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--muted">−8,4</span></span><span>non controlliamo: distacco da chi controlla</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-light--red bgs-margin--risk">⚠️ +{{ i18n.decimal(3.1) }}</span></span><span>{{ t('legend.marginRisk', { points: conflictMarginPoints }) }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-margin--gap bgs-margin--risk">⚠️ −{{ i18n.decimal(4.1) }}</span></span><span>{{ t('legend.marginGapRisk', { points: conflictMarginPoints }) }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--accent">{{ i18n.percent(12.5) }}</span></span><span>{{ t('legend.influenceElsewhere') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--accent">⚠️ {{ i18n.percent(6) }}</span></span><span>{{ t('legend.closeFaction', { points: conflictMarginPoints }) }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-sample bgs-legend-sample--muted">−{{ i18n.decimal(8.4) }}</span></span><span>{{ t('legend.marginGap') }}</span></li>
         </ul>
       </div>
 
       <div class="bgs-legend-group">
-        <h2 class="bgs-legend-title">Sistema</h2>
+        <h2 class="bgs-legend-title">{{ t('legend.system') }}</h2>
         <ul>
-          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faCopy" aria-hidden="true"></fa-icon></span><span>copia il nome; il nome apre Inara</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-legend-muted">12,3 ly</span></span><span>distanza dal sistema del box "Distanza da"</span></li>
-          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>dettagli del sistema</span></li>
-          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-accent" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>in arancione: il sistema è nella Watchlist</span></li>
-          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon></span><span>aggiungi agli Ordini Ufficiali</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faCopy" aria-hidden="true"></fa-icon></span><span>{{ t('legend.copy') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-muted">{{ i18n.decimal(12.3) }} ly</span></span><span>{{ t('legend.distance', { distanceFrom: t('toolbar.distanceFrom') }) }}</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>{{ t('legend.info') }}</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-accent" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>{{ t('legend.watchlist') }}</span></li>
+          @if (i18n.isItalian()) {
+            <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon></span><span>aggiungi agli Ordini Ufficiali</span></li>
+          }
         </ul>
       </div>
 
       <div class="bgs-legend-group">
-        <h2 class="bgs-legend-title">Servizi delle stazioni</h2>
-        <p class="bgs-legend-note">Stazione e distanza dalla stella nel tooltip e nei dettagli del sistema.</p>
+        <h2 class="bgs-legend-title">{{ t('legend.services') }}</h2>
+        <p class="bgs-legend-note">{{ t('legend.servicesNote') }}</p>
         <ul>
           <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faGem" aria-hidden="true"></fa-icon></span><span>Material Trader Raw</span></li>
           <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faGear" aria-hidden="true"></fa-icon></span><span>Material Trader Manufactured</span></li>
           <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faMicrochip" aria-hidden="true"></fa-icon></span><span>Material Trader Encoded</span></li>
-          <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faFlask" aria-hidden="true"></fa-icon></span><span>Material Trader di tipo non noto</span></li>
-          <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faWrench" aria-hidden="true"></fa-icon></span><span>Technology Broker (Human o Guardian nel tooltip)</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faFlask" aria-hidden="true"></fa-icon></span><span>{{ t('legend.traderUnknown') }}</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-service-icon" [icon]="faWrench" aria-hidden="true"></fa-icon></span><span>{{ t('legend.broker') }}</span></li>
         </ul>
       </div>
 
       <div class="bgs-legend-group">
-        <h2 class="bgs-legend-title">Architetto</h2>
+        <h2 class="bgs-legend-title">{{ t('legend.architect') }}</h2>
         <ul>
-          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-muted" [icon]="faPen" aria-hidden="true"></fa-icon></span><span>modifica l'assegnazione dell'architetto</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-legend-muted">Grigio</span></span><span>fazione preferita ricavata dalle stazioni, non registrata</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-muted" [icon]="faPen" aria-hidden="true"></fa-icon></span><span>{{ t('legend.editArchitect') }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-legend-muted">{{ t('legend.grey') }}</span></span><span>{{ t('legend.derivedPreferred') }}</span></li>
         </ul>
       </div>
     </section>
@@ -344,22 +350,22 @@
   @if (errorMessage(); as message) {
     <div class="bgs-error">
       <p>{{ message }}</p>
-      <button mat-flat-button color="primary" type="button" (click)="retry()">Riprova</button>
+      <button mat-flat-button color="primary" type="button" (click)="retry()">{{ t('load.retry') }}</button>
     </div>
   } @else {
     <div class="bgs-table-wrap">
       <table class="bgs-table">
         <thead>
-          <tr>
+          <tr [attr.data-sort-label]="t('sort.by')">
             <th>
               <button
                 type="button"
                 class="bgs-sort-header"
                 (click)="sortByColumn('systemName')"
                 [disabled]="loading()"
-                title="Ordina per nome del sistema"
+                [title]="t('sort.system')"
               >
-                Sistema
+                {{ t('col.system') }}
                 @if (sortIndicator('systemName'); as indicator) {
                   <span class="bgs-sort-indicator">{{ indicator }}</span>
                 }
@@ -371,9 +377,9 @@
                 class="bgs-sort-header"
                 (click)="sortByDistance()"
                 [disabled]="loading() || !anchor()"
-                [title]="'Ordina per distanza da ' + (anchorName() ?? 'il sistema del box di ricerca')"
+                [title]="anchorName() ? t('sort.distance', { system: anchorName()! }) : t('sort.distanceDefault')"
               >
-                Distanza
+                {{ t('col.distance') }}
                 @if (mode() === 'distance') {
                   <span class="bgs-sort-indicator">▲</span>
                 }
@@ -385,9 +391,9 @@
                 class="bgs-sort-header"
                 (click)="sortByColumn('freshness')"
                 [disabled]="loading()"
-                title="Ordina per età del dato"
+                [title]="t('sort.freshness')"
               >
-                Aggiornato
+                {{ t('col.freshness') }}
                 @if (sortIndicator('freshness'); as indicator) {
                   <span class="bgs-sort-indicator">{{ indicator }}</span>
                 }
@@ -399,24 +405,24 @@
                 class="bgs-sort-header"
                 (click)="sortByColumn('factionCount')"
                 [disabled]="loading()"
-                title="Ordina per numero di fazioni"
+                [title]="t('sort.factions')"
               >
-                Fazioni
+                {{ t('col.factions') }}
                 @if (sortIndicator('factionCount'); as indicator) {
                   <span class="bgs-sort-indicator">{{ indicator }}</span>
                 }
               </button>
             </th>
-            <th class="bgs-col-state bgs-th-static">Stato</th>
+            <th class="bgs-col-state bgs-th-static">{{ t('col.state') }}</th>
             <th class="bgs-col-priority">
               <button
                 type="button"
                 class="bgs-sort-header"
                 (click)="sortByColumn('priority')"
                 [disabled]="loading()"
-                title="Ordina per priorità"
+                [title]="t('sort.priority')"
               >
-                Priorità
+                {{ t('col.priority') }}
                 @if (sortIndicator('priority'); as indicator) {
                   <span class="bgs-sort-indicator">{{ indicator }}</span>
                 }
@@ -428,9 +434,9 @@
                 class="bgs-sort-header"
                 (click)="sortByColumn('controllingFaction')"
                 [disabled]="loading()"
-                title="Ordina per fazione di controllo"
+                [title]="t('sort.controlling')"
               >
-                Fazione di controllo
+                {{ t('col.controlling') }}
                 @if (sortIndicator('controllingFaction'); as indicator) {
                   <span class="bgs-sort-indicator">{{ indicator }}</span>
                 }
@@ -442,7 +448,7 @@
                 class="bgs-sort-header"
                 (click)="sortByColumn('influence')"
                 [disabled]="loading()"
-                [title]="'Ordina per influenza di ' + factionName"
+                [title]="t('sort.influence', { faction: factionName })"
               >
                 ACFS
                 @if (sortIndicator('influence'); as indicator) {
@@ -456,9 +462,9 @@
                 class="bgs-sort-header"
                 (click)="sortByColumn('margin')"
                 [disabled]="loading()"
-                title="Ordina per margine: vantaggio sulla seconda fazione dove controlliamo, distacco da chi controlla altrove"
+                [title]="t('sort.margin')"
               >
-                Margine
+                {{ t('col.margin') }}
                 @if (sortIndicator('margin'); as indicator) {
                   <span class="bgs-sort-indicator">{{ indicator }}</span>
                 }
@@ -470,9 +476,9 @@
                 class="bgs-sort-header"
                 (click)="sortByColumn('architect')"
                 [disabled]="loading()"
-                title="Ordina per architetto"
+                [title]="t('sort.architect')"
               >
-                Architetto
+                {{ t('col.architect') }}
                 @if (sortIndicator('architect'); as indicator) {
                   <span class="bgs-sort-indicator">{{ indicator }}</span>
                 }
@@ -484,9 +490,9 @@
                 class="bgs-sort-header"
                 (click)="sortByColumn('preferredFaction')"
                 [disabled]="loading()"
-                title="Ordina per fazione preferita"
+                [title]="t('sort.preferred')"
               >
-                Fazione preferita
+                {{ t('col.preferred') }}
                 @if (sortIndicator('preferredFaction'); as indicator) {
                   <span class="bgs-sort-indicator">{{ indicator }}</span>
                 }
@@ -500,7 +506,7 @@
               <td colspan="11">
                 <div class="bgs-progress">
                   <div class="bgs-progress-label">
-                    Caricamento di tutti i sistemi per ordinarli… {{ progress.loaded }} / {{ progress.total }}
+                    {{ t('load.progress', { loaded: progress.loaded, total: progress.total }) }}
                   </div>
                   <div class="bgs-progress-track">
                     <div
@@ -534,8 +540,8 @@
                   <button
                     type="button"
                     class="bgs-copy-button"
-                    [title]="'Copia ' + row.systemName"
-                    [attr.aria-label]="'Copia ' + row.systemName"
+                    [title]="t('row.copy', { system: row.systemName })"
+                    [attr.aria-label]="t('row.copy', { system: row.systemName })"
                     (click)="copySystemName(row.systemName)"
                   >
                     <fa-icon [icon]="copiedSystem() === row.systemName ? faCheck : faCopy"></fa-icon>
@@ -557,15 +563,17 @@
                   >
                     <fa-icon [icon]="faCircleInfo"></fa-icon>
                   </button>
-                  <button
-                    type="button"
-                    class="bgs-info-button"
-                    [title]="'Aggiungi ' + row.systemName + ' agli ordini'"
-                    [attr.aria-label]="'Aggiungi ' + row.systemName + ' agli ordini'"
-                    (click)="addToOrders(row)"
-                  >
-                    <fa-icon [icon]="faClipboardList"></fa-icon>
-                  </button>
+                  @if (i18n.isItalian()) {
+                    <button
+                      type="button"
+                      class="bgs-info-button"
+                      [title]="'Aggiungi ' + row.systemName + ' agli ordini'"
+                      [attr.aria-label]="'Aggiungi ' + row.systemName + ' agli ordini'"
+                      (click)="addToOrders(row)"
+                    >
+                      <fa-icon [icon]="faClipboardList"></fa-icon>
+                    </button>
+                  }
                   @for (service of serviceIcons(row); track service.key) {
                     <button
                       type="button"
@@ -578,8 +586,8 @@
                     </button>
                   }
                 </td>
-                <td class="bgs-col-distance" data-label="Distanza" [title]="distanceTitle(row)">{{ distanceLabel(row) }}</td>
-                <td class="bgs-col-freshness" data-label="Aggiornato">
+                <td class="bgs-col-distance" [attr.data-label]="t('col.distance')" [title]="distanceTitle(row)">{{ distanceLabel(row) }}</td>
+                <td class="bgs-col-freshness" [attr.data-label]="t('col.freshness')">
                   @let freshness = freshnessFor(row);
                   <span
                     class="bgs-freshness-pill"
@@ -591,7 +599,7 @@
                     <span aria-hidden="true">{{ freshness.label }}</span>
                   </span>
                 </td>
-                <td class="bgs-col-factions" data-label="Fazioni">
+                <td class="bgs-col-factions" [attr.data-label]="t('col.factions')">
                   @if (row.factions.length > 0) {
                     <div class="bgs-faction-chart" [attr.aria-label]="factionsSummary(row)">
                       @for (faction of row.factions; track faction.name) {
@@ -599,7 +607,7 @@
                           class="bgs-faction-bar"
                           [class.bgs-faction-bar--own]="faction.name === factionName"
                           [style.height.%]="faction.influencePercent"
-                          [title]="faction.name + ': ' + (faction.influencePercent | number: '1.1-1') + '%'"
+                          [title]="faction.name + ': ' + i18n.percent(faction.influencePercent)"
                         ></div>
                       }
                     </div>
@@ -607,14 +615,14 @@
                     <span>—</span>
                   }
                 </td>
-                <td class="bgs-col-state" data-label="Stato">
+                <td class="bgs-col-state" [attr.data-label]="t('col.state')">
                   @if (row.stateEntries.length > 0) {
                     <button
                       type="button"
                       class="bgs-state-button"
                       [matMenuTriggerFor]="stateMenu"
                       [matMenuTriggerData]="{ row }"
-                      [attr.aria-label]="'Dettagli dello stato di ' + row.systemName"
+                      [attr.aria-label]="t('row.stateDetails', { system: row.systemName })"
                     >
                       @if (row.retreatState) {
                         <span
@@ -653,7 +661,7 @@
                     <span>—</span>
                   }
                 </td>
-                <td class="bgs-col-priority" data-label="Priorità">
+                <td class="bgs-col-priority" [attr.data-label]="t('col.priority')">
                   @let priority = priorityFor(row);
                   @if (priority.tier === 'not-applicable') {
                     <span>—</span>
@@ -667,7 +675,7 @@
                     </span>
                   }
                 </td>
-                <td class="bgs-col-wrap bgs-cell-control" data-label="Fazione di controllo">{{ row.controllingFaction ?? '—' }}</td>
+                <td class="bgs-col-wrap bgs-cell-control" [attr.data-label]="t('col.controlling')">{{ row.controllingFaction ?? '—' }}</td>
                 <td
                   class="bgs-col-influence"
                   data-label="ACFS"
@@ -678,11 +686,11 @@
                   [class.bgs-influence--close]="closeRivals(row).length > 0"
                   [title]="influenceTitle(row) ?? ''"
                 >
-                  @if (closeRivals(row).length > 0) {<span class="bgs-close-warning" aria-hidden="true">⚠️ </span>}{{ row.factionInfluence !== null ? (row.factionInfluence | number: '1.1-1') + '%' : '—' }}
+                  @if (closeRivals(row).length > 0) {<span class="bgs-close-warning" aria-hidden="true">⚠️ </span>}{{ row.factionInfluence !== null ? i18n.percent(row.factionInfluence) : '—' }}
                 </td>
                 <td
                   class="bgs-col-influence bgs-col-margin"
-                  data-label="Margine"
+                  [attr.data-label]="t('col.margin')"
                   [class.bgs-light--green]="marginLight(row) === 'green'"
                   [class.bgs-light--yellow]="marginLight(row) === 'yellow'"
                   [class.bgs-light--red]="marginLight(row) === 'red'"
@@ -690,27 +698,27 @@
                   [class.bgs-margin--gap]="row.margin && !row.margin.controlled"
                   [title]="marginTitle(row)"
                 >{{ marginLabel(row) }}</td>
-                <td class="bgs-col-wrap bgs-cell-architect" data-label="Architetto">
+                <td class="bgs-col-wrap bgs-cell-architect" [attr.data-label]="t('col.architect')">
                   @if (row.architect === null && !row.notAColony) {
                     <button
                       type="button"
                       class="bgs-system-link bgs-assign-button"
-                      [title]="'Registra l\'architetto di ' + row.systemName"
+                      [title]="t('row.assignTitle', { system: row.systemName })"
                       (click)="openAssignDialog(row)"
-                    >Assegna</button>
+                    >{{ t('row.assign') }}</button>
                   } @else {
                     <span class="bgs-architect">{{ row.notAColony ? '—' : row.architect }}<button
                       type="button"
                       class="bgs-edit-button"
-                      [title]="'Modifica l\'assegnazione di ' + row.systemName"
-                      [attr.aria-label]="'Modifica l\'assegnazione di ' + row.systemName"
+                      [title]="t('row.editAssignment', { system: row.systemName })"
+                      [attr.aria-label]="t('row.editAssignment', { system: row.systemName })"
                       (click)="openAssignDialog(row)"
                     >
                       <fa-icon [icon]="faPen"></fa-icon>
                     </button></span>
                   }
                 </td>
-                <td class="bgs-col-wrap bgs-cell-preferred" data-label="Fazione preferita" [class.bgs-preferred-derived]="!row.preferredFactionRecorded">{{ row.preferredFaction ?? '—' }}</td>
+                <td class="bgs-col-wrap bgs-cell-preferred" [attr.data-label]="t('col.preferred')" [class.bgs-preferred-derived]="!row.preferredFactionRecorded">{{ row.preferredFaction ?? '—' }}</td>
               </tr>
             }
           }
@@ -728,7 +736,7 @@
               <p class="bgs-state-entry-title">
                 {{ stateEntryTitle(entry) }}
                 <span class="bgs-state-entry-status" [class.bgs-state-entry-status--pending]="entry.status === 'pending'">
-                  {{ entry.status === 'pending' ? 'in pending' : 'in corso' }}
+                  {{ entry.status === 'pending' ? t('state.pending') : t('state.active') }}
                 </span>
               </p>
               <ul class="bgs-state-factions">
@@ -741,30 +749,30 @@
               </ul>
               @if (entry.kind !== 'retreat') {
                 @if (entry.status === 'pending') {
-                  <p class="bgs-state-score">Punteggio: Draw; 0-0, il conflitto non è ancora iniziato.</p>
+                  <p class="bgs-state-score">{{ t('state.scorePending') }}</p>
                 } @else if (entry.score; as score) {
                   <p class="bgs-state-score">
-                    Punteggio: <strong class="bgs-state-score-value">{{ score.ours }}-{{ score.theirs }}</strong>&nbsp;<span class="bgs-state-score-note">(giorni vinti, i nostri prima)</span>
+                    {{ t('state.score') }} <strong class="bgs-state-score-value">{{ score.ours }}-{{ score.theirs }}</strong>&nbsp;<span class="bgs-state-score-note">{{ t('state.scoreNote') }}</span>
                   </p>
                   @if (stakesLabel(score); as stakes) {
-                    <p class="bgs-state-score">In palio: {{ stakes }}</p>
+                    <p class="bgs-state-score">{{ t('state.stakes', { stakes }) }}</p>
                   }
-                  <p class="bgs-state-score bgs-state-score-note">Punteggio EliteBGS: {{ scoreAgeTitle(score.updatedAt) }}</p>
+                  <p class="bgs-state-score bgs-state-score-note">{{ t('state.scoreAge', { age: scoreAgeTitle(score.updatedAt) }) }}</p>
                 } @else {
                   <p class="bgs-state-score">
-                    {{ datasetInfo()?.conflictScoresAvailable ? 'EliteBGS non ha ancora il punteggio di questo conflitto.' : 'Punteggio non disponibile: EliteBGS non era raggiungibile.' }}
+                    {{ datasetInfo()?.conflictScoresAvailable ? t('state.noScoreYet') : t('state.noScoreSource') }}
                     <a
                       [href]="'https://inara.cz/elite/starsystem/?search=' + encodeURIComponent(row.systemName)"
                       target="_blank"
                       rel="noopener noreferrer"
                       class="bgs-system-link"
-                    >Vedi su Inara</a>
+                    >{{ t('state.seeInara') }}</a>
                   </p>
                 }
               }
             </section>
           }
-          <p class="bgs-state-panel-age">Dato Spansh: {{ freshnessFor(row).title }}</p>
+          <p class="bgs-state-panel-age">{{ t('state.spanshAge', { age: freshnessFor(row).title }) }}</p>
         </div>
       </ng-template>
     </mat-menu>
@@ -775,18 +783,18 @@
         type="button"
         (click)="previousPage()"
         [disabled]="pageIndex() === 0 || loading()"
-        aria-label="Pagina precedente"
+        [attr.aria-label]="t('pager.previousAria')"
       >
         <fa-icon [icon]="faChevronLeft" aria-hidden="true"></fa-icon>
-        Precedente
+        {{ t('pager.previous') }}
       </button>
 
       <span class="bgs-pager-status">
-        Pagina {{ pageIndex() + 1 }}@if (displayTotalPages(); as total) {
-          <span> di {{ total }}</span>
+        {{ t('pager.page', { page: pageIndex() + 1 }) }}@if (displayTotalPages(); as total) {
+          <span> {{ t('pager.of', { total }) }}</span>
         }
         @if (displayTotalCount(); as count) {
-          <span class="bgs-pager-count">({{ count | number }} sistemi)</span>
+          <span class="bgs-pager-count">{{ t('pager.count', { count: i18n.integer(count) }) }}</span>
         }
       </span>
 
@@ -795,9 +803,9 @@
         type="button"
         (click)="nextPage()"
         [disabled]="!hasNextPage() || loading()"
-        aria-label="Pagina successiva"
+        [attr.aria-label]="t('pager.nextAria')"
       >
-        Successiva
+        {{ t('pager.next') }}
         <fa-icon [icon]="faChevronRight" aria-hidden="true"></fa-icon>
       </button>
     </div>

@@ -152,6 +152,35 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     expect(freshComponent['visibleRows']()[0].systemName).toBe('System 0');
   });
 
+  it('switches language from the flags, and remembers the choice', async () => {
+    localStorage.removeItem('acfs-bgs:lang');
+    const host: HTMLElement = fixture.nativeElement;
+    const headerText = () => host.querySelector('[aria-controls="bgs-legend"]')!.textContent!.trim();
+    expect(headerText()).toBe('Legenda');
+    expect(host.querySelector('a[routerLink="/ordini"]')).not.toBeNull();
+
+    host.querySelector<HTMLButtonElement>('.lang-button[lang="de"]')!.click();
+    await fixture.whenStable();
+    expect(headerText()).toBe('Legende');
+    // The Ordini are internal and Italian only: no link to them in the other languages.
+    expect(host.querySelector('a[routerLink="/ordini"]')).toBeNull();
+    expect(host.querySelector('[title^="Aggiungi "]')).toBeNull();
+    expect(host.querySelector('.bgs-pager-status')!.textContent).toContain('Seite 1');
+    expect(host.querySelector('.bgs-pager-count')!.textContent).toBe('(4.106 Systeme)');
+    expect(document.documentElement.lang).toBe('de');
+    expect(localStorage.getItem('acfs-bgs:lang')).toBe('de');
+
+    host.querySelector<HTMLButtonElement>('.lang-button[lang="en"]')!.click();
+    await fixture.whenStable();
+    expect(headerText()).toBe('Legend');
+    expect(host.querySelector('.bgs-pager-count')!.textContent).toBe('(4,106 systems)');
+
+    host.querySelector<HTMLButtonElement>('.lang-button[lang="it"]')!.click();
+    await fixture.whenStable();
+    expect(headerText()).toBe('Legenda');
+    localStorage.removeItem('acfs-bgs:lang');
+  });
+
   it('opens and closes the legend panel from the header button', async () => {
     const host: HTMLElement = fixture.nativeElement;
     const legendButton = host.querySelector<HTMLButtonElement>('[aria-controls="bgs-legend"]')!;
