@@ -2,6 +2,19 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [1.1.0] - 2026-10-07 — La priorità segue i semafori
+
+### Priorità
+
+- **Correzione di coerenza**: nei sistemi che controlliamo la priorità ignorava i semafori di Influenza e Margine, quindi poteva dire P5 ("tranquillo") accanto a due semafori rossi. Esempio: SPOCS 253, 35,7% di influenza e 15,6 punti di vantaggio, era P5 perché nessuna soglia della priorità scattava (il vantaggio era appena sopra i 15 punti).
+- Ora i due semafori fanno da pavimento, letti come dice la Legenda: nessun verde e almeno un rosso → **P3**; entrambi gialli, oppure un verde e un rosso → **P4**; almeno un verde e nessun rosso → nessun effetto. Le soglie sono quelle dei semafori in `config.json` (influenza 50/40%, vantaggio 30/18 punti). I motivi più gravi (vantaggio sotto 7 punti, influenza bassa, conflitti) restano sopra.
+- Il motivo "Controllo con 7-15 punti di vantaggio" (P4) non c'è più: sotto i 18 punti il semaforo del margine è sempre rosso, quindi lo copre la regola nuova.
+- Effetto con i dati del 7 ottobre: 32 sistemi salgono di fascia, nessuno scende. 5 passano da P5 a P3 (fra cui SPOCS 253), 5 da P4 a P3, 22 da P5 a P4.
+
+### Test
+
+- Quattro nuovi test sulla priorità dei sistemi controllati (SPOCS 253, semafori gialli, misti, verdi). Passano 250 test dell'app.
+
 ## [1.0.1] - 2026-10-07 — Versione 1.0: in produzione, anche in tedesco e in inglese
 
 ### Versione

@@ -865,8 +865,10 @@ export class BgsTableComponent implements OnDestroy {
       return reason.label;
     }
     const params = { ...reason.params };
-    if (typeof params['gap'] === 'number') {
-      params['gap'] = this.i18n.decimal(params['gap']);
+    for (const name of ['gap', 'influence', 'margin']) {
+      if (typeof params[name] === 'number') {
+        params[name] = this.i18n.decimal(params[name]);
+      }
     }
     return this.t(key, params);
   }

@@ -733,6 +733,52 @@ describe('computePriorityAssessment', () => {
   });
 });
 
+describe('computePriorityAssessment and the traffic lights of a system we control', () => {
+  /** A system we control, with the given influence and the runner-up's. */
+  function controlled(influence: number, runnerUp: number): BgsRow {
+    return row({
+      preferredFaction: OWN,
+      controllingFaction: OWN,
+      factionInfluence: influence,
+      factions: [
+        { name: OWN, influencePercent: influence },
+        { name: 'Runner Up', influencePercent: runnerUp },
+        { name: 'Third', influencePercent: 100 - influence - runnerUp },
+      ],
+    });
+  }
+
+  it('ranks no green light and at least one red P3, not "nothing to report" (SPOCS 253: 35,7%, lead 15,7)', () => {
+    const assessment = computePriorityAssessment(controlled(35.7, 20));
+    expect(assessment.tier).toBe('P3');
+    expect(assessment.reasons.map(r => r.code)).toEqual(['control-lights-red']);
+    expect(assessment.reasons[0].params).toEqual({ influence: 35.7, margin: 35.7 - 20 });
+    expect(computePriorityAssessment(controlled(45, 30)).reasons[0].code).toBe('control-lights-red');
+  });
+
+  it('ranks both lights yellow, or one green and one red, P4', () => {
+    expect(computePriorityAssessment(controlled(45, 20)).reasons[0].code).toBe('control-lights-yellow');
+    expect(computePriorityAssessment(controlled(45, 20)).tier).toBe('P4');
+    expect(computePriorityAssessment(controlled(52.5, 36.5)).reasons[0].code).toBe('control-lights-mixed');
+    expect(computePriorityAssessment(controlled(52.5, 36.5)).tier).toBe('P4');
+  });
+
+  it('adds nothing when at least one light is green and none is red, as the legend says', () => {
+    expect(computePriorityAssessment(controlled(60, 25)).reasons[0].code).toBe('none');
+    // Iansan: influence green (51,5%), lead yellow (25,3).
+    const iansan = computePriorityAssessment(controlled(51.5, 26.2));
+    expect(iansan.tier).toBe('P5');
+    expect(iansan.reasons[0].code).toBe('none');
+  });
+
+  it('lets a sharper trigger win over a red light', () => {
+    const assessment = computePriorityAssessment(controlled(30, 25));
+    expect(assessment.reasons[0].code).toBe('control-margin-3-7');
+    expect(assessment.tier).toBe('P3');
+    expect(computePriorityAssessment(controlled(30, 28)).tier).toBe('P2');
+  });
+});
+
 describe('prioritySortKey', () => {
   const NOW = Date.parse('2026-09-09T12:00:00Z');
   const current = '2026-09-09 11:00:00+00';

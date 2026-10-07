@@ -10,6 +10,7 @@
  */
 import { BgsRow } from './bgs';
 import { FACTION_NAME, UNREGISTERED_SCOPE } from './config';
+import { Semaphore, influenceSemaphore, marginSemaphore } from './semaphore';
 import { daysElapsed, parseUpdatedAt } from './freshness';
 import { PriorityWatchlistEntry } from './priority-watchlist';
 
@@ -269,14 +270,40 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
     });
   }
 
+  // Where we control, the table's traffic lights (see semaphore.ts) set a floor, read the way
+  // the legend does: at least one green is calm, at least one red needs watching. The sharper
+  // triggers above (a lead under 7 points, low influence) still win.
   if (isController && leadInfluence !== null && strongestRival !== null) {
-    const margin = leadInfluence - strongestRival;
-    if (margin >= 7 && margin < 15) {
-      reasons.push({ code: 'control-margin-7-15', label: 'Controllo con 7-15 punti di vantaggio', score: 30 });
+    const reason = semaphoreReason(leadInfluence, leadInfluence - strongestRival);
+    if (reason) {
+      reasons.push(reason);
     }
   }
 
   return reasons;
+}
+
+/**
+ * The two traffic lights of a system we control, as one reason: no green and at least one red
+ * is P3; both yellow, or one green and one red (calm and watch at once), is P4; at least one
+ * green and no red adds nothing.
+ */
+function semaphoreReason(influence: number, margin: number): PriorityReason | null {
+  const lights: Semaphore[] = [influenceSemaphore(influence), marginSemaphore(margin)];
+  const hasGreen = lights.includes('green');
+  const hasRed = lights.includes('red');
+  const params = { influence, margin };
+  const numbers = `influenza ${influence.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%, vantaggio ${margin.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} punti`;
+  if (hasRed && !hasGreen) {
+    return { code: 'control-lights-red', label: `Controllo con semafori rossi o gialli, nessuno verde (${numbers})`, score: 45, params };
+  }
+  if (hasRed) {
+    return { code: 'control-lights-mixed', label: `Controllo con un semaforo verde e uno rosso (${numbers})`, score: 25, params };
+  }
+  if (!hasGreen) {
+    return { code: 'control-lights-yellow', label: `Controllo con entrambi i semafori gialli (${numbers})`, score: 25, params };
+  }
+  return null;
 }
 
 /** A watchlist entry's faction's rank among the system's factions, 1-based; absent from the system ranks one past the last. */
