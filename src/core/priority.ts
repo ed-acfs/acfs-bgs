@@ -10,6 +10,7 @@
  */
 import { BgsRow } from './bgs';
 import { FACTION_NAME, UNREGISTERED_SCOPE } from './config';
+import { Semaphore, influenceSemaphore, marginSemaphore } from './semaphore';
 import { daysElapsed, parseUpdatedAt } from './freshness';
 import { PriorityWatchlistEntry } from './priority-watchlist';
 
@@ -116,12 +117,20 @@ function gapToLeaderScore(gapPoints: number, population: number | null): number 
   return Math.min(GAP_SCORE_CAP, Math.max(GAP_SCORE_FLOOR, GAP_SCORE_CAP - cost));
 }
 
+/** Below this influence (percent), last place among 4+ factions is a P1 danger, not just a weak spot. */
+const LAST_PLACE_DANGER_PERCENT = 5;
+
 /** Case- and whitespace-insensitive key, since the Preferred Faction answer is free text. */
 function factionKey(name: string): string {
   return name.trim().toLowerCase();
 }
 
 const OWN_KEY = factionKey(FACTION_NAME);
+
+/** Whether the Architect Registry names Flotta Stellare as preferred — recorded, not derived from the stations. */
+function registeredAsOurs(row: BgsRow): boolean {
+  return row.preferredFactionRecorded && row.preferredFaction !== null && factionKey(row.preferredFaction) === OWN_KEY;
+}
 
 /**
  * The scope gate (FR-4): whether a system is prioritised at all. The lead is always the
@@ -225,22 +234,30 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
 
   // Being the weakest faction present in a system with 4+ factions is a withdrawal-risk
   // signal — but only in a system that's ours (in-scope: preferred by us, flagged "not a
-  // colony", or unregistered under the squadron's policy), not a guessed/assumed lead: getting a system we're actually responsible for out of danger comes
-  // before pushing anywhere else for control, so this outranks the work-priority triggers
-  // below and lands in P1. Not gated by the same "below 10%" floor or faction-count weighting
-  // as the influence triggers above, since this is about rank position itself, not a raw
-  // influence reading. Restricted to 4+ factions: in a 3-faction system there are only two
-  // rivals to beat, so "lowest of three" isn't a meaningful risk signal on its own.
-  if (
-    scope === 'in-scope' &&
-    leadRankIndex !== -1 &&
-    leadRankIndex === row.factions.length - 1 &&
-    row.factions.length > 3
-  ) {
+  // colony", or unregistered under the squadron's policy), not a guessed/assumed lead: getting
+  // a system we're actually responsible for out of danger comes before pushing anywhere else
+  // for control, so this outranks the work-priority triggers below and lands in P1. Only below
+  // LAST_PLACE_DANGER_PERCENT (decided 7 October 2026): last place at a healthy 10-15% is far
+  // from the 2.5% that forces a Retreat, and used to fill P1 with systems nobody needed to
+  // touch. Restricted to 4+ factions: in a 3-faction system there are only two rivals to beat,
+  // so "lowest of three" isn't a meaningful risk signal on its own.
+  const lastOfFourOrMore =
+    scope === 'in-scope' && leadRankIndex !== -1 && leadRankIndex === row.factions.length - 1 && row.factions.length > 3;
+  if (lastOfFourOrMore && leadInfluence !== null && leadInfluence < LAST_PLACE_DANGER_PERCENT) {
     reasons.push({
       code: 'lead-lowest-should-control',
-      label: 'Ultima su 4 o più fazioni: mettersi al sicuro prima di puntare al controllo',
+      label: `Ultima su 4 o più fazioni e sotto il ${LAST_PLACE_DANGER_PERCENT}%: mettersi al sicuro prima di puntare al controllo`,
       score: 90,
+      params: { threshold: LAST_PLACE_DANGER_PERCENT },
+    });
+  } else if (lastOfFourOrMore && registeredAsOurs(row)) {
+    // Above the danger line, last place still matters where the squadron has said the system
+    // is ours: registering Flotta Stellare as preferred is how it marks a system worth growing
+    // in (decided 7 October 2026). P2: high, but below conflicts and the Watchlist.
+    reasons.push({
+      code: 'lead-lowest-preferred',
+      label: 'Ultima su 4 o più fazioni in un sistema registrato come nostro: mettersi al sicuro prima di puntare al controllo',
+      score: 70,
     });
   }
 
@@ -269,14 +286,40 @@ function baseReasons(row: BgsRow, leadFaction: string, leadInfluence: number | n
     });
   }
 
+  // Where we control, the table's traffic lights (see semaphore.ts) set a floor, read the way
+  // the legend does: at least one green is calm, at least one red needs watching. The sharper
+  // triggers above (a lead under 7 points, low influence) still win.
   if (isController && leadInfluence !== null && strongestRival !== null) {
-    const margin = leadInfluence - strongestRival;
-    if (margin >= 7 && margin < 15) {
-      reasons.push({ code: 'control-margin-7-15', label: 'Controllo con 7-15 punti di vantaggio', score: 30 });
+    const reason = semaphoreReason(leadInfluence, leadInfluence - strongestRival);
+    if (reason) {
+      reasons.push(reason);
     }
   }
 
   return reasons;
+}
+
+/**
+ * The two traffic lights of a system we control, as one reason: no green and at least one red
+ * is P3; both yellow, or one green and one red (calm and watch at once), is P4; at least one
+ * green and no red adds nothing.
+ */
+function semaphoreReason(influence: number, margin: number): PriorityReason | null {
+  const lights: Semaphore[] = [influenceSemaphore(influence), marginSemaphore(margin)];
+  const hasGreen = lights.includes('green');
+  const hasRed = lights.includes('red');
+  const params = { influence, margin };
+  const numbers = `influenza ${influence.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%, vantaggio ${margin.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} punti`;
+  if (hasRed && !hasGreen) {
+    return { code: 'control-lights-red', label: `Controllo con semafori rossi o gialli, nessuno verde (${numbers})`, score: 45, params };
+  }
+  if (hasRed) {
+    return { code: 'control-lights-mixed', label: `Controllo con un semaforo verde e uno rosso (${numbers})`, score: 25, params };
+  }
+  if (!hasGreen) {
+    return { code: 'control-lights-yellow', label: `Controllo con entrambi i semafori gialli (${numbers})`, score: 25, params };
+  }
+  return null;
 }
 
 /** A watchlist entry's faction's rank among the system's factions, 1-based; absent from the system ranks one past the last. */

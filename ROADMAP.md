@@ -81,6 +81,9 @@ Ogni fase si chiude con qualcosa da vedere o provare, su un branch, prima di far
 - [x] Motivazioni della priorità in italiano
 - [x] `priority.spec.ts` riscritto: test della politica Canonn con `"assumed"` esplicito, più quelli della politica dello squadrone
 - [ ] Rivedere soglie e pesi (P1 ≥ 85 … P5) dopo qualche settimana d'uso
+  - **7 ottobre 2026, conflitti**: un conflitto di Flotta Stellare (guerra, elezione, ritirata) resta **sempre P1**, anche dove non controlliamo e la posta non è il controllo del sistema. Parole dell'utente: "un conflitto è sempre prioritario"; dove la fazione preferita registrata è Flotta Stellare (es. Crowfor), dopo il conflitto si punta al controllo.
+  - **7 ottobre 2026, semafori** (1.1.0): nei sistemi che controlliamo i semafori di influenza e margine fanno da pavimento alla priorità, come li legge la Legenda (nessun verde e almeno un rosso → P3; entrambi gialli o verde+rosso → P4).
+  - **7 ottobre 2026, "Ultima su 4+ fazioni"**: la regola Canonn valeva 90 punti fissi, senza soglia di influenza né peso, e quel giorno portava in P1 10 sistemi su 16 (es. HR 2251 al 13,9%, lontano dal 2,5% del Retreat), tutti senza architetto. Fra eliminarla, limitarla o lasciarla, l'utente ha scelto di limitarla: ora scatta solo sotto il 5% (1.1.0). Risultato quel giorno: 6 P1, 3 P2, 33 P3, 44 P4, 300 P5. Variante aggiunta su richiesta dell'utente, dopo una simulazione su Crowfor: sopra il 5%, se Flotta Stellare è la fazione preferita *registrata*, essere ultimi su 4+ porta comunque in P2 (quel giorno nessun sistema cambiava: i 10 "ultimi" non erano registrati).
 
 **Fatto quando:** l'elenco ordinato per priorità torna con quello che lo squadrone farebbe a mano. Raggiunto il 4 ottobre 2026 per la parte di logica: 17 P1, 5 P2, 16 P3, 23 P4, 328 P5. Le soglie restano quelle dei Canonn finché l'uso non suggerisce di cambiarle.
 
