@@ -33,16 +33,23 @@ describe('closeFactions', () => {
     expect(closeFactions([{ name: 'Flotta Stellare', influencePercent: 60 }, { name: 'Other', influencePercent: 30 }], 'Flotta Stellare')).toEqual([]);
   });
 
-  it('treats a faction we are at war or election with, or level with, as already in conflict', () => {
-    const row = {
-      stateEntries: [
-        { kind: 'election' as const, state: 'Election', status: 'pending' as const, factions: ['Flotta Stellare', 'Canonn'], score: null },
-        { kind: 'retreat' as const, state: 'Retreat', status: 'active' as const, factions: ['Flotta Stellare'], score: null },
-      ],
-    };
-    expect(alreadyInConflict(row, 'Canonn', -2)).toBe(true);
-    expect(alreadyInConflict(row, 'Other', 0)).toBe(true);
-    expect(alreadyInConflict(row, 'Other', 1.1)).toBe(false);
+  it('treats us as already in conflict during any war or election of ours, or when level with a neighbour', () => {
+    const election = { kind: 'election' as const, state: 'Election', status: 'pending' as const, factions: ['Flotta Stellare', 'Canonn'], score: null };
+    const retreat = { kind: 'retreat' as const, state: 'Retreat', status: 'active' as const, factions: ['Flotta Stellare'], score: null };
+    const spread = [
+      { name: 'Canonn', influencePercent: 40 },
+      { name: 'Flotta Stellare', influencePercent: 30 },
+      { name: 'Other', influencePercent: 28 },
+    ];
+    // The election is with Canonn, but our influence is frozen: Other, 2 points below, can't start a conflict with us either.
+    expect(alreadyInConflict({ stateEntries: [election], factions: spread })).toBe(true);
+    expect(alreadyInConflict({ stateEntries: [retreat], factions: spread })).toBe(false);
+    const level = [
+      { name: 'Canonn', influencePercent: 40 },
+      { name: 'Flotta Stellare', influencePercent: 30 },
+      { name: 'Other', influencePercent: 30 },
+    ];
+    expect(alreadyInConflict({ stateEntries: [], factions: level })).toBe(true);
   });
 
   it('counts exactly 5 points as close', () => {

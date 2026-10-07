@@ -2,6 +2,16 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [0.11.1] - 2026-10-07 — Niente forbice durante un conflitto
+
+### Forbice di influenza
+
+- **Correzione**: il ⚠️ di "possibile conflitto" (colonne Margine e ACFS) compariva anche nei sistemi dove siamo già in guerra o elezione con un'altra fazione: a Crowfor, in conflitto, segnalava una fazione vicina a meno di 5 punti. Durante un conflitto la nostra influenza è bloccata e non può partirne un secondo, quindi ora nessun ⚠️ di forbice in tutto il sistema finché siamo in guerra o elezione (attiva o in pending) o alla pari con una fazione vicina. Prima il ⚠️ spariva solo verso la fazione con cui eravamo in conflitto.
+
+### Test
+
+- Il test dei ⚠️ in tabella include un sistema in guerra con una fazione vicina a meno di 5 punti da un'altra. Passano 235 test dell'app.
+
 ## [0.11.0] - 2026-10-06 — Forbice del 5% e preavviso del Retreat
 
 ### Forbice di influenza
