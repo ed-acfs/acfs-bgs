@@ -34,8 +34,14 @@ export class PriorityWatchlistDialogComponent {
   /** The factions the table flags with ⚠️ for this system, by name. */
   private readonly risks = new Map<string, CloseFaction>(conflictRisks(this.data.row).map(risk => [risk.name, risk]));
 
-  /** Hover text for the ⚠️ next to a faction within conflict reach of ours, or null when it isn't. */
+  /**
+   * Hover text for the ⚠️ next to a faction within conflict reach of ours — and next to ours,
+   * naming who it's with — or null when there's nothing to warn about.
+   */
   protected riskTitle(factionName: string): string | null {
+    if (factionName === FACTION_NAME) {
+      return this.risks.size > 0 ? this.t('info.closeOwn', { factions: [...this.risks.keys()].join(', ') }) : null;
+    }
     const risk = this.risks.get(factionName);
     if (!risk) {
       return null;

@@ -241,6 +241,7 @@ export const it = {
   'info.influence': 'Influenza',
   'info.closeAbove': '{points} punti sopra {faction}: possibile conflitto',
   'info.closeBelow': '{points} punti sotto {faction}: possibile conflitto',
+  'info.closeOwn': 'Possibile conflitto con: {factions}',
   'info.activeStates': 'Stati attivi',
 
   // Help dialog: the table section in full, the internal tools (architects, orders) only in Italian

@@ -6,7 +6,7 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
 ### Dettagli del sistema
 
-- Nella tabella delle fazioni (icona ⓘ) un **⚠️ accanto all'influenza** segna le fazioni con cui è possibile un conflitto: le stesse per cui la tabella mette il ⚠️ sul Margine o sulla colonna ACFS, cioè quelle a 5 punti o meno da Flotta Stellare. Al passaggio del mouse dice di quanto sono sopra o sotto (es. Amait: "4,1 punti sopra Flotta Stellare: possibile conflitto"). Come nella tabella, niente ⚠️ mentre siamo già in guerra o elezione nel sistema.
+- Nella tabella delle fazioni (icona ⓘ) un **⚠️ accanto all'influenza** segna le fazioni con cui è possibile un conflitto: le stesse per cui la tabella mette il ⚠️ sul Margine o sulla colonna ACFS, cioè quelle a 5 punti o meno da Flotta Stellare. Al passaggio del mouse dice di quanto sono sopra o sotto (es. Amait: "4,1 punti sopra Flotta Stellare: possibile conflitto"). Il ⚠️ compare anche accanto a **Flotta Stellare**, e lì dice con chi ("Possibile conflitto con: Earth Defense Fleet"), come fa Inara col suo pallino. Come nella tabella, niente ⚠️ mentre siamo già in guerra o elezione nel sistema.
 - Il testo è in italiano, tedesco e inglese.
 - Tabella e finestra leggono le fazioni da segnalare dalla stessa regola (`conflictRisks` in `core/close-factions.ts`), così non possono dire cose diverse.
 

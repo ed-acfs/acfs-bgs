@@ -36,7 +36,11 @@ describe('PriorityWatchlistDialogComponent', () => {
     await fixture.whenStable();
 
     const marks = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.info-risk')];
-    expect(marks.map(mark => mark.title)).toEqual(['4,1 punti sopra Flotta Stellare: possibile conflitto']);
+    expect(marks.map(mark => mark.title)).toEqual([
+      '4,1 punti sopra Flotta Stellare: possibile conflitto',
+      'Possibile conflitto con: Earth Defense Fleet',
+    ]);
     expect(marks[0].closest('tr')!.textContent).toContain('Earth Defense Fleet');
+    expect(marks[1].closest('tr')!.textContent).toContain('Flotta Stellare');
   });
 });

@@ -236,6 +236,7 @@ export const en: Dictionary = {
   'info.influence': 'Influence',
   'info.closeAbove': '{points} points above {faction}: a conflict is possible',
   'info.closeBelow': '{points} points below {faction}: a conflict is possible',
+  'info.closeOwn': 'A conflict is possible with: {factions}',
   'info.activeStates': 'Active states',
 
   // Help dialog
