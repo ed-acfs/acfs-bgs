@@ -2,7 +2,9 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [1.1.1] - 2026-10-09 — Tabella per priorità, Watchlist in cima, più dettagli sulle fazioni
+## [1.2.0] - 2026-10-09 — Tabella per priorità, Watchlist in cima, più dettagli sulle fazioni
+
+Il lavoro di tutta la giornata in una voce sola. In mattinata il sito ha pubblicato due passi intermedi, 1.1.1 (Watchlist in cima) e 1.1.2 (ordine per priorità e titolo cliccabile): il loro contenuto è qui sotto.
 
 ### Tabella
 
