@@ -244,7 +244,7 @@ export const de: Dictionary = {
   'help.table1':
     'Ein System pro Zeile: kontrollierende Fraktion, Einfluss von {faction} (ACFS), Abstand (Vorsprung auf oder Rückstand zur kontrollierenden Fraktion), Priorität, Zustand (Kriege, Wahlen), Aktualisiert (Alter der Daten) und Architekt.',
   'help.table2':
-    'Die Suche oben sortiert nach Entfernung von einem beliebigen System. Die Schnellfilter beschränken die Liste auf Kriege/Wahlen, veraltete Systeme, nur kontrollierte Systeme oder nur Systeme mit einem ACFS-Architekten.',
+    'Systeme auf der Watchlist bleiben bei jeder Sortierung immer oben. Die Suche oben sortiert nach Entfernung von einem beliebigen System. Die Schnellfilter beschränken die Liste auf Kriege/Wahlen, veraltete Systeme, nur kontrollierte Systeme oder nur Systeme mit einem ACFS-Architekten.',
   'help.table3':
     'Das Symbol ⓘ öffnet die Details des Systems (vertretene Fraktionen, Stationen, ein etwaiger Watchlist-Eintrag). Die Schaltfläche Legende erklärt Farben und Symbole der Tabelle.',
   'help.internal': 'Werkzeuge des Geschwaders',

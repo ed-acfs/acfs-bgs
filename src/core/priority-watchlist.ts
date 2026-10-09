@@ -66,8 +66,8 @@ export function buildWatchlistMap(entries: readonly PriorityWatchlistEntry[]): M
 
 /**
  * Moves the systems on the Priority Watchlist to the top, keeping the given order within each
- * group: watched systems first, then everything else (the table's default order is Spansh's,
- * most recently updated first).
+ * group: watched systems first, then everything else. The table applies it to every order, its
+ * default one (Spansh's, most recently updated first) as well as a column or distance sort.
  */
 export function watchlistFirst<T extends { watchlist: readonly unknown[] }>(rows: readonly T[]): T[] {
   const watched = rows.filter(row => row.watchlist.length > 0);

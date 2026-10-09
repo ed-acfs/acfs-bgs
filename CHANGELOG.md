@@ -2,6 +2,17 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [1.1.1] - 2026-10-09 — Watchlist sempre in cima
+
+### Tabella
+
+- I sistemi in **Watchlist** restano in cima con **qualunque ordinamento**: prima ci stavano solo nell'ordine iniziale e sparivano in mezzo alla lista appena si ordinava per una colonna (priorità, influenza, nome…) o per distanza. Fra loro seguono l'ordinamento scelto, e lo stesso vale per tutti gli altri sistemi sotto.
+- La Guida lo dice, in italiano, tedesco e inglese.
+
+### Test
+
+- Un test nuovo sull'ordinamento per nome con sistemi in Watchlist. Passano 253 test dell'app.
+
 ## [1.1.0] - 2026-10-07 — Priorità più leggibile: semafori e meno falsi P1
 
 ### Priorità

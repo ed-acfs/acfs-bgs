@@ -61,6 +61,7 @@ import { distanceLy } from '../../core/distance';
 import { exportRowsToCsv, exportRowsToJson } from '../export-download';
 import { FreshnessInfo, computeFreshness } from '../../core/freshness';
 import { PriorityAssessment, computePriorityAssessment, prioritySortKey } from '../../core/priority';
+import { watchlistFirst } from '../../core/priority-watchlist';
 import { computeTickCoverage, formatTickCoverage } from '../../core/tick-coverage';
 import { readYourName } from '../your-name';
 import { version } from '../../../package.json';
@@ -444,7 +445,13 @@ export class BgsTableComponent implements OnDestroy {
     return rows;
   });
 
+  /** {@link filteredDataset} in the current order, with the Priority Watchlist systems always on top (sorted among themselves the same way). */
   private readonly sortedRows = computed<BgsRow[] | null>(() => {
+    const sorted = this.sortRows();
+    return sorted ? watchlistFirst(sorted) : null;
+  });
+
+  private sortRows(): BgsRow[] | null {
     const base = this.filteredDataset();
     if (!base) {
       return null;
@@ -468,7 +475,7 @@ export class BgsTableComponent implements OnDestroy {
       default:
         return base;
     }
-  });
+  }
 
   /**
    * The system the Distance column is measured from: the last one searched in the "Distanza
