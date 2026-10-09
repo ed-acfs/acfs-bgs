@@ -70,13 +70,14 @@ describe('PriorityWatchlistDialogComponent', () => {
     expect(factionRow(host, 'Earth Defense Fleet').querySelector('.info-native')).toBeNull();
     expect(factionRow(host, 'Flotta Stellare').querySelector('.info-native')).toBeNull();
 
-    expect(factionRow(host, 'Fellowship of 11').querySelector<HTMLElement>('.info-risk')!.title).toBe(
-      'Al 2,5% o meno: Retreat probabile al prossimo tick',
-    );
-    expect(factionRow(host, 'Betel Free').querySelector<HTMLElement>('.info-risk')!.title).toBe(
-      'In Retreat: se resta sotto il 2,5%, lascia il sistema',
-    );
+    // Dashed when only likely, plain when under way — as in the table's State column.
+    const likely = factionRow(host, 'Fellowship of 11').querySelector<HTMLElement>('.info-retreat')!;
+    expect(likely.title).toBe('Al 2,5% o meno: Retreat probabile al prossimo tick');
+    expect(likely.classList).toContain('info-retreat--expected');
+    const underWay = factionRow(host, 'Betel Free').querySelector<HTMLElement>('.info-retreat')!;
+    expect(underWay.title).toBe('In Retreat: se resta sotto il 2,5%, lascia il sistema');
+    expect(underWay.classList).not.toContain('info-retreat--expected');
     // Native: it can't retreat, however low it goes.
-    expect(factionRow(host, 'Amait Monarchy').querySelector('.info-risk')).toBeNull();
+    expect(factionRow(host, 'Amait Monarchy').querySelector('.info-retreat')).toBeNull();
   });
 });

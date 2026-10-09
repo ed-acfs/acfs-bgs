@@ -14,7 +14,7 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
 - Nella tabella delle fazioni (icona ⓘ) un **⚠️ accanto all'influenza** segna le fazioni con cui è possibile un conflitto: le stesse per cui la tabella mette il ⚠️ sul Margine o sulla colonna ACFS, a 5 punti o meno da Flotta Stellare. Al passaggio del mouse dice di quanto sono sopra o sotto (es. Amait: "4,1 punti sopra Flotta Stellare: possibile conflitto"); accanto a Flotta Stellare dice con chi ("Possibile conflitto con: Earth Defense Fleet"). Niente ⚠️ mentre siamo già in guerra o elezione nel sistema. Tabella e finestra leggono le fazioni dalla stessa regola (`conflictRisks` in `core/close-factions.ts`).
 - Una **"N" accanto al nome delle fazioni native** del sistema, come su Inara: non possono andare in Retreat. Spansh non lo dice (né EDSM; EliteBGS lo saprebbe, ma è giù), quindi il tool lo ricava: una fazione NPC è nativa dove il nome del sistema compare nel suo ("Alliance of Lowne 1" in Lowne 1, non in Lowne 10), Flotta Stellare solo a Wong Sher. Una nativa con un nome diverso sfugge, e al massimo riceve un avviso di Retreat in più.
-- Un **⚠️ di Retreat** per le fazioni non native già in Retreat, o al 2,5% o meno (Retreat probabile al prossimo tick). Per le native non compare.
+- L'**icona del Retreat**, come nella colonna Stato e nella Legenda, per le fazioni non native: piena se sono già in Retreat, tratteggiata se sono al 2,5% o meno (Retreat probabile al prossimo tick). Per le native non compare.
 - Tutti i testi nuovi sono in italiano, tedesco e inglese, Guida compresa.
 
 ### Test

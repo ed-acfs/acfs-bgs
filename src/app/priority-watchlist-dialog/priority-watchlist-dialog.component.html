@@ -96,7 +96,16 @@
               <td>{{ faction.allegiance ?? '—' }}</td>
               <td>{{ faction.government ?? '—' }}</td>
               <td class="info-num">
-                @if (warningTitle(faction); as riskText) {
+                @if (retreatWarning(faction); as retreat) {
+                  <span
+                    class="info-risk info-retreat"
+                    [class.info-retreat--expected]="retreat.expected"
+                    [title]="retreat.title"
+                    [attr.aria-label]="retreat.title"
+                    >⚠️</span
+                  >
+                }
+                @if (riskTitle(faction.name); as riskText) {
                   <span class="info-risk" [title]="riskText" [attr.aria-label]="riskText">⚠️</span>
                 }
                 {{ i18n.percent(faction.influencePercent) }}

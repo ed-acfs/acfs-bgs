@@ -41,31 +41,28 @@ export class PriorityWatchlistDialogComponent {
   }
 
   /**
-   * Hover text for the ⚠️ next to a faction's influence — a conflict within reach, a Retreat
-   * under way or likely — or null when there's nothing to warn about.
+   * The Retreat icon next to a faction's influence, as the table's State column draws it: plain
+   * for a Retreat under way, dashed when only likely at the next tick (influence at or below
+   * {@link RETREAT_INFLUENCE_PERCENT}). Null for a native faction, which can't retreat.
    */
-  protected warningTitle(faction: FactionDetail): string | null {
-    const lines = [this.riskTitle(faction.name), this.retreatTitle(faction)].filter(line => line !== null);
-    return lines.length > 0 ? lines.join('\n') : null;
-  }
-
-  /**
-   * A Retreat under way, or likely at the next tick (influence at or below
-   * {@link RETREAT_INFLUENCE_PERCENT}); never for a native faction, which can't retreat.
-   */
-  private retreatTitle(faction: FactionDetail): string | null {
+  protected retreatWarning(faction: FactionDetail): { title: string; expected: boolean } | null {
     if (this.isNative(faction.name)) {
       return null;
     }
     const threshold = this.i18n.percent(RETREAT_INFLUENCE_PERCENT);
     if (faction.activeStates.includes('Retreat')) {
-      return this.t('info.retreatActive', { threshold });
+      return { title: this.t('info.retreatActive', { threshold }), expected: false };
     }
-    return faction.influencePercent <= RETREAT_INFLUENCE_PERCENT ? this.t('info.retreatExpected', { threshold }) : null;
+    return faction.influencePercent <= RETREAT_INFLUENCE_PERCENT
+      ? { title: this.t('info.retreatExpected', { threshold }), expected: true }
+      : null;
   }
 
-  /** A conflict within reach of ours — next to ours, naming who it's with. */
-  private riskTitle(factionName: string): string | null {
+  /**
+   * Hover text for the ⚠️ of a conflict within reach of ours — next to ours, naming who it's
+   * with — or null when there's none.
+   */
+  protected riskTitle(factionName: string): string | null {
     if (factionName === FACTION_NAME) {
       return this.risks.size > 0 ? this.t('info.closeOwn', { factions: [...this.risks.keys()].join(', ') }) : null;
     }

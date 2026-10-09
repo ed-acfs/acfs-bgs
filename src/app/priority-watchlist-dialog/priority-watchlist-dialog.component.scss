@@ -163,6 +163,15 @@ mat-dialog-content {
     cursor: help;
   }
 
+  // The Retreat icon as the table's State column and the Legend draw it: dashed when only likely.
+  .info-retreat--expected {
+    display: inline-block;
+    padding: 1px 2px;
+    border: 1px dashed var(--color-danger);
+    border-radius: 4px;
+    line-height: 1;
+  }
+
   // A native faction, as Inara marks it: it can't retreat from here.
   .info-native {
     display: inline-block;
