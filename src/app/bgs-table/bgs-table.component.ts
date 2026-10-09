@@ -69,6 +69,8 @@ import { I18nService } from '../i18n.service';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { PriorityReason } from '../../core/priority';
 import { isMessageKey } from '../../core/i18n';
+import { readGlobalStates } from '../../core/global-states';
+import { RETREAT_ICON } from '../../core/state-icons';
 
 /**
  * How the table is currently ordered:
@@ -248,6 +250,8 @@ export class BgsTableComponent implements OnDestroy {
   /** Margin threshold named in the legend. */
   protected readonly conflictMarginPoints = CONFLICT_MARGIN_POINTS;
   protected readonly retreatInfluencePercent = RETREAT_INFLUENCE_PERCENT;
+  /** The game's Retreat icon, drawn in place of an emoji (see `core/state-icons.ts`). */
+  protected readonly retreatIcon = RETREAT_ICON;
   protected readonly semaphoreThresholds = SEMAPHORE_THRESHOLDS;
   /** Placeholder rows shown while data is still loading. */
   protected readonly skeletonRows = Array.from({ length: 12 }, (_, i) => i);
@@ -286,6 +290,8 @@ export class BgsTableComponent implements OnDestroy {
     const downloaded = this.t('app.datasetDownloaded', { time: this.i18n.utcTime(Date.parse(info.generatedAt)) });
     return info.tickAt ? `${downloaded} · ${this.t('app.lastTick', { time: this.i18n.utcTime(Date.parse(info.tickAt)) })}` : downloaded;
   });
+  /** Each faction's global states (Expansion), read from its freshest system, for the system details. */
+  private readonly globalStates = computed(() => readGlobalStates(this.fullDataset() ?? this.coverageRows() ?? []));
   /** Every row, loaded once for the tick counter; {@link fullDataset} takes over once loaded, since it carries new assignments. */
   private readonly coverageRows = signal<BgsRow[] | null>(null);
   /** "214/389 aggiornati dall'ultimo tick · P1-P2: 18/25", or null until the rows and the tick time are known. */
@@ -1006,10 +1012,14 @@ export class BgsTableComponent implements OnDestroy {
     }
   }
 
-  /** The State details panel's heading for an entry: the game's state name, spaced ("Civil War"), with its icon. */
+  /**
+   * The State details panel's heading for an entry: the game's state name, spaced ("Civil War"),
+   * after its emoji. Retreat has none: the template draws the game's icon before it.
+   */
   protected stateEntryTitle(entry: StateEntry): string {
-    const icon = entry.kind === 'war' ? '⚔️' : entry.kind === 'election' ? '🗳️' : '⚠️';
-    return `${icon} ${entry.state.replace(/([a-z])([A-Z])/g, '$1 $2')}`;
+    const name = entry.state.replace(/([a-z])([A-Z])/g, '$1 $2');
+    const icon = entry.kind === 'war' ? '⚔️' : entry.kind === 'election' ? '🗳️' : null;
+    return icon ? `${icon} ${name}` : name;
   }
 
   /**
@@ -1128,7 +1138,7 @@ export class BgsTableComponent implements OnDestroy {
 
   /** Opens the system info dialog from the info button next to System Name, on every row. */
   protected openWatchlistDialog(row: BgsRow): void {
-    const data: PriorityWatchlistDialogData = { row };
+    const data: PriorityWatchlistDialogData = { row, globalStates: this.globalStates(), tickAt: this.datasetInfo()?.tickAt ?? null };
     this.dialog.open(PriorityWatchlistDialogComponent, {
       data,
       autoFocus: 'first-tabbable',

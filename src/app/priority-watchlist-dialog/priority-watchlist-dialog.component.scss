@@ -156,6 +156,75 @@ mat-dialog-content {
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
+
+  // Same ⚠️ as the table's: a conflict within reach, or a Retreat.
+  .info-risk {
+    margin-right: 4px;
+    cursor: help;
+  }
+
+  // The Retreat icon as the table's State column and the Legend draw it: dashed when only likely.
+  .info-retreat--expected {
+    display: inline-block;
+    padding: 1px 2px;
+    border: 1px dashed var(--color-danger);
+    border-radius: 4px;
+    line-height: 1;
+  }
+
+  // The game's state icons (see core/state-icons.ts), sized to the text.
+  .info-state {
+    white-space: nowrap;
+  }
+
+  // A global state read from the faction's freshest system: the tooltip says which.
+  .info-state--global {
+    cursor: help;
+  }
+
+  // About to start at the next tick: greyed out, as the table's State column does.
+  .info-state--pending {
+    color: var(--color-text-2);
+    opacity: 0.7;
+
+    .info-state-icon,
+    .info-state-emoji {
+      filter: grayscale(1);
+    }
+  }
+
+  .info-state-icon {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 3px;
+    vertical-align: -0.25em;
+  }
+
+  .info-state-emoji {
+    margin-right: 3px;
+  }
+
+  // Tinted blue as in the table's State column.
+  .info-state-emoji--election {
+    display: inline-block;
+    filter: grayscale(1) sepia(1) hue-rotate(190deg) saturate(8);
+  }
+
+  // A native faction, as Inara marks it: it can't retreat from here.
+  .info-native {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 5px;
+    border-radius: 3px;
+    background: var(--color-surface-3);
+    color: var(--color-text-bright);
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1.5;
+    vertical-align: middle;
+    cursor: help;
+  }
 }
 
 .info-empty {

@@ -81,17 +81,45 @@
             <th scope="col">{{ t('info.allegiance') }}</th>
             <th scope="col">{{ t('info.government') }}</th>
             <th scope="col" class="info-num">{{ t('info.influence') }}</th>
-            <th scope="col">{{ t('info.activeStates') }}</th>
+            <th scope="col">{{ t('info.states') }}</th>
           </tr>
         </thead>
         <tbody>
           @for (faction of row.factionDetails; track faction.name) {
             <tr>
-              <td>{{ faction.name }}</td>
+              <td>
+                {{ faction.name }}
+                @if (isNative(faction.name)) {
+                  <span class="info-native" [title]="t('info.nativeTitle')" [attr.aria-label]="t('info.nativeTitle')">N</span>
+                }
+              </td>
               <td>{{ faction.allegiance ?? '—' }}</td>
               <td>{{ faction.government ?? '—' }}</td>
-              <td class="info-num">{{ i18n.percent(faction.influencePercent) }}</td>
-              <td>{{ faction.activeStates.length > 0 ? faction.activeStates.join(', ') : '—' }}</td>
+              <td class="info-num">
+                @if (retreatWarning(faction); as retreat) {
+                  <span
+                    class="info-risk info-retreat"
+                    [class.info-retreat--expected]="retreat.expected"
+                    [title]="retreat.title"
+                    role="img"
+                    [attr.aria-label]="retreat.title"
+                    ><img class="info-state-icon" [src]="retreatIcon" alt=""
+                  /></span>
+                }
+                @if (riskTitle(faction.name); as riskText) {
+                  <span class="info-risk" [title]="riskText" [attr.aria-label]="riskText">⚠️</span>
+                }
+                {{ i18n.percent(faction.influencePercent) }}
+              </td>
+              <td>
+                @for (state of states(faction); track state.name + state.pending; let last = $last) {
+                  <span class="info-state" [class.info-state--pending]="state.pending" [class.info-state--global]="state.title" [title]="state.title ?? ''"
+                    >@if (stateIcon(state.name); as icon) {<img class="info-state-icon" [src]="icon" alt="" />} @else if (stateEmoji(state.name); as emoji) {<span class="info-state-emoji" [class.info-state-emoji--election]="state.name === 'Election'" aria-hidden="true">{{ emoji }}</span>}{{ state.name }}@if (state.pending) { ({{ t('state.pending') }})}</span
+                  >@if (!last) {, }
+                } @empty {
+                  —
+                }
+              </td>
             </tr>
           }
         </tbody>

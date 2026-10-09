@@ -234,7 +234,15 @@ export const en: Dictionary = {
   'info.allegiance': 'Allegiance',
   'info.government': 'Government',
   'info.influence': 'Influence',
-  'info.activeStates': 'Active states',
+  'info.closeAbove': '{points} points above {faction}: a conflict is possible',
+  'info.closeBelow': '{points} points below {faction}: a conflict is possible',
+  'info.closeOwn': 'A conflict is possible with: {factions}',
+  'info.nativeTitle': 'Native faction of the system: it cannot go into Retreat',
+  'info.retreatActive': 'In Retreat: if it stays below {threshold}, it leaves the system',
+  'info.retreatExpected': 'At {threshold} or less: Retreat likely at the next tick',
+  'info.states': 'States',
+  'info.globalState': 'Faction-wide state, read from {system} (updated {time} UTC)',
+  'info.globalStale': 'Data from before the last tick: it may have changed since',
 
   // Help dialog
   'help.title': 'Quick guide',

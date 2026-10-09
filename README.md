@@ -7,7 +7,8 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 - fazione che controlla il sistema e grafico dell'influenza di tutte le fazioni presenti;
 - influenza di Flotta Stellare e **margine**: vantaggio sulla seconda fazione dove controlliamo, distacco da chi controlla altrove;
 - stati in corso o in arrivo: guerra, elezione, ritirata; cliccando l'icona si vedono le fazioni coinvolte e la loro influenza. Un preavviso segnala un Retreat probabile al prossimo tick (influenza al 2,5% o meno);
-- forbice di influenza: un ⚠️ quando un'altra fazione è a 5 punti o meno dalla nostra, con chi controlla o con le fazioni vicine in classifica, ma non mentre siamo già in guerra o elezione nel sistema (la nostra influenza è bloccata);
+- forbice di influenza: un ⚠️ quando un'altra fazione è a 5 punti o meno dalla nostra, con chi controlla o con le fazioni vicine in classifica, ma non mentre siamo già in guerra o elezione nel sistema (la nostra influenza è bloccata); lo stesso ⚠️ compare nei dettagli del sistema accanto alle fazioni interessate, compresa la nostra;
+- nei dettagli del sistema, una "N" accanto alle fazioni native (ricavate dal nome: Spansh non lo dice) e un ⚠️ sulle fazioni non native in Retreat o al 2,5% o meno;
 - età del dato, cioè quanto tempo fa il sistema è stato aggiornato;
 - priorità di intervento, da P1 (massima) a P5; nei sistemi che controlliamo tiene conto anche dei semafori di influenza e margine;
 - architetto e fazione preferita dei sistemi colonizzati, registrabili dal pulsante "Assegna" (con la password degli ufficiali, una volta installato lo script del foglio);
@@ -89,4 +90,6 @@ Fazione, capitale e indirizzi di dati, Sheet e Form sono in [src/core/config.jso
 
 Il codice deriva da [canonn-colony-operations](https://github.com/canonn-science/canonn-colony-operations) del Canonn Research Group, distribuito con licenza MIT. Il procedimento per scaricare i dati da Spansh segue la loro Cloud Function `canonnbgs` ([Canonn-GCloud](https://github.com/canonn-science/Canonn-GCloud)).
 
-Questo progetto è distribuito con la stessa [licenza MIT](LICENSE), che conserva la nota di copyright originale.
+Le icone degli stati delle fazioni (Boom, Bust, Expansion, Lockdown, Retreat) in `public/icons/states/` sono quelle del gioco, di proprietà di Frontier Developments, usate come contenuto di fan. Elite Dangerous è un marchio di Frontier Developments plc.
+
+Questo progetto è distribuito con la stessa [licenza MIT](LICENSE), che conserva la nota di copyright originale. La licenza riguarda il codice, non le icone del gioco.

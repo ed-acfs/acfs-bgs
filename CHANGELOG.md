@@ -2,30 +2,34 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [1.1.2] - 2026-10-09 — Tabella ordinata per priorità, titolo come "home"
+## [1.2.1] - 2026-10-09 — Tabella per priorità, Watchlist in cima, più dettagli sulle fazioni
+
+Il lavoro di tutta la giornata in una voce sola. In mattinata il sito ha pubblicato due passi intermedi, 1.1.1 (Watchlist in cima) e 1.1.2 (ordine per priorità e titolo cliccabile): il loro contenuto è qui sotto.
 
 ### Tabella
 
-- All'apertura la tabella è **ordinata per priorità**, dalla P1 alla P5, con i sistemi in Watchlist sempre in cima (ordinati per priorità anche loro). Prima l'ordine iniziale era quello di Spansh, dal sistema aggiornato più di recente: con quasi tutti i sistemi aggiornati "oggi" sembrava casuale, e dei P1 come Misir finivano dietro a dei P5. A parità di punteggio vale la regola già usata dall'ordinamento per priorità (prima la popolazione, poi il numero di corpi).
-- L'intestazione Priorità mostra la freccia ▼ fin dall'apertura; gli altri ordinamenti col clic sulle intestazioni non cambiano.
-- La Guida lo dice, in italiano, tedesco e inglese.
-- **Il titolo "ACFS BGS Tool" è cliccabile** e riporta la tabella com'è all'apertura: prima pagina, ordinata per priorità, senza filtri, distanze da Wong Sher, Legenda chiusa. Restano il numero di righe e la lingua scelti. Il suggerimento al passaggio del mouse dice "Torna all'inizio" (in tedesco e in inglese "Zurück zum Anfang" e "Back to the start").
+- All'apertura la tabella è **ordinata per priorità**, dalla P1 alla P5. Prima l'ordine iniziale era quello di Spansh, dal sistema aggiornato più di recente: con quasi tutti i sistemi aggiornati "oggi" sembrava casuale, e dei P1 come Misir finivano dietro a dei P5. A parità di punteggio vale la regola già usata dall'ordinamento per priorità (prima la popolazione, poi il numero di corpi). L'intestazione Priorità mostra la freccia ▼ fin dall'apertura.
+- I sistemi in **Watchlist** restano in cima con **qualunque ordinamento** (colonna o distanza), ordinati fra loro allo stesso modo. Prima ci stavano solo nell'ordine iniziale.
+- **Il titolo "ACFS BGS Tool" è cliccabile** ("Torna all'inizio") e riporta la tabella com'è all'apertura: prima pagina, ordinata per priorità, senza filtri, distanze da Wong Sher, Legenda chiusa. Restano il numero di righe e la lingua scelti.
+
+### Dettagli del sistema
+
+- Nella tabella delle fazioni (icona ⓘ) un **⚠️ accanto all'influenza** segna le fazioni con cui è possibile un conflitto: le stesse per cui la tabella mette il ⚠️ sul Margine o sulla colonna ACFS, a 5 punti o meno da Flotta Stellare. Al passaggio del mouse dice di quanto sono sopra o sotto (es. Amait: "4,1 punti sopra Flotta Stellare: possibile conflitto"); accanto a Flotta Stellare dice con chi ("Possibile conflitto con: Earth Defense Fleet"). Niente ⚠️ mentre siamo già in guerra o elezione nel sistema. Tabella e finestra leggono le fazioni dalla stessa regola (`conflictRisks` in `core/close-factions.ts`).
+- Una **"N" accanto al nome delle fazioni native** del sistema, come su Inara: non possono andare in Retreat. Spansh non lo dice (né EDSM; EliteBGS lo saprebbe, ma è giù), quindi il tool lo ricava: una fazione NPC è nativa dove il nome del sistema compare nel suo ("Alliance of Lowne 1" in Lowne 1, non in Lowne 10), Flotta Stellare solo a Wong Sher. Una nativa con un nome diverso sfugge, e al massimo riceve un avviso di Retreat in più.
+- L'**icona del Retreat** accanto all'influenza delle fazioni non native: piena se sono già in Retreat, tratteggiata se sono al 2,5% o meno (Retreat probabile al prossimo tick). Per le native non compare.
+- La colonna "Stati attivi" diventa "Stati" e mostra anche gli **stati in pending**, in grigio con "(in pending)": prima si vedevano solo quelli attivi, e dove Spansh è indietro di qualche giorno (Amait, aggiornato il 7 ottobre) l'Expansion di Flotta Stellare, che è globale, spariva perché per Spansh era ancora in pending. Il 9 ottobre succedeva in 103 dei nostri 390 sistemi.
+- L'**Expansion è letta come stato globale**: per ogni fazione vale quella del sistema aggiornato più di recente in cui è presente, in tutti i suoi sistemi, sia in pending, sia attiva, sia finita. Prima ogni sistema mostrava il suo dato, anche vecchio di giorni. Al passaggio del mouse l'Expansion dice da dove viene ("Stato globale della fazione, letto da 14 Geminorum (aggiornato il 9 ott, 18:27 UTC)"), e avvisa se anche quel dato è anteriore all'ultimo tick. Esempio del 9 ottobre: ad Amait, fermo al 7 ottobre, Flotta Stellare passa da "Expansion in pending" ad attiva, e l'Expansion di Earth Defense Fleet, già finita, sparisce. Gli altri stati restano quelli del sistema; l'elenco degli stati globali sta in `core/global-states.ts` (per ora solo Expansion).
+- Nella colonna "Stati" l'**icona del gioco** accanto a Boom, Bust, Expansion, Lockdown e Retreat, e la nostra solita 🗳️ (blu, come in tabella) accanto a Election; gli altri stati restano solo testo.
+
+### Icone degli stati
+
+- Il Retreat ha ora l'**icona del gioco** (le due frecce arancioni verso il basso) al posto del ⚠️, ovunque: colonna Stato, Legenda, riquadro degli stati e dettagli del sistema. Il ⚠️ resta solo per la forbice, così le due cose non si confondono. Un Retreat in arrivo (pending) è grigio, uno probabile ha il bordo tratteggiato, come prima.
+- Le icone (fornite dall'utente) stanno in `public/icons/states/` e la mappa stato → icona in `core/state-icons.ts`; nel README la nota sulla proprietà di Frontier.
+- Tutti i testi nuovi sono in italiano, tedesco e inglese, Guida compresa.
 
 ### Test
 
-- Un test nuovo sul titolo che riporta all'inizio.
-- I test della tabella partono dai dati completi, come fa ora l'app; tolti quelli sul caricamento a pagine dall'ordine di Spansh, che all'apertura non si usa più. Passano 253 test dell'app.
-
-## [1.1.1] - 2026-10-09 — Watchlist sempre in cima
-
-### Tabella
-
-- I sistemi in **Watchlist** restano in cima con **qualunque ordinamento**: prima ci stavano solo nell'ordine iniziale e sparivano in mezzo alla lista appena si ordinava per una colonna (priorità, influenza, nome…) o per distanza. Fra loro seguono l'ordinamento scelto, e lo stesso vale per tutti gli altri sistemi sotto.
-- La Guida lo dice, in italiano, tedesco e inglese.
-
-### Test
-
-- Un test nuovo sull'ordinamento per nome con sistemi in Watchlist. Passano 253 test dell'app.
+- I test della tabella partono dai dati completi, come fa ora l'app; tolti quelli sul caricamento a pagine dall'ordine di Spansh, che all'apertura non si usa più. Test nuovi su Watchlist in cima, titolo, forbice, fazioni native, Retreat, icone degli stati e stati globali. Passano 262 test dell'app.
 
 ## [1.1.0] - 2026-10-07 — Priorità più leggibile: semafori e meno falsi P1
 

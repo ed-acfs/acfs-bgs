@@ -239,7 +239,15 @@ export const it = {
   'info.allegiance': 'Alleanza',
   'info.government': 'Governo',
   'info.influence': 'Influenza',
-  'info.activeStates': 'Stati attivi',
+  'info.closeAbove': '{points} punti sopra {faction}: possibile conflitto',
+  'info.closeBelow': '{points} punti sotto {faction}: possibile conflitto',
+  'info.closeOwn': 'Possibile conflitto con: {factions}',
+  'info.nativeTitle': 'Fazione nativa del sistema: non può andare in Retreat',
+  'info.retreatActive': 'In Retreat: se resta sotto il {threshold}, lascia il sistema',
+  'info.retreatExpected': 'Al {threshold} o meno: Retreat probabile al prossimo tick',
+  'info.states': 'Stati',
+  'info.globalState': 'Stato globale della fazione, letto da {system} (aggiornato il {time} UTC)',
+  'info.globalStale': "Dato anteriore all'ultimo tick: potrebbe essere già cambiato",
 
   // Help dialog: the table section in full, the internal tools (architects, orders) only in Italian
   'help.title': 'Guida rapida',

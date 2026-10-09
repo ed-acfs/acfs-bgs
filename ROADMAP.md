@@ -193,6 +193,7 @@ Nata da un'idea dell'utente il 5 ottobre 2026, non prevista nelle fasi originari
     - **Errori con codice 200**: secondo la issue #378 l'errore del database a volte arriva con HTTP 200; va controllato il contenuto (`docs` presente), non solo il codice.
     - **Licenza Apache 2.0**, con un ascoltatore EDDN già scritto (`eddn_listener/`), che però lavora su tutta la galassia con MongoDB: per noi basterebbe un ascoltatore molto più piccolo limitato ai nostri sistemi.
   - L'utente sta cercando altre fonti.
+  - **Fazioni native (9 ottobre 2026).** EliteBGS saprebbe anche quali fazioni sono native di un sistema (non possono andare in Retreat); Spansh ed EDSM no. Dalla 1.2.1 il tool lo ricava dal nome (`isNativeFaction` in `core/home-systems.ts`): se EliteBGS torna, si può usare il suo dato al posto della regola.
 
 - **Un'app nostra sul web (da valutare, 6 ottobre 2026).** Oggi il tool è un sito statico su GitHub Pages più un workflow che scarica i dati. Un piccolo servizio nostro sempre acceso aprirebbe varie strade: un ascoltatore EDDN limitato ai nostri sistemi (punteggio dei conflitti senza dipendere da EliteBGS), la ricezione dei dati dall'API di BGS-Tally, dati più freschi di Spansh, il typeahead della fase 8. Da decidere: dove ospitarlo, quanto costa, chi lo mantiene. Vedi anche la voce "Una nostra API, invece del JSON statico" più sotto.
 
@@ -206,6 +207,12 @@ Nata da un'idea dell'utente il 5 ottobre 2026, non prevista nelle fasi originari
 - **Seconda PMF da confrontare.** Una fazione opzionale in configurazione (alleata o rivale), con una sua colonna di influenza nei sistemi in cui è presente insieme a Flotta Stellare. Solo per confronto visivo: non entra nel calcolo della priorità. Il dato c'è già, perché `minor_faction_presences` elenca tutte le fazioni del sistema. Per prepararla, nella fase 2 la configurazione prevede un campo `compareFaction`, vuoto per default.
 
 - **Una nostra API, invece del JSON statico.** Verificato il 5 ottobre 2026 sul codice dei Canonn: la loro Cloud Function `canonnbgs` ([Canonn-GCloud](https://github.com/canonn-science/Canonn-GCloud), `query/function/localpackage/canonnbgs.py`) non ha un database proprio, è solo un proxy/cache di Spansh (stessa ricerca salvata e richiamata a pagine che fa il nostro `fetch-bgs.mjs`, con TTL di un'ora) — lato server invece che in CI. Il MySQL visibile nello stesso repo serve a un tool diverso, [EDMC-Canonn](https://github.com/canonn-science/EDMC-Canonn) ("Project Athens"), che raccoglie dati scientifici dai client dei giocatori via EDDN: non è comparabile, perché aggrega da molti client in continuo, mentre il BGS lavora su Spansh. Se un giorno vogliamo un'API nostra (ad esempio per il typeahead della fase 8, o per dati più freschi di Spansh), la scelta è fra queste due strade molto diverse: un proxy leggero come il loro (piccolo passo da quello che abbiamo) oppure un ascoltatore EDDN con database proprio (molto più lavoro, serve solo se Spansh non basta più).
+
+- **Risorse grafiche di Elite (segnalate dall'utente il 9 ottobre 2026): [edassets.org](https://edassets.org)** (sorgente [Venefilyn/EDAssets](https://github.com/Venefilyn/EDAssets)). Da tenere per quando servono:
+  - **Loading 1** (sezione Animated logos): SVG animato del caricamento dei servizi di stazione, fatto da cmmcleod (autore di Coriolis). Adatto a sostituire il testo "Caricamento…" della tabella o per caricamenti futuri.
+  - **Font**: Euro Caps è quello dei titoli del gioco ed è "100% Free" su dafont, quindi utilizzabile; Eurostile e Century Gothic sono commerciali (Monotype/Linotype), da non usare. Oggi il tool usa Roboto, che all'utente piace: Euro Caps eventualmente solo per titoli.
+  - Le immagini ufficiali restano proprietà di Frontier: vanno usate come contenuto di fan, citando la fonte.
+  - In arrivo dall'utente: emoji in immagine, per esempio un'icona del Retreat diversa dal ⚠️ della forbice.
 
 ## Domande aperte
 

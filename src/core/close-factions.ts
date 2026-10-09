@@ -49,3 +49,23 @@ export function closeFactions(
     .filter(f => Math.abs(f.points) <= maxPoints)
     .sort((a, b) => b.points - a.points);
 }
+
+/**
+ * Every faction the table warns a conflict with ours is possible with: our neighbours in the
+ * ranking ({@link closeFactions}, the ⚠️ on the ACFS cell) plus the faction the Margine column
+ * measures us against when it's within {@link CONFLICT_MARGIN_POINTS} (the ⚠️ on the margin) —
+ * the controller can sit within reach without being our direct neighbour. None while we're
+ * already in a conflict here (see {@link alreadyInConflict}).
+ */
+export function conflictRisks(row: Pick<BgsRow, 'stateEntries' | 'factions' | 'margin'>): CloseFaction[] {
+  if (alreadyInConflict(row)) {
+    return [];
+  }
+  const risks = closeFactions(row.factions);
+  const margin = row.margin;
+  if (margin && Math.abs(margin.points) <= CONFLICT_MARGIN_POINTS && !risks.some(faction => faction.name === margin.versus)) {
+    risks.push({ name: margin.versus, influencePercent: margin.versusInfluence, points: -margin.points });
+    risks.sort((a, b) => b.points - a.points);
+  }
+  return risks;
+}

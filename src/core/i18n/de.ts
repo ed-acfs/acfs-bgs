@@ -237,7 +237,15 @@ export const de: Dictionary = {
   'info.allegiance': 'Zugehörigkeit',
   'info.government': 'Regierung',
   'info.influence': 'Einfluss',
-  'info.activeStates': 'Aktive Zustände',
+  'info.closeAbove': '{points} Punkte über {faction}: ein Konflikt ist möglich',
+  'info.closeBelow': '{points} Punkte unter {faction}: ein Konflikt ist möglich',
+  'info.closeOwn': 'Ein Konflikt ist möglich mit: {factions}',
+  'info.nativeTitle': 'Einheimische Fraktion des Systems: kann nicht in Retreat gehen',
+  'info.retreatActive': 'Im Retreat: bleibt sie unter {threshold}, verlässt sie das System',
+  'info.retreatExpected': 'Bei {threshold} oder weniger: Retreat beim nächsten Tick wahrscheinlich',
+  'info.states': 'Zustände',
+  'info.globalState': 'Fraktionsweiter Zustand, gelesen in {system} (aktualisiert {time} UTC)',
+  'info.globalStale': 'Daten vor dem letzten Tick: kann sich inzwischen geändert haben',
 
   // Help dialog
   'help.title': 'Kurzanleitung',
