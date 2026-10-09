@@ -101,16 +101,25 @@
                     class="info-risk info-retreat"
                     [class.info-retreat--expected]="retreat.expected"
                     [title]="retreat.title"
+                    role="img"
                     [attr.aria-label]="retreat.title"
-                    >⚠️</span
-                  >
+                    ><img class="info-state-icon" [src]="retreatIcon" alt=""
+                  /></span>
                 }
                 @if (riskTitle(faction.name); as riskText) {
                   <span class="info-risk" [title]="riskText" [attr.aria-label]="riskText">⚠️</span>
                 }
                 {{ i18n.percent(faction.influencePercent) }}
               </td>
-              <td>{{ faction.activeStates.length > 0 ? faction.activeStates.join(', ') : '—' }}</td>
+              <td>
+                @for (state of faction.activeStates; track state; let last = $last) {
+                  <span class="info-state"
+                    >@if (stateIcon(state); as icon) {<img class="info-state-icon" [src]="icon" alt="" />} @else if (stateEmoji(state); as emoji) {<span class="info-state-emoji" [class.info-state-emoji--election]="state === 'Election'" aria-hidden="true">{{ emoji }}</span>}{{ state }}</span
+                  >@if (!last) {, }
+                } @empty {
+                  —
+                }
+              </td>
             </tr>
           }
         </tbody>

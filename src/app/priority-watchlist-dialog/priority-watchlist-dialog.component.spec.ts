@@ -62,6 +62,7 @@ describe('PriorityWatchlistDialogComponent', () => {
         faction('Fellowship of 11', 2.1),
         faction('Betel Free', 3, ['Retreat']),
         faction('Amait Monarchy', 1.9),
+        faction('Voters', 20, ['Election', 'Boom']),
       ],
     });
 
@@ -77,6 +78,13 @@ describe('PriorityWatchlistDialogComponent', () => {
     const underWay = factionRow(host, 'Betel Free').querySelector<HTMLElement>('.info-retreat')!;
     expect(underWay.title).toBe('In Retreat: se resta sotto il 2,5%, lascia il sistema');
     expect(underWay.classList).not.toContain('info-retreat--expected');
+    // The game's icon before the state name in Active states, when we have one.
+    const stateIcons = [...factionRow(host, 'Betel Free').querySelectorAll<HTMLImageElement>('.info-state .info-state-icon')];
+    expect(stateIcons.map(icon => icon.getAttribute('src'))).toEqual(['icons/states/retreat.png']);
+    // Election keeps the squadron's own 🗳️; Boom gets the game's icon.
+    const voters = factionRow(host, 'Voters');
+    expect(voters.querySelector('.info-state-emoji--election')!.textContent).toBe('🗳️');
+    expect(voters.querySelector<HTMLImageElement>('.info-state-icon')!.getAttribute('src')).toBe('icons/states/boom.png');
     // Native: it can't retreat, however low it goes.
     expect(factionRow(host, 'Amait Monarchy').querySelector('.info-retreat')).toBeNull();
   });

@@ -69,6 +69,7 @@ import { I18nService } from '../i18n.service';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { PriorityReason } from '../../core/priority';
 import { isMessageKey } from '../../core/i18n';
+import { RETREAT_ICON } from '../../core/state-icons';
 
 /**
  * How the table is currently ordered:
@@ -248,6 +249,8 @@ export class BgsTableComponent implements OnDestroy {
   /** Margin threshold named in the legend. */
   protected readonly conflictMarginPoints = CONFLICT_MARGIN_POINTS;
   protected readonly retreatInfluencePercent = RETREAT_INFLUENCE_PERCENT;
+  /** The game's Retreat icon, drawn in place of an emoji (see `core/state-icons.ts`). */
+  protected readonly retreatIcon = RETREAT_ICON;
   protected readonly semaphoreThresholds = SEMAPHORE_THRESHOLDS;
   /** Placeholder rows shown while data is still loading. */
   protected readonly skeletonRows = Array.from({ length: 12 }, (_, i) => i);
@@ -1006,10 +1009,14 @@ export class BgsTableComponent implements OnDestroy {
     }
   }
 
-  /** The State details panel's heading for an entry: the game's state name, spaced ("Civil War"), with its icon. */
+  /**
+   * The State details panel's heading for an entry: the game's state name, spaced ("Civil War"),
+   * after its emoji. Retreat has none: the template draws the game's icon before it.
+   */
   protected stateEntryTitle(entry: StateEntry): string {
-    const icon = entry.kind === 'war' ? '⚔️' : entry.kind === 'election' ? '🗳️' : '⚠️';
-    return `${icon} ${entry.state.replace(/([a-z])([A-Z])/g, '$1 $2')}`;
+    const name = entry.state.replace(/([a-z])([A-Z])/g, '$1 $2');
+    const icon = entry.kind === 'war' ? '⚔️' : entry.kind === 'election' ? '🗳️' : null;
+    return icon ? `${icon} ${name}` : name;
   }
 
   /**

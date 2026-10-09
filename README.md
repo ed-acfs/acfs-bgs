@@ -90,4 +90,6 @@ Fazione, capitale e indirizzi di dati, Sheet e Form sono in [src/core/config.jso
 
 Il codice deriva da [canonn-colony-operations](https://github.com/canonn-science/canonn-colony-operations) del Canonn Research Group, distribuito con licenza MIT. Il procedimento per scaricare i dati da Spansh segue la loro Cloud Function `canonnbgs` ([Canonn-GCloud](https://github.com/canonn-science/Canonn-GCloud)).
 
-Questo progetto è distribuito con la stessa [licenza MIT](LICENSE), che conserva la nota di copyright originale.
+Le icone degli stati delle fazioni (Boom, Bust, Expansion, Lockdown, Retreat) in `public/icons/states/` sono quelle del gioco, di proprietà di Frontier Developments, usate come contenuto di fan. Elite Dangerous è un marchio di Frontier Developments plc.
+
+Questo progetto è distribuito con la stessa [licenza MIT](LICENSE), che conserva la nota di copyright originale. La licenza riguarda il codice, non le icone del gioco.

@@ -269,9 +269,9 @@
           </li>
           <li><span class="bgs-legend-key"><span class="bgs-state-icon" aria-hidden="true">⚔️</span></span><span>{{ t('legend.war', { faction: factionName }) }}</span></li>
           <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--election" aria-hidden="true">🗳️</span></span><span>{{ t('legend.election', { faction: factionName }) }}</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat" aria-hidden="true">⚠️</span></span><span>{{ t('legend.retreat', { faction: factionName }) }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat" aria-hidden="true"><img class="bgs-state-img" [src]="retreatIcon" alt="" /></span></span><span>{{ t('legend.retreat', { faction: factionName }) }}</span></li>
           <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--pending" aria-hidden="true">⚔️</span></span><span>{{ t('legend.pending') }}</span></li>
-          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat bgs-state-icon--expected" aria-hidden="true">⚠️</span></span><span>{{ t('legend.retreatExpected', { threshold: i18n.percent(retreatInfluencePercent) }) }}</span></li>
+          <li><span class="bgs-legend-key"><span class="bgs-state-icon bgs-state-icon--retreat bgs-state-icon--expected" aria-hidden="true"><img class="bgs-state-img" [src]="retreatIcon" alt="" /></span></span><span>{{ t('legend.retreatExpected', { threshold: i18n.percent(retreatInfluencePercent) }) }}</span></li>
         </ul>
       </div>
 
@@ -632,7 +632,7 @@
                           [class.bgs-state-icon--pending]="row.retreatState === 'pending'"
                           [title]="row.retreatDetails"
                           aria-hidden="true"
-                        >⚠️</span>
+                        ><img class="bgs-state-img" [src]="retreatIcon" alt="" /></span>
                       }
                       @if (row.warState) {
                         <span
@@ -658,7 +658,7 @@
                       role="img"
                       [title]="retreatExpectedTitle(row)"
                       [attr.aria-label]="retreatExpectedTitle(row)"
-                    >⚠️</span>
+                    ><img class="bgs-state-img" [src]="retreatIcon" alt="" /></span>
                   } @else if (row.stateEntries.length === 0) {
                     <span>—</span>
                   }
@@ -736,6 +736,9 @@
           @for (entry of row.stateEntries; track $index) {
             <section class="bgs-state-entry">
               <p class="bgs-state-entry-title">
+                @if (entry.kind === 'retreat') {
+                  <img class="bgs-state-img" [src]="retreatIcon" alt="" />
+                }
                 {{ stateEntryTitle(entry) }}
                 <span class="bgs-state-entry-status" [class.bgs-state-entry-status--pending]="entry.status === 'pending'">
                   {{ entry.status === 'pending' ? t('state.pending') : t('state.active') }}

@@ -172,6 +172,29 @@ mat-dialog-content {
     line-height: 1;
   }
 
+  // The game's state icons (see core/state-icons.ts), sized to the text.
+  .info-state {
+    white-space: nowrap;
+  }
+
+  .info-state-icon {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 3px;
+    vertical-align: -0.25em;
+  }
+
+  .info-state-emoji {
+    margin-right: 3px;
+  }
+
+  // Tinted blue as in the table's State column.
+  .info-state-emoji--election {
+    display: inline-block;
+    filter: grayscale(1) sepia(1) hue-rotate(190deg) saturate(8);
+  }
+
   // A native faction, as Inara marks it: it can't retreat from here.
   .info-native {
     display: inline-block;

@@ -652,6 +652,19 @@
   filter: none;
 }
 
+.bgs-state-icon--retreat.bgs-state-icon--pending {
+  filter: grayscale(1);
+  opacity: 0.75;
+}
+
+// The game's state icons (see core/state-icons.ts), sized like the emoji they sit next to.
+.bgs-state-img {
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.2em;
+}
+
 .bgs-col-priority {
   width: 60px;
   text-align: center;

@@ -14,7 +14,13 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
 - Nella tabella delle fazioni (icona ⓘ) un **⚠️ accanto all'influenza** segna le fazioni con cui è possibile un conflitto: le stesse per cui la tabella mette il ⚠️ sul Margine o sulla colonna ACFS, a 5 punti o meno da Flotta Stellare. Al passaggio del mouse dice di quanto sono sopra o sotto (es. Amait: "4,1 punti sopra Flotta Stellare: possibile conflitto"); accanto a Flotta Stellare dice con chi ("Possibile conflitto con: Earth Defense Fleet"). Niente ⚠️ mentre siamo già in guerra o elezione nel sistema. Tabella e finestra leggono le fazioni dalla stessa regola (`conflictRisks` in `core/close-factions.ts`).
 - Una **"N" accanto al nome delle fazioni native** del sistema, come su Inara: non possono andare in Retreat. Spansh non lo dice (né EDSM; EliteBGS lo saprebbe, ma è giù), quindi il tool lo ricava: una fazione NPC è nativa dove il nome del sistema compare nel suo ("Alliance of Lowne 1" in Lowne 1, non in Lowne 10), Flotta Stellare solo a Wong Sher. Una nativa con un nome diverso sfugge, e al massimo riceve un avviso di Retreat in più.
-- L'**icona del Retreat**, come nella colonna Stato e nella Legenda, per le fazioni non native: piena se sono già in Retreat, tratteggiata se sono al 2,5% o meno (Retreat probabile al prossimo tick). Per le native non compare.
+- L'**icona del Retreat** accanto all'influenza delle fazioni non native: piena se sono già in Retreat, tratteggiata se sono al 2,5% o meno (Retreat probabile al prossimo tick). Per le native non compare.
+- Nella colonna "Stati attivi" l'**icona del gioco** accanto a Boom, Bust, Expansion, Lockdown e Retreat, e la nostra solita 🗳️ (blu, come in tabella) accanto a Election; gli altri stati restano solo testo.
+
+### Icone degli stati
+
+- Il Retreat ha ora l'**icona del gioco** (le due frecce arancioni verso il basso) al posto del ⚠️, ovunque: colonna Stato, Legenda, riquadro degli stati e dettagli del sistema. Il ⚠️ resta solo per la forbice, così le due cose non si confondono. Un Retreat in arrivo (pending) è grigio, uno probabile ha il bordo tratteggiato, come prima.
+- Le icone (fornite dall'utente) stanno in `public/icons/states/` e la mappa stato → icona in `core/state-icons.ts`; nel README la nota sulla proprietà di Frontier.
 - Tutti i testi nuovi sono in italiano, tedesco e inglese, Guida compresa.
 
 ### Test

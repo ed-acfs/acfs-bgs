@@ -5,6 +5,7 @@ import { BgsRow, FactionDetail, StationService } from '../../core/bgs';
 import { CloseFaction, conflictRisks } from '../../core/close-factions';
 import { FACTION_NAME, RETREAT_INFLUENCE_PERCENT } from '../../core/config';
 import { isNativeFaction } from '../../core/home-systems';
+import { RETREAT_ICON, STATE_EMOJI, stateIcon } from '../../core/state-icons';
 import { I18nService } from '../i18n.service';
 
 /** The system whose info the dialog shows. */
@@ -32,6 +33,13 @@ export class PriorityWatchlistDialogComponent {
 
   protected readonly row = this.data.row;
   protected readonly entries = this.data.row.watchlist;
+  protected readonly retreatIcon = RETREAT_ICON;
+  /** The game's icon for a state, when we have one (see `core/state-icons.ts`). */
+  protected readonly stateIcon = stateIcon;
+  /** The emoji for a state drawn with one instead (Election's 🗳️), or undefined. */
+  protected stateEmoji(state: string): string | undefined {
+    return STATE_EMOJI[state];
+  }
   /** The factions the table flags with ⚠️ for this system, by name. */
   private readonly risks = new Map<string, CloseFaction>(conflictRisks(this.data.row).map(risk => [risk.name, risk]));
 
