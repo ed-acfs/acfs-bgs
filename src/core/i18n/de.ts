@@ -244,6 +244,8 @@ export const de: Dictionary = {
   'info.retreatActive': 'Im Retreat: bleibt sie unter {threshold}, verlässt sie das System',
   'info.retreatExpected': 'Bei {threshold} oder weniger: Retreat beim nächsten Tick wahrscheinlich',
   'info.states': 'Zustände',
+  'info.globalState': 'Fraktionsweiter Zustand, gelesen in {system} (aktualisiert {time} UTC)',
+  'info.globalStale': 'Daten vor dem letzten Tick: kann sich inzwischen geändert haben',
 
   // Help dialog
   'help.title': 'Kurzanleitung',

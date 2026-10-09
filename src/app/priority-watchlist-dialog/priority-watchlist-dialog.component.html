@@ -113,7 +113,7 @@
               </td>
               <td>
                 @for (state of states(faction); track state.name + state.pending; let last = $last) {
-                  <span class="info-state" [class.info-state--pending]="state.pending"
+                  <span class="info-state" [class.info-state--pending]="state.pending" [class.info-state--global]="state.title" [title]="state.title ?? ''"
                     >@if (stateIcon(state.name); as icon) {<img class="info-state-icon" [src]="icon" alt="" />} @else if (stateEmoji(state.name); as emoji) {<span class="info-state-emoji" [class.info-state-emoji--election]="state.name === 'Election'" aria-hidden="true">{{ emoji }}</span>}{{ state.name }}@if (state.pending) { ({{ t('state.pending') }})}</span
                   >@if (!last) {, }
                 } @empty {

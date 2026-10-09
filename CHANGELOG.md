@@ -2,7 +2,7 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [1.2.0] - 2026-10-09 — Tabella per priorità, Watchlist in cima, più dettagli sulle fazioni
+## [1.2.1] - 2026-10-09 — Tabella per priorità, Watchlist in cima, più dettagli sulle fazioni
 
 Il lavoro di tutta la giornata in una voce sola. In mattinata il sito ha pubblicato due passi intermedi, 1.1.1 (Watchlist in cima) e 1.1.2 (ordine per priorità e titolo cliccabile): il loro contenuto è qui sotto.
 
@@ -18,6 +18,7 @@ Il lavoro di tutta la giornata in una voce sola. In mattinata il sito ha pubblic
 - Una **"N" accanto al nome delle fazioni native** del sistema, come su Inara: non possono andare in Retreat. Spansh non lo dice (né EDSM; EliteBGS lo saprebbe, ma è giù), quindi il tool lo ricava: una fazione NPC è nativa dove il nome del sistema compare nel suo ("Alliance of Lowne 1" in Lowne 1, non in Lowne 10), Flotta Stellare solo a Wong Sher. Una nativa con un nome diverso sfugge, e al massimo riceve un avviso di Retreat in più.
 - L'**icona del Retreat** accanto all'influenza delle fazioni non native: piena se sono già in Retreat, tratteggiata se sono al 2,5% o meno (Retreat probabile al prossimo tick). Per le native non compare.
 - La colonna "Stati attivi" diventa "Stati" e mostra anche gli **stati in pending**, in grigio con "(in pending)": prima si vedevano solo quelli attivi, e dove Spansh è indietro di qualche giorno (Amait, aggiornato il 7 ottobre) l'Expansion di Flotta Stellare, che è globale, spariva perché per Spansh era ancora in pending. Il 9 ottobre succedeva in 103 dei nostri 390 sistemi.
+- L'**Expansion è letta come stato globale**: per ogni fazione vale quella del sistema aggiornato più di recente in cui è presente, in tutti i suoi sistemi, sia in pending, sia attiva, sia finita. Prima ogni sistema mostrava il suo dato, anche vecchio di giorni. Al passaggio del mouse l'Expansion dice da dove viene ("Stato globale della fazione, letto da 14 Geminorum (aggiornato il 9 ott, 18:27 UTC)"), e avvisa se anche quel dato è anteriore all'ultimo tick. Esempio del 9 ottobre: ad Amait, fermo al 7 ottobre, Flotta Stellare passa da "Expansion in pending" ad attiva, e l'Expansion di Earth Defense Fleet, già finita, sparisce. Gli altri stati restano quelli del sistema; l'elenco degli stati globali sta in `core/global-states.ts` (per ora solo Expansion).
 - Nella colonna "Stati" l'**icona del gioco** accanto a Boom, Bust, Expansion, Lockdown e Retreat, e la nostra solita 🗳️ (blu, come in tabella) accanto a Election; gli altri stati restano solo testo.
 
 ### Icone degli stati
@@ -28,7 +29,7 @@ Il lavoro di tutta la giornata in una voce sola. In mattinata il sito ha pubblic
 
 ### Test
 
-- I test della tabella partono dai dati completi, come fa ora l'app; tolti quelli sul caricamento a pagine dall'ordine di Spansh, che all'apertura non si usa più. Test nuovi su Watchlist in cima, titolo, forbice, fazioni native e Retreat. Passano 259 test dell'app.
+- I test della tabella partono dai dati completi, come fa ora l'app; tolti quelli sul caricamento a pagine dall'ordine di Spansh, che all'apertura non si usa più. Test nuovi su Watchlist in cima, titolo, forbice, fazioni native, Retreat, icone degli stati e stati globali. Passano 262 test dell'app.
 
 ## [1.1.0] - 2026-10-07 — Priorità più leggibile: semafori e meno falsi P1
 

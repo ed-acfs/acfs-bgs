@@ -69,6 +69,7 @@ import { I18nService } from '../i18n.service';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { PriorityReason } from '../../core/priority';
 import { isMessageKey } from '../../core/i18n';
+import { readGlobalStates } from '../../core/global-states';
 import { RETREAT_ICON } from '../../core/state-icons';
 
 /**
@@ -289,6 +290,8 @@ export class BgsTableComponent implements OnDestroy {
     const downloaded = this.t('app.datasetDownloaded', { time: this.i18n.utcTime(Date.parse(info.generatedAt)) });
     return info.tickAt ? `${downloaded} · ${this.t('app.lastTick', { time: this.i18n.utcTime(Date.parse(info.tickAt)) })}` : downloaded;
   });
+  /** Each faction's global states (Expansion), read from its freshest system, for the system details. */
+  private readonly globalStates = computed(() => readGlobalStates(this.fullDataset() ?? this.coverageRows() ?? []));
   /** Every row, loaded once for the tick counter; {@link fullDataset} takes over once loaded, since it carries new assignments. */
   private readonly coverageRows = signal<BgsRow[] | null>(null);
   /** "214/389 aggiornati dall'ultimo tick · P1-P2: 18/25", or null until the rows and the tick time are known. */
@@ -1135,7 +1138,7 @@ export class BgsTableComponent implements OnDestroy {
 
   /** Opens the system info dialog from the info button next to System Name, on every row. */
   protected openWatchlistDialog(row: BgsRow): void {
-    const data: PriorityWatchlistDialogData = { row };
+    const data: PriorityWatchlistDialogData = { row, globalStates: this.globalStates(), tickAt: this.datasetInfo()?.tickAt ?? null };
     this.dialog.open(PriorityWatchlistDialogComponent, {
       data,
       autoFocus: 'first-tabbable',

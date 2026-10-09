@@ -193,7 +193,7 @@ Nata da un'idea dell'utente il 5 ottobre 2026, non prevista nelle fasi originari
     - **Errori con codice 200**: secondo la issue #378 l'errore del database a volte arriva con HTTP 200; va controllato il contenuto (`docs` presente), non solo il codice.
     - **Licenza Apache 2.0**, con un ascoltatore EDDN già scritto (`eddn_listener/`), che però lavora su tutta la galassia con MongoDB: per noi basterebbe un ascoltatore molto più piccolo limitato ai nostri sistemi.
   - L'utente sta cercando altre fonti.
-  - **Fazioni native (9 ottobre 2026).** EliteBGS saprebbe anche quali fazioni sono native di un sistema (non possono andare in Retreat); Spansh ed EDSM no. Dalla 1.2.0 il tool lo ricava dal nome (`isNativeFaction` in `core/home-systems.ts`): se EliteBGS torna, si può usare il suo dato al posto della regola.
+  - **Fazioni native (9 ottobre 2026).** EliteBGS saprebbe anche quali fazioni sono native di un sistema (non possono andare in Retreat); Spansh ed EDSM no. Dalla 1.2.1 il tool lo ricava dal nome (`isNativeFaction` in `core/home-systems.ts`): se EliteBGS torna, si può usare il suo dato al posto della regola.
 
 - **Un'app nostra sul web (da valutare, 6 ottobre 2026).** Oggi il tool è un sito statico su GitHub Pages più un workflow che scarica i dati. Un piccolo servizio nostro sempre acceso aprirebbe varie strade: un ascoltatore EDDN limitato ai nostri sistemi (punteggio dei conflitti senza dipendere da EliteBGS), la ricezione dei dati dall'API di BGS-Tally, dati più freschi di Spansh, il typeahead della fase 8. Da decidere: dove ospitarlo, quanto costa, chi lo mantiene. Vedi anche la voce "Una nostra API, invece del JSON statico" più sotto.
 

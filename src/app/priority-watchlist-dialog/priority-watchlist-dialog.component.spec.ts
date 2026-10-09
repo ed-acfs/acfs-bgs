@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BgsRow, FactionDetail } from '../../core/bgs';
-import { PriorityWatchlistDialogComponent } from './priority-watchlist-dialog.component';
+import { PriorityWatchlistDialogComponent, PriorityWatchlistDialogData } from './priority-watchlist-dialog.component';
 
 function faction(name: string, influencePercent: number, activeStates: string[] = [], pendingStates: string[] = []): FactionDetail {
   return { name, influencePercent, allegiance: null, government: null, activeStates, pendingStates };
@@ -27,10 +27,10 @@ const amait = {
 } as unknown as BgsRow;
 
 describe('PriorityWatchlistDialogComponent', () => {
-  async function open(row: BgsRow): Promise<HTMLElement> {
+  async function open(row: BgsRow, extra: Omit<PriorityWatchlistDialogData, 'row'> = {}): Promise<HTMLElement> {
     await TestBed.configureTestingModule({
       imports: [PriorityWatchlistDialogComponent],
-      providers: [{ provide: MAT_DIALOG_DATA, useValue: { row } }],
+      providers: [{ provide: MAT_DIALOG_DATA, useValue: { row, ...extra } }],
     }).compileComponents();
     const fixture = TestBed.createComponent(PriorityWatchlistDialogComponent);
     await fixture.whenStable();
@@ -90,5 +90,33 @@ describe('PriorityWatchlistDialogComponent', () => {
     expect(pending.textContent!.trim()).toBe('Expansion (in pending)');
     // Native: it can't retreat, however low it goes.
     expect(factionRow(host, 'Amait Monarchy').querySelector('.info-retreat')).toBeNull();
+  });
+
+  it("shows a faction's global Expansion as its freshest system reports it, saying where from", async () => {
+    // Amait's data lags: Spansh still has our Expansion pending there, while Wong Sher, updated
+    // after the tick, has it active. Earth Defense Fleet's Expansion is read in Amait itself.
+    const stale = {
+      ...amait,
+      factionDetails: [
+        faction('Earth Defense Fleet', 35.7, ['Expansion']),
+        faction('Flotta Stellare', 31.6, ['Boom'], ['Expansion']),
+      ],
+    } as BgsRow;
+    const host = await open(stale, {
+      tickAt: '2026-10-09T15:41:00Z',
+      globalStates: new Map([
+        ['Flotta Stellare', { sourceSystem: 'Wong Sher', updatedAtMs: Date.parse('2026-10-09T18:11:00Z'), active: ['Expansion'], pending: [] }],
+        ['Earth Defense Fleet', { sourceSystem: 'Amait', updatedAtMs: Date.parse('2026-10-07T16:15:45Z'), active: ['Expansion'], pending: [] }],
+      ]),
+    });
+
+    const ours = [...factionRow(host, 'Flotta Stellare').querySelectorAll<HTMLElement>('.info-state')];
+    expect(ours.map(state => state.textContent!.trim())).toEqual(['Boom', 'Expansion']);
+    expect(ours[1].classList).not.toContain('info-state--pending');
+    expect(ours[1].title).toBe('Stato globale della fazione, letto da Wong Sher (aggiornato il 9 ott, 18:11 UTC)');
+
+    const theirs = factionRow(host, 'Earth Defense Fleet').querySelector<HTMLElement>('.info-state')!;
+    expect(theirs.textContent!.trim()).toBe('Expansion');
+    expect(theirs.title).toBe('');
   });
 });

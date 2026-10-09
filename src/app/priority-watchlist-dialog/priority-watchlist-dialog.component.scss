@@ -177,6 +177,11 @@ mat-dialog-content {
     white-space: nowrap;
   }
 
+  // A global state read from the faction's freshest system: the tooltip says which.
+  .info-state--global {
+    cursor: help;
+  }
+
   // About to start at the next tick: greyed out, as the table's State column does.
   .info-state--pending {
     color: var(--color-text-2);
