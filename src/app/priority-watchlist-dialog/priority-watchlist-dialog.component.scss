@@ -156,6 +156,12 @@ mat-dialog-content {
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
+
+  // Same ⚠️ as the table's: a faction within conflict reach of ours.
+  .info-risk {
+    margin-right: 4px;
+    cursor: help;
+  }
 }
 
 .info-empty {

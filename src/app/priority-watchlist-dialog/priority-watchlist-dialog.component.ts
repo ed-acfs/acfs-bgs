@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { BgsRow, StationService } from '../../core/bgs';
+import { CloseFaction, conflictRisks } from '../../core/close-factions';
+import { FACTION_NAME } from '../../core/config';
 import { I18nService } from '../i18n.service';
 
 /** The system whose info the dialog shows. */
@@ -29,6 +31,20 @@ export class PriorityWatchlistDialogComponent {
 
   protected readonly row = this.data.row;
   protected readonly entries = this.data.row.watchlist;
+  /** The factions the table flags with ⚠️ for this system, by name. */
+  private readonly risks = new Map<string, CloseFaction>(conflictRisks(this.data.row).map(risk => [risk.name, risk]));
+
+  /** Hover text for the ⚠️ next to a faction within conflict reach of ours, or null when it isn't. */
+  protected riskTitle(factionName: string): string | null {
+    const risk = this.risks.get(factionName);
+    if (!risk) {
+      return null;
+    }
+    return this.t(risk.points > 0 ? 'info.closeAbove' : 'info.closeBelow', {
+      points: this.i18n.decimal(Math.abs(risk.points)),
+      faction: FACTION_NAME,
+    });
+  }
 
   /** "Material Trader: Encoded", or "unknown type" in the current language when Spansh lists the service without its kind. */
   protected serviceLabel(service: StationService): string {

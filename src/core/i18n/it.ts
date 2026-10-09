@@ -239,6 +239,8 @@ export const it = {
   'info.allegiance': 'Alleanza',
   'info.government': 'Governo',
   'info.influence': 'Influenza',
+  'info.closeAbove': '{points} punti sopra {faction}: possibile conflitto',
+  'info.closeBelow': '{points} punti sotto {faction}: possibile conflitto',
   'info.activeStates': 'Stati attivi',
 
   // Help dialog: the table section in full, the internal tools (architects, orders) only in Italian

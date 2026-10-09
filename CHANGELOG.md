@@ -2,6 +2,18 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [1.1.3] - 2026-10-09 — Forbice anche nei dettagli del sistema
+
+### Dettagli del sistema
+
+- Nella tabella delle fazioni (icona ⓘ) un **⚠️ accanto all'influenza** segna le fazioni con cui è possibile un conflitto: le stesse per cui la tabella mette il ⚠️ sul Margine o sulla colonna ACFS, cioè quelle a 5 punti o meno da Flotta Stellare. Al passaggio del mouse dice di quanto sono sopra o sotto (es. Amait: "4,1 punti sopra Flotta Stellare: possibile conflitto"). Come nella tabella, niente ⚠️ mentre siamo già in guerra o elezione nel sistema.
+- Il testo è in italiano, tedesco e inglese.
+- Tabella e finestra leggono le fazioni da segnalare dalla stessa regola (`conflictRisks` in `core/close-factions.ts`), così non possono dire cose diverse.
+
+### Test
+
+- Tre test nuovi: due sulla regola (con il caso di Amait e quello del controllore entro 5 punti ma con un'altra fazione in mezzo) e uno sulla finestra. Passano 256 test dell'app.
+
 ## [1.1.2] - 2026-10-09 — Tabella ordinata per priorità, titolo come "home"
 
 ### Tabella

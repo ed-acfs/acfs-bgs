@@ -234,6 +234,8 @@ export const en: Dictionary = {
   'info.allegiance': 'Allegiance',
   'info.government': 'Government',
   'info.influence': 'Influence',
+  'info.closeAbove': '{points} points above {faction}: a conflict is possible',
+  'info.closeBelow': '{points} points below {faction}: a conflict is possible',
   'info.activeStates': 'Active states',
 
   // Help dialog

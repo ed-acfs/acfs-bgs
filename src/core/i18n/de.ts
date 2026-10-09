@@ -237,6 +237,8 @@ export const de: Dictionary = {
   'info.allegiance': 'Zugehörigkeit',
   'info.government': 'Regierung',
   'info.influence': 'Einfluss',
+  'info.closeAbove': '{points} Punkte über {faction}: ein Konflikt ist möglich',
+  'info.closeBelow': '{points} Punkte unter {faction}: ein Konflikt ist möglich',
   'info.activeStates': 'Aktive Zustände',
 
   // Help dialog

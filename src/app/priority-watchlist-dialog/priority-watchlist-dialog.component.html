@@ -90,7 +90,12 @@
               <td>{{ faction.name }}</td>
               <td>{{ faction.allegiance ?? '—' }}</td>
               <td>{{ faction.government ?? '—' }}</td>
-              <td class="info-num">{{ i18n.percent(faction.influencePercent) }}</td>
+              <td class="info-num">
+                @if (riskTitle(faction.name); as riskText) {
+                  <span class="info-risk" [title]="riskText" [attr.aria-label]="riskText">⚠️</span>
+                }
+                {{ i18n.percent(faction.influencePercent) }}
+              </td>
               <td>{{ faction.activeStates.length > 0 ? faction.activeStates.join(', ') : '—' }}</td>
             </tr>
           }
