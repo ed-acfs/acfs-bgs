@@ -72,9 +72,10 @@ import { isMessageKey } from '../../core/i18n';
 
 /**
  * How the table is currently ordered:
- * - 'paged': server-paged, in API order (the default).
+ * - 'paged': server-paged, in API order.
  * - 'distance': the user searched a system; sorted by distance from it.
- * - 'column': the user clicked a sortable header; sorted by that column's value.
+ * - 'column': sorted by a column's value — the default, by Priority (highest first), and
+ *   whatever header the user clicks after that.
  */
 type Mode = 'paged' | 'distance' | 'column';
 
@@ -294,7 +295,7 @@ export class BgsTableComponent implements OnDestroy {
     return coverage ? formatTickCoverage(coverage, this.i18n.lang()) : null;
   });
 
-  protected readonly mode = signal<Mode>('paged');
+  protected readonly mode = signal<Mode>('column');
 
   // --- paged mode state -----------------------------------------------------------------
   /**
@@ -315,8 +316,9 @@ export class BgsTableComponent implements OnDestroy {
   private readonly selectedAnchor = signal<AnchorPoint | null>(null);
 
   // --- 'column' mode state --------------------------------------------------------------
-  private readonly sortColumn = signal<SortColumn | null>(null);
-  private readonly sortDirection = signal<SortDirection>('asc');
+  /** Priority, highest first, until the user picks another order: the table answers "where do we work today?". */
+  private readonly sortColumn = signal<SortColumn | null>('priority');
+  private readonly sortDirection = signal<SortDirection>('desc');
 
   /** Every system, fetched once needed for a 'distance' or 'column' sort; reused for later re-sorts. */
   private readonly fullDataset = signal<BgsRow[] | null>(null);
@@ -696,6 +698,32 @@ export class BgsTableComponent implements OnDestroy {
   private async advanceBufferedPage(newIndex: number): Promise<void> {
     await this.ensureBuffered((newIndex + 1) * this.pageSize());
     this.pageIndex.set(newIndex);
+  }
+
+  /**
+   * The title's "home": the table as it opens — first page, sorted by priority, no quick filters,
+   * distances from the home system, legend closed. The page size and the language stay as chosen.
+   */
+  protected resetView(): void {
+    this.mode.set('column');
+    this.sortColumn.set('priority');
+    this.sortDirection.set('desc');
+    this.selectedAnchor.set(null);
+    this.systemSearchControl.setValue(this.defaultAnchor()?.systemName ?? HOME_SYSTEM, { emitEvent: false });
+    this.searchError.set(null);
+    this.filteredSystems.set([]);
+    this.warElectionOnly.set(false);
+    this.needsReconOnly.set(false);
+    this.servicesOnly.set(false);
+    this.setArchitectFilterMode('all');
+    this.architectFilterControl.setValue(readYourName());
+    this.architectFilterControl.markAsPristine();
+    this.setFactionFilterMode('all');
+    this.factionFilterControl.setValue('');
+    this.factionFilterControl.markAsPristine();
+    this.legendOpen.set(false);
+    this.pageIndex.set(0);
+    window.scrollTo({ top: 0 });
   }
 
   protected setPageSize(size: number): void {

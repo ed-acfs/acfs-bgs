@@ -2,6 +2,20 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [1.1.2] - 2026-10-09 — Tabella ordinata per priorità, titolo come "home"
+
+### Tabella
+
+- All'apertura la tabella è **ordinata per priorità**, dalla P1 alla P5, con i sistemi in Watchlist sempre in cima (ordinati per priorità anche loro). Prima l'ordine iniziale era quello di Spansh, dal sistema aggiornato più di recente: con quasi tutti i sistemi aggiornati "oggi" sembrava casuale, e dei P1 come Misir finivano dietro a dei P5. A parità di punteggio vale la regola già usata dall'ordinamento per priorità (prima la popolazione, poi il numero di corpi).
+- L'intestazione Priorità mostra la freccia ▼ fin dall'apertura; gli altri ordinamenti col clic sulle intestazioni non cambiano.
+- La Guida lo dice, in italiano, tedesco e inglese.
+- **Il titolo "ACFS BGS Tool" è cliccabile** e riporta la tabella com'è all'apertura: prima pagina, ordinata per priorità, senza filtri, distanze da Wong Sher, Legenda chiusa. Restano il numero di righe e la lingua scelti. Il suggerimento al passaggio del mouse dice "Torna all'inizio" (in tedesco e in inglese "Zurück zum Anfang" e "Back to the start").
+
+### Test
+
+- Un test nuovo sul titolo che riporta all'inizio.
+- I test della tabella partono dai dati completi, come fa ora l'app; tolti quelli sul caricamento a pagine dall'ordine di Spansh, che all'apertura non si usa più. Passano 253 test dell'app.
+
 ## [1.1.1] - 2026-10-09 — Watchlist sempre in cima
 
 ### Tabella

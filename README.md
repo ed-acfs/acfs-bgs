@@ -12,7 +12,7 @@ Risponde a una domanda: **dove dobbiamo lavorare oggi?** Mostra in una tabella t
 - priorità di intervento, da P1 (massima) a P5; nei sistemi che controlliamo tiene conto anche dei semafori di influenza e margine;
 - architetto e fazione preferita dei sistemi colonizzati, registrabili dal pulsante "Assegna" (con la password degli ufficiali, una volta installato lo script del foglio);
 - distanza da un sistema a scelta: di default Wong Sher, la capitale;
-- i sistemi della **Watchlist** sempre in cima alla tabella, con qualunque ordinamento;
+- all'apertura i sistemi sono ordinati per **priorità**, dalla P1; i sistemi della **Watchlist** stanno sempre in cima, con qualunque ordinamento;
 - stazioni con **Material Trader** o **Technology Broker**, con il loro tipo, e un filtro per trovarle.
 
 Il tool è pubblicato su **https://flottastellare.it/acfs-bgs-tool/** e controlla i dati ogni 30 minuti.

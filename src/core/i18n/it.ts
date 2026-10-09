@@ -11,6 +11,7 @@ export const it = {
   'app.subtitle': 'Dove lavorare oggi: influenza di {faction}, stati e priorità nei sistemi in cui siamo presenti.',
   'app.datasetDownloaded': 'Dati Spansh aggiornati il {time} UTC',
   'app.lastTick': 'ultimo tick {time} UTC',
+  'app.home': "Torna all'inizio",
   'app.tickCoverage': "{updated}/{total} aggiornati dall'ultimo tick · P1-P2: {topUpdated}/{topTotal}",
   'header.help': 'Guida',
   'header.helpAria': 'Guida rapida',
@@ -246,7 +247,7 @@ export const it = {
   'help.table1':
     'Un sistema per riga: fazione di controllo, influenza di {faction} (ACFS), Margine (vantaggio o distacco da chi controlla), Priorità, Stato (guerre, elezioni), Aggiornato (età del dato) e Architetto.',
   'help.table2':
-    'I sistemi in Watchlist restano sempre in cima, con qualunque ordinamento. La ricerca in alto ordina per distanza da un sistema a scelta. I filtri rapidi restringono a guerre/elezioni, sistemi da aggiornare, solo controllati o solo con architetto ACFS.',
+    "All'apertura la tabella è ordinata per priorità, dalla P1; un clic su un'intestazione cambia ordinamento. I sistemi in Watchlist restano sempre in cima, con qualunque ordinamento. La ricerca in alto ordina per distanza da un sistema a scelta. I filtri rapidi restringono a guerre/elezioni, sistemi da aggiornare, solo controllati o solo con architetto ACFS.",
   'help.table3':
     "L'icona ⓘ apre i dettagli del sistema (fazioni presenti, stazioni, eventuale voce in Watchlist). L'icona 📋 aggiunge il sistema agli Ordini Ufficiali, spiegati qui sotto. Il pulsante Legenda spiega colori e icone della tabella.",
   // Shown only in the other languages: in Italian the guide explains these tools in full.

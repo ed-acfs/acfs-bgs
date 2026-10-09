@@ -1,7 +1,9 @@
 <div class="bgs-container">
   <div class="bgs-header">
     <div class="bgs-title">
-      <h1>ACFS BGS Tool {{ version }}</h1>
+      <h1>
+        <a class="bgs-home-link" routerLink="/" [title]="t('app.home')" (click)="resetView()">ACFS BGS Tool {{ version }}</a>
+      </h1>
       <p>{{ t('app.subtitle', { faction: factionName }) }}</p>
       @if (datasetSummary(); as summary) {
         <p class="bgs-dataset-info">{{ summary }}</p>
