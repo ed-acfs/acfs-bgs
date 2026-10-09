@@ -240,6 +240,9 @@ export const de: Dictionary = {
   'info.closeAbove': '{points} Punkte über {faction}: ein Konflikt ist möglich',
   'info.closeBelow': '{points} Punkte unter {faction}: ein Konflikt ist möglich',
   'info.closeOwn': 'Ein Konflikt ist möglich mit: {factions}',
+  'info.nativeTitle': 'Einheimische Fraktion des Systems: kann nicht in Retreat gehen',
+  'info.retreatActive': 'Im Retreat: bleibt sie unter {threshold}, verlässt sie das System',
+  'info.retreatExpected': 'Bei {threshold} oder weniger: Retreat beim nächsten Tick wahrscheinlich',
   'info.activeStates': 'Aktive Zustände',
 
   // Help dialog

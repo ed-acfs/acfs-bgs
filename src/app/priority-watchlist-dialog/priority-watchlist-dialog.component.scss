@@ -157,9 +157,24 @@ mat-dialog-content {
     font-variant-numeric: tabular-nums;
   }
 
-  // Same ⚠️ as the table's: a faction within conflict reach of ours.
+  // Same ⚠️ as the table's: a conflict within reach, or a Retreat.
   .info-risk {
     margin-right: 4px;
+    cursor: help;
+  }
+
+  // A native faction, as Inara marks it: it can't retreat from here.
+  .info-native {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 5px;
+    border-radius: 3px;
+    background: var(--color-surface-3);
+    color: var(--color-text-bright);
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1.5;
+    vertical-align: middle;
     cursor: help;
   }
 }

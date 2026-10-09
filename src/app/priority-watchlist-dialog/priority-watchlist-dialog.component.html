@@ -87,11 +87,16 @@
         <tbody>
           @for (faction of row.factionDetails; track faction.name) {
             <tr>
-              <td>{{ faction.name }}</td>
+              <td>
+                {{ faction.name }}
+                @if (isNative(faction.name)) {
+                  <span class="info-native" [title]="t('info.nativeTitle')" [attr.aria-label]="t('info.nativeTitle')">N</span>
+                }
+              </td>
               <td>{{ faction.allegiance ?? '—' }}</td>
               <td>{{ faction.government ?? '—' }}</td>
               <td class="info-num">
-                @if (riskTitle(faction.name); as riskText) {
+                @if (warningTitle(faction); as riskText) {
                   <span class="info-risk" [title]="riskText" [attr.aria-label]="riskText">⚠️</span>
                 }
                 {{ i18n.percent(faction.influencePercent) }}

@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { BgsRow, StationService } from '../../core/bgs';
+import { BgsRow, FactionDetail, StationService } from '../../core/bgs';
 import { CloseFaction, conflictRisks } from '../../core/close-factions';
-import { FACTION_NAME } from '../../core/config';
+import { FACTION_NAME, RETREAT_INFLUENCE_PERCENT } from '../../core/config';
+import { isNativeFaction } from '../../core/home-systems';
 import { I18nService } from '../i18n.service';
 
 /** The system whose info the dialog shows. */
@@ -34,11 +35,37 @@ export class PriorityWatchlistDialogComponent {
   /** The factions the table flags with ⚠️ for this system, by name. */
   private readonly risks = new Map<string, CloseFaction>(conflictRisks(this.data.row).map(risk => [risk.name, risk]));
 
+  /** Whether the faction is native to this system (see {@link isNativeFaction}): the "N" next to its name. */
+  protected isNative(factionName: string): boolean {
+    return isNativeFaction(factionName, this.row.systemName);
+  }
+
   /**
-   * Hover text for the ⚠️ next to a faction within conflict reach of ours — and next to ours,
-   * naming who it's with — or null when there's nothing to warn about.
+   * Hover text for the ⚠️ next to a faction's influence — a conflict within reach, a Retreat
+   * under way or likely — or null when there's nothing to warn about.
    */
-  protected riskTitle(factionName: string): string | null {
+  protected warningTitle(faction: FactionDetail): string | null {
+    const lines = [this.riskTitle(faction.name), this.retreatTitle(faction)].filter(line => line !== null);
+    return lines.length > 0 ? lines.join('\n') : null;
+  }
+
+  /**
+   * A Retreat under way, or likely at the next tick (influence at or below
+   * {@link RETREAT_INFLUENCE_PERCENT}); never for a native faction, which can't retreat.
+   */
+  private retreatTitle(faction: FactionDetail): string | null {
+    if (this.isNative(faction.name)) {
+      return null;
+    }
+    const threshold = this.i18n.percent(RETREAT_INFLUENCE_PERCENT);
+    if (faction.activeStates.includes('Retreat')) {
+      return this.t('info.retreatActive', { threshold });
+    }
+    return faction.influencePercent <= RETREAT_INFLUENCE_PERCENT ? this.t('info.retreatExpected', { threshold }) : null;
+  }
+
+  /** A conflict within reach of ours — next to ours, naming who it's with. */
+  private riskTitle(factionName: string): string | null {
     if (factionName === FACTION_NAME) {
       return this.risks.size > 0 ? this.t('info.closeOwn', { factions: [...this.risks.keys()].join(', ') }) : null;
     }
