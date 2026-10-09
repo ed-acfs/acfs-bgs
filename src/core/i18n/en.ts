@@ -6,6 +6,7 @@ export const en: Dictionary = {
   'app.subtitle': 'Where to work today: {faction} influence, states and priorities in the systems where we are present.',
   'app.datasetDownloaded': 'Spansh data updated {time} UTC',
   'app.lastTick': 'last tick {time} UTC',
+  'app.home': 'Back to the start',
   'app.tickCoverage': '{updated}/{total} updated since the last tick · P1-P2: {topUpdated}/{topTotal}',
   'header.help': 'Guide',
   'header.helpAria': 'Quick guide',
@@ -241,7 +242,7 @@ export const en: Dictionary = {
   'help.table1':
     'One system per row: controlling faction, {faction} influence (ACFS), Margin (lead over, or gap to, the controlling faction), Priority, State (wars, elections), Updated (age of the data) and Architect.',
   'help.table2':
-    'Watchlist systems always stay on top, whatever the sort order. The search box at the top sorts by distance from a system of your choice. The quick filters narrow the list to wars/elections, systems that need an update, controlled systems only or systems with an ACFS architect only.',
+    'The table opens sorted by priority, from P1; click a column header to sort differently. Watchlist systems always stay on top, whatever the sort order. The search box at the top sorts by distance from a system of your choice. The quick filters narrow the list to wars/elections, systems that need an update, controlled systems only or systems with an ACFS architect only.',
   'help.table3':
     'The ⓘ icon opens the system details (factions present, stations, any Watchlist entry). The Legend button explains the colours and icons of the table.',
   'help.internal': 'Squadron tools',

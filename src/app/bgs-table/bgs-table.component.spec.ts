@@ -40,7 +40,7 @@ function row(systemName: string): BgsRow {
   };
 }
 
-/** Stands in for the real API's own page size — deliberately much bigger than any display page size. */
+/** The service's single page of rows — only used for the home system the Distance column starts from. */
 const SERVER_PAGE_SIZE = 500;
 const TOTAL_SYSTEMS = 4106;
 
@@ -55,10 +55,12 @@ function serverPage(page: number): BgsPage {
   };
 }
 
-describe('BgsTableComponent paging against a large API page size (issue #7 follow-up)', () => {
+describe('BgsTableComponent', () => {
   let fixture: ComponentFixture<BgsTableComponent>;
   let component: BgsTableComponent;
   let service: { getPage: ReturnType<typeof vi.fn>; prefetchPage: ReturnType<typeof vi.fn>; getArchitectRegistry: ReturnType<typeof vi.fn>; getDatasetInfo: ReturnType<typeof vi.fn>; getAllRows: ReturnType<typeof vi.fn> };
+  /** What the service's getAllRows hands the table: every system, as the single data file has them. */
+  let allRows: BgsRow[];
 
   /** Reaches past `protected`/`private` — these are the component's externally observable state. */
   function pageSize(): number {
@@ -68,14 +70,21 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     return component['visibleRows']();
   }
 
+  /** Creates the table over the given systems (the whole dataset is fetched once, at creation). */
+  async function load(rows: BgsRow[]): Promise<void> {
+    allRows = rows;
+    fixture = TestBed.createComponent(BgsTableComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  }
+
   beforeEach(async () => {
     service = {
       getPage: vi.fn((page: number) => Promise.resolve(serverPage(page))),
       prefetchPage: vi.fn(),
       getArchitectRegistry: vi.fn().mockResolvedValue([]),
       getDatasetInfo: vi.fn().mockResolvedValue({ generatedAt: '2026-10-04T21:28:47Z', tickAt: '2026-10-04T16:06:50Z', count: 500, conflictScoresAvailable: true }),
-      // The tick counter's rows; mocked apart so the getPage call counts above stay about paging.
-      getAllRows: vi.fn().mockResolvedValue([]),
+      getAllRows: vi.fn(() => Promise.resolve(allRows)),
     };
 
     await TestBed.configureTestingModule({
@@ -87,69 +96,64 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BgsTableComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+    await load(Array.from({ length: TOTAL_SYSTEMS }, (_unused, i) => row(`System ${i}`)));
   });
 
-  it('shows only the default display page size on load, not the whole (500-row) server page', () => {
+  it('opens sorted by priority, highest first, showing only the default display page size', () => {
+    const host: HTMLElement = fixture.nativeElement;
     expect(pageSize()).toBe(10);
     expect(visibleRows().length).toBe(10);
-    expect(visibleRows()[0].systemName).toBe('System 0');
-    expect(service.getPage).toHaveBeenCalledTimes(1);
-    expect(service.getPage).toHaveBeenCalledWith(0);
+    expect(host.querySelector<HTMLButtonElement>('button[title="Ordina per priorità"]')!.textContent).toContain('▼');
   });
 
-  it('switches to a larger display page size using only what was already downloaded', async () => {
-    service.getPage.mockClear();
+  it('puts the Watchlist systems first on opening, then the rest from P1 down', async () => {
+    const watched: BgsRow = { ...row('Watched'), watchlist: [{ systemName: 'Watched', faction: FACTION_NAME, position: 1, details: '' }] };
+    const atWar: BgsRow = { ...row('At war'), preferredFaction: FACTION_NAME, warState: 'active' };
+    await load([row('Quiet'), atWar, watched]);
+    expect(visibleRows().map(r => r.systemName)).toEqual(['Watched', 'At war', 'Quiet']);
+  });
+
+  it('goes back to the table as it opens from the title, keeping the page size', async () => {
+    const host: HTMLElement = fixture.nativeElement;
+    const home = () => host.querySelector<HTMLAnchorElement>('.bgs-home-link')!;
+    component['setPageSize'](20);
+    host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!.click();
+    component['nextPage']();
+    await fixture.whenStable();
+    expect(component['pageIndex']()).toBe(1);
+
+    home().click();
+    await fixture.whenStable();
+    expect(component['pageIndex']()).toBe(0);
+    expect(host.querySelector<HTMLButtonElement>('button[title="Ordina per priorità"]')!.textContent).toContain('▼');
+    expect(pageSize()).toBe(20);
+
+    component['toggleServices']();
+    component['setFactionFilterMode']('controlled');
+    await fixture.whenStable();
+    home().click();
+    await fixture.whenStable();
+    expect(component['servicesOnly']()).toBe(false);
+    expect(component['factionFilterMode']()).toBe('all');
+    expect(visibleRows().length).toBe(20);
+  });
+
+  it('switches to a larger display page size and pages forward over what was already downloaded', async () => {
+    const calls = service.getAllRows.mock.calls.length;
 
     component['setPageSize'](100);
     await fixture.whenStable();
-
     expect(pageSize()).toBe(100);
     expect(visibleRows().length).toBe(100);
-    // The first server page already had 500 rows buffered — no fetch was needed for this.
-    expect(service.getPage).not.toHaveBeenCalled();
-  });
 
-  it('fetches another server page only once paging forward runs past what is buffered', async () => {
-    component['setPageSize'](100);
-    await fixture.whenStable();
-    service.getPage.mockClear();
-
-    // Display pages of 100 rows fit 5 to a 500-row server page — pages 2-5 stay within it.
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       component['nextPage']();
       await fixture.whenStable();
     }
-    expect(service.getPage).not.toHaveBeenCalled();
     expect(visibleRows().length).toBe(100);
-    expect(visibleRows()[0].systemName).toBe('System 400');
-
-    // The 6th display page (rows 500-600) needs the second server page.
-    component['nextPage']();
-    await fixture.whenStable();
-
-    expect(service.getPage).toHaveBeenCalledWith(1);
-    expect(visibleRows().length).toBe(100);
+    // Every system ties on priority here, so they keep the data file's order.
     expect(visibleRows()[0].systemName).toBe('System 500');
-  });
-
-  it('does not fetch the same server page twice when a page-size change races the initial load', async () => {
-    service.getPage.mockClear();
-
-    // The constructor's own initial buffering fires (and reaches the service) synchronously;
-    // racing a page-size change immediately after, before that first fetch resolves, must not
-    // capture the same server page index and issue a second request for it.
-    const freshFixture = TestBed.createComponent(BgsTableComponent);
-    const freshComponent = freshFixture.componentInstance;
-    freshComponent['setPageSize'](100);
-    await freshFixture.whenStable();
-
-    const pageZeroCalls = service.getPage.mock.calls.filter(([page]) => page === 0).length;
-    expect(pageZeroCalls).toBe(1);
-    expect(freshComponent['visibleRows']().length).toBe(100);
-    expect(freshComponent['visibleRows']()[0].systemName).toBe('System 0');
+    expect(service.getAllRows.mock.calls.length).toBe(calls);
   });
 
   it('switches language from the flags, and remembers the choice', async () => {
@@ -197,7 +201,7 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
   });
 
   it('sorts by system name from the Sistema header, case-insensitively, and flips on a second click', async () => {
-    service.getAllRows.mockResolvedValue([row('Wong Sher'), row('alpha Centauri'), row('Sol'), row('Achenar')]);
+    await load([row('Wong Sher'), row('alpha Centauri'), row('Sol'), row('Achenar')]);
     const host: HTMLElement = fixture.nativeElement;
     const header = host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!;
 
@@ -217,7 +221,7 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
       ...row(systemName),
       watchlist: [{ systemName, faction: FACTION_NAME, position: 1, details: '' }],
     });
-    service.getAllRows.mockResolvedValue([row('Achenar'), watched('Wong Sher'), row('Sol'), watched('Crowfor')]);
+    await load([row('Achenar'), watched('Wong Sher'), row('Sol'), watched('Crowfor')]);
     const host: HTMLElement = fixture.nativeElement;
     const header = host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!;
 
@@ -249,7 +253,7 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
         },
       ],
     };
-    service.getAllRows.mockResolvedValue([misir]);
+    await load([misir]);
     const host: HTMLElement = fixture.nativeElement;
     host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!.click();
     await fixture.whenStable();
@@ -282,7 +286,7 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
         },
       ],
     };
-    service.getAllRows.mockResolvedValue([row('Plain'), zandu]);
+    await load([row('Plain'), zandu]);
     const host: HTMLElement = fixture.nativeElement;
     host.querySelector<HTMLButtonElement>('button[title="Solo i sistemi con un Material Trader o un Technology Broker"]')!.click();
     await fixture.whenStable();
@@ -349,7 +353,7 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
       margin: { points: -55.3, versus: 'LP 254-27 Free', versusInfluence: 64.9, controlled: false },
       stateEntries: [{ kind: 'war', state: 'War', status: 'active', factions: [FACTION_NAME, 'Rivals'], score: null }],
     };
-    service.getAllRows.mockResolvedValue([close, edge, far, sinking, geras, voting, fighting]);
+    await load([close, edge, far, sinking, geras, voting, fighting]);
     const host: HTMLElement = fixture.nativeElement;
     host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!.click();
     await fixture.whenStable();
