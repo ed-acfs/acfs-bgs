@@ -245,7 +245,7 @@ export const it = {
   'info.nativeTitle': 'Fazione nativa del sistema: non può andare in Retreat',
   'info.retreatActive': 'In Retreat: se resta sotto il {threshold}, lascia il sistema',
   'info.retreatExpected': 'Al {threshold} o meno: Retreat probabile al prossimo tick',
-  'info.activeStates': 'Stati attivi',
+  'info.states': 'Stati',
 
   // Help dialog: the table section in full, the internal tools (architects, orders) only in Italian
   'help.title': 'Guida rapida',

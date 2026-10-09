@@ -211,6 +211,8 @@ export interface FactionDetail {
   influencePercent: number;
   /** The faction's current state(s), e.g. "Boom", "War" — empty if none. */
   activeStates: string[];
+  /** States about to start at the next tick, other than those already active — empty if none. */
+  pendingStates: string[];
 }
 
 /**
@@ -741,6 +743,9 @@ export function toBgsRow(
         government: p.government ?? null,
         influencePercent: p.influence * 100,
         activeStates: p.active_states ?? [],
+        pendingStates: (p.pending_states ?? [])
+          .map(pendingEntryStateName)
+          .filter(state => !(p.active_states ?? []).includes(state)),
       })),
     warState: war.status,
     warDetails: war.details,

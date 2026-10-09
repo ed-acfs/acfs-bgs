@@ -3,8 +3,8 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BgsRow, FactionDetail } from '../../core/bgs';
 import { PriorityWatchlistDialogComponent } from './priority-watchlist-dialog.component';
 
-function faction(name: string, influencePercent: number, activeStates: string[] = []): FactionDetail {
-  return { name, influencePercent, allegiance: null, government: null, activeStates };
+function faction(name: string, influencePercent: number, activeStates: string[] = [], pendingStates: string[] = []): FactionDetail {
+  return { name, influencePercent, allegiance: null, government: null, activeStates, pendingStates };
 }
 
 /** Amait on 9 October 2026: Earth Defense Fleet controls, 4,1 points above Flotta Stellare. */
@@ -62,7 +62,7 @@ describe('PriorityWatchlistDialogComponent', () => {
         faction('Fellowship of 11', 2.1),
         faction('Betel Free', 3, ['Retreat']),
         faction('Amait Monarchy', 1.9),
-        faction('Voters', 20, ['Election', 'Boom']),
+        faction('Voters', 20, ['Election', 'Boom'], ['Expansion']),
       ],
     });
 
@@ -85,6 +85,9 @@ describe('PriorityWatchlistDialogComponent', () => {
     const voters = factionRow(host, 'Voters');
     expect(voters.querySelector('.info-state-emoji--election')!.textContent).toBe('🗳️');
     expect(voters.querySelector<HTMLImageElement>('.info-state-icon')!.getAttribute('src')).toBe('icons/states/boom.png');
+    // A pending state shows too, greyed out: Spansh often still has our global Expansion pending.
+    const pending = voters.querySelector<HTMLElement>('.info-state--pending')!;
+    expect(pending.textContent!.trim()).toBe('Expansion (in pending)');
     // Native: it can't retreat, however low it goes.
     expect(factionRow(host, 'Amait Monarchy').querySelector('.info-retreat')).toBeNull();
   });

@@ -81,7 +81,7 @@
             <th scope="col">{{ t('info.allegiance') }}</th>
             <th scope="col">{{ t('info.government') }}</th>
             <th scope="col" class="info-num">{{ t('info.influence') }}</th>
-            <th scope="col">{{ t('info.activeStates') }}</th>
+            <th scope="col">{{ t('info.states') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -112,9 +112,9 @@
                 {{ i18n.percent(faction.influencePercent) }}
               </td>
               <td>
-                @for (state of faction.activeStates; track state; let last = $last) {
-                  <span class="info-state"
-                    >@if (stateIcon(state); as icon) {<img class="info-state-icon" [src]="icon" alt="" />} @else if (stateEmoji(state); as emoji) {<span class="info-state-emoji" [class.info-state-emoji--election]="state === 'Election'" aria-hidden="true">{{ emoji }}</span>}{{ state }}</span
+                @for (state of states(faction); track state.name + state.pending; let last = $last) {
+                  <span class="info-state" [class.info-state--pending]="state.pending"
+                    >@if (stateIcon(state.name); as icon) {<img class="info-state-icon" [src]="icon" alt="" />} @else if (stateEmoji(state.name); as emoji) {<span class="info-state-emoji" [class.info-state-emoji--election]="state.name === 'Election'" aria-hidden="true">{{ emoji }}</span>}{{ state.name }}@if (state.pending) { ({{ t('state.pending') }})}</span
                   >@if (!last) {, }
                 } @empty {
                   —

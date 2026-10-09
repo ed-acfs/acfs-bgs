@@ -243,7 +243,7 @@ export const de: Dictionary = {
   'info.nativeTitle': 'Einheimische Fraktion des Systems: kann nicht in Retreat gehen',
   'info.retreatActive': 'Im Retreat: bleibt sie unter {threshold}, verlässt sie das System',
   'info.retreatExpected': 'Bei {threshold} oder weniger: Retreat beim nächsten Tick wahrscheinlich',
-  'info.activeStates': 'Aktive Zustände',
+  'info.states': 'Zustände',
 
   // Help dialog
   'help.title': 'Kurzanleitung',

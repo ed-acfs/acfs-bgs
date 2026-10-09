@@ -240,7 +240,7 @@ export const en: Dictionary = {
   'info.nativeTitle': 'Native faction of the system: it cannot go into Retreat',
   'info.retreatActive': 'In Retreat: if it stays below {threshold}, it leaves the system',
   'info.retreatExpected': 'At {threshold} or less: Retreat likely at the next tick',
-  'info.activeStates': 'Active states',
+  'info.states': 'States',
 
   // Help dialog
   'help.title': 'Quick guide',

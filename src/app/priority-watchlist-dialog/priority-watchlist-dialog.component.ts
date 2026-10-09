@@ -43,6 +43,14 @@ export class PriorityWatchlistDialogComponent {
   /** The factions the table flags with ⚠️ for this system, by name. */
   private readonly risks = new Map<string, CloseFaction>(conflictRisks(this.data.row).map(risk => [risk.name, risk]));
 
+  /** The faction's states for the States column: the active ones, then those pending (greyed out). */
+  protected states(faction: FactionDetail): { name: string; pending: boolean }[] {
+    return [
+      ...faction.activeStates.map(name => ({ name, pending: false })),
+      ...faction.pendingStates.map(name => ({ name, pending: true })),
+    ];
+  }
+
   /** Whether the faction is native to this system (see {@link isNativeFaction}): the "N" next to its name. */
   protected isNative(factionName: string): boolean {
     return isNativeFaction(factionName, this.row.systemName);

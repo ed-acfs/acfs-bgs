@@ -177,6 +177,17 @@ mat-dialog-content {
     white-space: nowrap;
   }
 
+  // About to start at the next tick: greyed out, as the table's State column does.
+  .info-state--pending {
+    color: var(--color-text-2);
+    opacity: 0.7;
+
+    .info-state-icon,
+    .info-state-emoji {
+      filter: grayscale(1);
+    }
+  }
+
   .info-state-icon {
     display: inline-block;
     width: 1.2em;
