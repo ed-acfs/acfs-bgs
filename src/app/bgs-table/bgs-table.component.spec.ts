@@ -212,6 +212,24 @@ describe('BgsTableComponent paging against a large API page size (issue #7 follo
     expect(header.textContent).toContain('▼');
   });
 
+  it('keeps the Watchlist systems on top whatever the sort, sorted among themselves', async () => {
+    const watched = (systemName: string): BgsRow => ({
+      ...row(systemName),
+      watchlist: [{ systemName, faction: FACTION_NAME, position: 1, details: '' }],
+    });
+    service.getAllRows.mockResolvedValue([row('Achenar'), watched('Wong Sher'), row('Sol'), watched('Crowfor')]);
+    const host: HTMLElement = fixture.nativeElement;
+    const header = host.querySelector<HTMLButtonElement>('button[title="Ordina per nome del sistema"]')!;
+
+    header.click();
+    await fixture.whenStable();
+    expect(visibleRows().map(r => r.systemName)).toEqual(['Crowfor', 'Wong Sher', 'Achenar', 'Sol']);
+
+    header.click();
+    await fixture.whenStable();
+    expect(visibleRows().map(r => r.systemName)).toEqual(['Wong Sher', 'Crowfor', 'Sol', 'Achenar']);
+  });
+
   it('opens the State details panel from the State icons, with factions, influence and status', async () => {
     const misir: BgsRow = {
       ...row('Misir'),

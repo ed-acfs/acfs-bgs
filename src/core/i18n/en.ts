@@ -241,7 +241,7 @@ export const en: Dictionary = {
   'help.table1':
     'One system per row: controlling faction, {faction} influence (ACFS), Margin (lead over, or gap to, the controlling faction), Priority, State (wars, elections), Updated (age of the data) and Architect.',
   'help.table2':
-    'The search box at the top sorts by distance from a system of your choice. The quick filters narrow the list to wars/elections, systems that need an update, controlled systems only or systems with an ACFS architect only.',
+    'Watchlist systems always stay on top, whatever the sort order. The search box at the top sorts by distance from a system of your choice. The quick filters narrow the list to wars/elections, systems that need an update, controlled systems only or systems with an ACFS architect only.',
   'help.table3':
     'The ⓘ icon opens the system details (factions present, stations, any Watchlist entry). The Legend button explains the colours and icons of the table.',
   'help.internal': 'Squadron tools',
