@@ -258,6 +258,8 @@ export const it = {
     "All'apertura la tabella è ordinata per priorità, dalla P1; un clic su un'intestazione cambia ordinamento. I sistemi in Watchlist restano sempre in cima, con qualunque ordinamento. Il box \"Distanza da\" ordina per distanza da un sistema a scelta. I filtri rapidi mostrano solo i sistemi con guerre o elezioni, quelli da aggiornare o quelli con Material Trader e Technology Broker; i filtri Architetto e Fazione restringono ai sistemi senza architetto, con un architetto ACFS o con un architetto a scelta, ai sistemi che controlliamo o a quelli in cui è presente una fazione a scelta.",
   'help.table3':
     "Il tooltip della Priorità spiega il perché. Un clic sulle icone dello Stato mostra punteggio e posta in palio di guerre ed elezioni. L'icona ⓘ apre i dettagli del sistema. Il pulsante Legenda spiega colori e icone della tabella.",
+  'help.watchlist':
+    "La Watchlist è l'elenco dei sistemi che lo squadrone tiene d'occhio: per ognuno indica una fazione, la posizione minima che deve mantenere fra le fazioni del sistema e il motivo. Questi sistemi stanno sempre in cima alla tabella e hanno l'icona ⓘ in arancione, che apre i dettagli con il motivo e la posizione da mantenere. Se la fazione scende sotto quella posizione, il sistema passa in P1.",
   'help.top': 'In alto',
   'help.top1':
     "Sotto il titolo: quando Spansh ha aggiornato i dati, l'ora dell'ultimo tick e quanti sistemi (e quanti P1-P2) sono aggiornati da allora. Spansh è indietro rispetto al gioco: un sistema si aggiorna quando qualcuno ci passa, quindi il dato di un sistema non aggiornato dall'ultimo tick potrebbe essere già cambiato. Il titolo riporta la tabella com'è all'apertura; Esporta scarica i dati in JSON o CSV; le bandierine cambiano lingua.",

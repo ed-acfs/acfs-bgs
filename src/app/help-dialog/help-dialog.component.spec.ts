@@ -18,6 +18,7 @@ describe('HelpDialogComponent', () => {
     expect(text).toContain('è riservata');
     expect(text).not.toContain('Precompila con i pending');
     expect(text).toContain('Dettagli del sistema');
+    expect(text).toContain('La Watchlist è');
   });
 
   it('from the unlocked Ordini page, explains the Ordini in full', async () => {
