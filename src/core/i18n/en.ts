@@ -93,7 +93,7 @@ export const en: Dictionary = {
   'legend.copy': 'copies the name; the name opens Inara',
   'legend.distance': 'distance from the system in the "{distanceFrom}" box',
   'legend.info': 'system details',
-  'legend.watchlist': 'orange: the system is on the Watchlist',
+  'legend.watchlist': 'the system is on the Watchlist (always at the top of the table): opens the details with the reason',
   'legend.services': 'Station services',
   'legend.servicesNote': 'Station and distance from the star in the tooltip and in the system details.',
   'legend.traderUnknown': 'Material Trader of unknown type',
@@ -248,11 +248,22 @@ export const en: Dictionary = {
   'help.title': 'Quick guide',
   'help.table': 'The table',
   'help.table1':
-    'One system per row: controlling faction, {faction} influence (ACFS), Margin (lead over, or gap to, the controlling faction), Priority, State (wars, elections), Updated (age of the data) and Architect.',
+    'One system per row: name (with the station service icons), distance, Updated (age of the data), Factions (influence chart), State (wars, elections and {faction} Retreat), Priority, controlling faction, {faction} influence (ACFS), Margin (lead over, or gap to, the controlling faction), Architect and Preferred faction.',
   'help.table2':
-    'The table opens sorted by priority, from P1; click a column header to sort differently. Watchlist systems always stay on top, whatever the sort order. The search box at the top sorts by distance from a system of your choice. The quick filters narrow the list to wars/elections, systems that need an update, controlled systems only or systems with an ACFS architect only.',
+    'The table opens sorted by priority, from P1; click a column header to sort differently. Watchlist systems always stay on top, whatever the sort order. The "Distance from" box sorts by distance from a system of your choice. The quick filters show only systems with wars or elections, systems that need an update or systems with a Material Trader or Technology Broker; the Architect and Faction filters narrow the list to systems without an architect, with an ACFS architect or with an architect of your choice, to the systems we control or to those where a faction of your choice is present.',
   'help.table3':
-    'The ⓘ icon opens the system details (factions present, stations, any Watchlist entry). The Legend button explains the colours and icons of the table.',
+    'The Priority tooltip explains why. Clicking the State icons shows the score and stakes of wars and elections. The ⓘ icon opens the system details. The Legend button explains the colours and icons of the table.',
+  'help.watchlistTitle': 'Watchlist',
+  'help.watchlist':
+    'The Watchlist is the list of systems the squadron keeps an eye on: for each one it names a faction, the lowest position it must hold among the system\'s factions, and the reason. These systems always stay at the top of the table and have a purple eye instead of the ⓘ, which opens the details with the reason and the position to hold. If the faction drops below that position, the system moves to P1.',
+  'help.top': 'At the top',
+  'help.top1':
+    'Below the title: when Spansh updated the data, the time of the last tick and how many systems (and how many P1-P2) have been updated since. Spansh lags behind the game: a system is updated when someone flies through it, so the data of a system not updated since the last tick may already have changed. The title resets the table to how it opens; Export downloads the data as JSON or CSV; the flags switch language.',
+  'help.details': 'System details',
+  'help.details1':
+    'Summary, stations with their services, any Watchlist reason and the factions table. Next to the influence: ⚠️ for factions within {points} points of {faction} (a conflict is possible), the Retreat icon (solid if already in Retreat, dashed at {threshold} or less) and an N for native factions, which cannot go into Retreat.',
+  'help.details2':
+    "The States column also shows pending states, in grey. Expansion is a faction-wide state: it applies to all of the faction's systems, and the tool reads it from its most recently updated system (the tooltip says which), so a system with old data does not contradict it.",
   'help.internal': 'Squadron tools',
   'help.internalNote': 'The squadron also has internal tools, such as architect assignment: they are only available in Italian.',
 };

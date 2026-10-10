@@ -41,6 +41,16 @@ mat-dialog-content {
   }
 }
 
+// The Watchlist section, in the colour of the Watchlist eye in the table.
+.info-card--watchlist {
+  border-color: var(--color-watchlist);
+  border-left-width: 4px;
+
+  .info-heading {
+    color: var(--color-watchlist);
+  }
+}
+
 .info-heading {
   margin: 0 0 10px;
   color: var(--color-text-muted);

@@ -760,7 +760,8 @@
 }
 
 // The info button beside every System Name. Wears the Inara link colour, except for systems on
-// the Priority Watchlist (the "System Info" list), which get the accent colour to stand out.
+// the Priority Watchlist, which get an eye in their own colour: the accent orange was too close
+// to the pale link colour to stand out.
 .bgs-info-button {
   padding: 0;
   margin-left: 6px;
@@ -777,8 +778,12 @@
   }
 
   &.bgs-info-button--listed {
-    color: var(--color-accent);
+    color: var(--color-watchlist);
   }
+}
+
+.bgs-watchlist-icon {
+  color: var(--color-watchlist);
 }
 
 // Material Trader / Technology Broker next to the system name: blue, apart from the link-coloured actions.
