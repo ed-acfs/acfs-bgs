@@ -2,7 +2,7 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
-## [Non ancora pubblicato] - 2026-10-10 — Rifiniture
+## [1.2.2] - 2026-10-10 — Rifiniture: Guida e Watchlist
 
 ### Guida
 
