@@ -320,7 +320,7 @@
           <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faCopy" aria-hidden="true"></fa-icon></span><span>{{ t('legend.copy') }}</span></li>
           <li><span class="bgs-legend-key"><span class="bgs-legend-muted">{{ i18n.decimal(12.3) }} ly</span></span><span>{{ t('legend.distance', { distanceFrom: t('toolbar.distanceFrom') }) }}</span></li>
           <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>{{ t('legend.info') }}</span></li>
-          <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-accent" [icon]="faCircleInfo" aria-hidden="true"></fa-icon></span><span>{{ t('legend.watchlist') }}</span></li>
+          <li><span class="bgs-legend-key"><fa-icon class="bgs-watchlist-icon" [icon]="faEye" aria-hidden="true"></fa-icon></span><span>{{ t('legend.watchlist') }}</span></li>
           @if (i18n.isItalian()) {
             <li><span class="bgs-legend-key"><fa-icon class="bgs-legend-link" [icon]="faClipboardList" aria-hidden="true"></fa-icon></span><span>aggiungi agli Ordini Ufficiali</span></li>
           }
@@ -563,7 +563,8 @@
                     [attr.aria-label]="infoButtonTitle(row)"
                     (click)="openWatchlistDialog(row)"
                   >
-                    <fa-icon [icon]="faCircleInfo"></fa-icon>
+                    <!-- Watchlist systems get an eye instead of the ⓘ, in their own colour, so they stand out. -->
+                    <fa-icon [icon]="row.watchlist.length > 0 ? faEye : faCircleInfo"></fa-icon>
                   </button>
                   @if (i18n.isItalian()) {
                     <button

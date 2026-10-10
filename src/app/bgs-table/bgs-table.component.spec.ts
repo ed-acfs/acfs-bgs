@@ -111,6 +111,13 @@ describe('BgsTableComponent', () => {
     const atWar: BgsRow = { ...row('At war'), preferredFaction: FACTION_NAME, warState: 'active' };
     await load([row('Quiet'), atWar, watched]);
     expect(visibleRows().map(r => r.systemName)).toEqual(['Watched', 'At war', 'Quiet']);
+    // An eye instead of the ⓘ marks the Watchlist systems.
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const icons = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button.bgs-info-button[title^="Perché"] svg, button.bgs-info-button[title^="Informazioni su"] svg')).map(svg =>
+      svg.getAttribute('data-icon'),
+    );
+    expect(icons).toEqual(['eye', 'circle-info', 'circle-info']);
   });
 
   it('goes back to the table as it opens from the title, keeping the page size', async () => {

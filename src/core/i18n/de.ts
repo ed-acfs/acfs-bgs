@@ -96,7 +96,7 @@ export const de: Dictionary = {
   'legend.copy': 'kopiert den Namen; der Name öffnet Inara',
   'legend.distance': 'Entfernung vom System im Feld „{distanceFrom}“',
   'legend.info': 'Details des Systems',
-  'legend.watchlist': 'orange: das System steht auf der Watchlist (immer oben in der Tabelle)',
+  'legend.watchlist': 'das System steht auf der Watchlist (immer oben in der Tabelle): öffnet die Details mit dem Grund',
   'legend.services': 'Dienste der Stationen',
   'legend.servicesNote': 'Station und Entfernung vom Stern im Tooltip und in den Details des Systems.',
   'legend.traderUnknown': 'Material Trader unbekannten Typs',
@@ -258,7 +258,7 @@ export const de: Dictionary = {
     'Der Tooltip der Priorität erklärt den Grund. Ein Klick auf die Symbole im Zustand zeigt Punktestand und Einsatz von Kriegen und Wahlen. Das Symbol ⓘ öffnet die Details des Systems. Die Schaltfläche Legende erklärt Farben und Symbole der Tabelle.',
   'help.watchlistTitle': 'Watchlist',
   'help.watchlist':
-    'Die Watchlist ist die Liste der Systeme, die das Geschwader im Auge behält: Für jedes nennt sie eine Fraktion, den Platz, den sie unter den Fraktionen des Systems mindestens halten muss, und den Grund. Diese Systeme stehen immer oben in der Tabelle und haben das Symbol ⓘ in Orange, das die Details mit Grund und zu haltender Position öffnet. Fällt die Fraktion unter diesen Platz, rückt das System auf P1.',
+    'Die Watchlist ist die Liste der Systeme, die das Geschwader im Auge behält: Für jedes nennt sie eine Fraktion, den Platz, den sie unter den Fraktionen des Systems mindestens halten muss, und den Grund. Diese Systeme stehen immer oben in der Tabelle und haben statt des ⓘ ein violettes Auge, das die Details mit Grund und zu haltender Position öffnet. Fällt die Fraktion unter diesen Platz, rückt das System auf P1.',
   'help.top': 'Oben',
   'help.top1':
     'Unter dem Titel: wann Spansh die Daten aktualisiert hat, die Uhrzeit des letzten Ticks und wie viele Systeme (und wie viele P1-P2) seitdem aktualisiert wurden. Spansh hinkt dem Spiel hinterher: Ein System wird aktualisiert, wenn jemand hindurchfliegt, die Daten eines seit dem letzten Tick nicht aktualisierten Systems können sich also schon geändert haben. Der Titel setzt die Tabelle auf den Zustand beim Öffnen zurück; Exportieren lädt die Daten als JSON oder CSV herunter; die Flaggen wechseln die Sprache.',

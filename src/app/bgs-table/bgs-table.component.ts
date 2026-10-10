@@ -21,6 +21,7 @@ import {
   faPen,
   faCopy,
   faDownload,
+  faEye,
   faFlask,
   faGear,
   faGem,
@@ -233,6 +234,7 @@ export class BgsTableComponent implements OnDestroy {
   protected readonly faCheck = faCheck;
   protected readonly faDownload = faDownload;
   protected readonly faCircleInfo = faCircleInfo;
+  protected readonly faEye = faEye;
   protected readonly faPen = faPen;
   protected readonly faClipboardList = faClipboardList;
   protected readonly faFlask = faFlask;

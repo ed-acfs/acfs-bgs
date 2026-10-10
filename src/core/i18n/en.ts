@@ -93,7 +93,7 @@ export const en: Dictionary = {
   'legend.copy': 'copies the name; the name opens Inara',
   'legend.distance': 'distance from the system in the "{distanceFrom}" box',
   'legend.info': 'system details',
-  'legend.watchlist': 'orange: the system is on the Watchlist (always at the top of the table)',
+  'legend.watchlist': 'the system is on the Watchlist (always at the top of the table): opens the details with the reason',
   'legend.services': 'Station services',
   'legend.servicesNote': 'Station and distance from the star in the tooltip and in the system details.',
   'legend.traderUnknown': 'Material Trader of unknown type',
@@ -255,7 +255,7 @@ export const en: Dictionary = {
     'The Priority tooltip explains why. Clicking the State icons shows the score and stakes of wars and elections. The ⓘ icon opens the system details. The Legend button explains the colours and icons of the table.',
   'help.watchlistTitle': 'Watchlist',
   'help.watchlist':
-    'The Watchlist is the list of systems the squadron keeps an eye on: for each one it names a faction, the lowest position it must hold among the system\'s factions, and the reason. These systems always stay at the top of the table and have an orange ⓘ icon, which opens the details with the reason and the position to hold. If the faction drops below that position, the system moves to P1.',
+    'The Watchlist is the list of systems the squadron keeps an eye on: for each one it names a faction, the lowest position it must hold among the system\'s factions, and the reason. These systems always stay at the top of the table and have a purple eye instead of the ⓘ, which opens the details with the reason and the position to hold. If the faction drops below that position, the system moves to P1.',
   'help.top': 'At the top',
   'help.top1':
     'Below the title: when Spansh updated the data, the time of the last tick and how many systems (and how many P1-P2) have been updated since. Spansh lags behind the game: a system is updated when someone flies through it, so the data of a system not updated since the last tick may already have changed. The title resets the table to how it opens; Export downloads the data as JSON or CSV; the flags switch language.',
