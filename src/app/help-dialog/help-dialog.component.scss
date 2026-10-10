@@ -41,6 +41,16 @@ mat-dialog-content {
   }
 }
 
+// The Watchlist section, in the accent colour its systems have in the table.
+.info-card--accent {
+  border-color: var(--color-accent);
+  border-left-width: 4px;
+
+  .info-heading {
+    color: var(--color-accent);
+  }
+}
+
 .info-heading {
   margin: 0 0 10px;
   color: var(--color-text-muted);

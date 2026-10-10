@@ -256,6 +256,7 @@ export const de: Dictionary = {
     'Beim Öffnen ist die Tabelle nach Priorität sortiert, ab P1; ein Klick auf eine Spaltenüberschrift sortiert anders. Systeme auf der Watchlist bleiben bei jeder Sortierung immer oben. Das Feld „Entfernung von“ sortiert nach Entfernung von einem beliebigen System. Die Schnellfilter zeigen nur Systeme mit Kriegen oder Wahlen, veraltete Systeme oder Systeme mit Material Trader und Technology Broker; die Filter Architekt und Fraktion beschränken die Liste auf Systeme ohne Architekt, mit einem ACFS-Architekten oder einem Architekten nach Wahl, auf die von uns kontrollierten Systeme oder auf Systeme, in denen eine bestimmte Fraktion vertreten ist.',
   'help.table3':
     'Der Tooltip der Priorität erklärt den Grund. Ein Klick auf die Symbole im Zustand zeigt Punktestand und Einsatz von Kriegen und Wahlen. Das Symbol ⓘ öffnet die Details des Systems. Die Schaltfläche Legende erklärt Farben und Symbole der Tabelle.',
+  'help.watchlistTitle': 'Watchlist',
   'help.watchlist':
     'Die Watchlist ist die Liste der Systeme, die das Geschwader im Auge behält: Für jedes nennt sie eine Fraktion, den Platz, den sie unter den Fraktionen des Systems mindestens halten muss, und den Grund. Diese Systeme stehen immer oben in der Tabelle und haben das Symbol ⓘ in Orange, das die Details mit Grund und zu haltender Position öffnet. Fällt die Fraktion unter diesen Platz, rückt das System auf P1.',
   'help.top': 'Oben',

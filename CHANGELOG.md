@@ -8,7 +8,7 @@ Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
 - Dalla tabella la Guida **non spiega più gli Ordini Ufficiali**: dice solo che la pagina è riservata e di chiedere agli Ufficiali sul Discord dello squadrone. La spiegazione completa resta nel "Come funziona?" della pagina Ordini, e solo dopo aver inserito la passphrase. Tolto anche il rimando all'icona 📋.
 - La Guida copre le novità delle ultime versioni: tutte le colonne (servizi accanto al nome, grafico delle fazioni, Retreat nello Stato, fazione preferita), il filtro Servizi e i filtri per architetto e fazione, il clic sulle icone dello Stato (punteggio e posta in palio) e il tooltip della Priorità.
-- La Guida spiega cos'è la **Watchlist**: una fazione, la posizione minima che deve mantenere nel sistema e il motivo; i sistemi stanno in cima con la ⓘ arancione e passano in P1 se la fazione scende sotto quella posizione. Prima la Guida diceva solo che stanno in cima.
+- La Guida ha una sezione **Watchlist** tutta sua, subito dopo la tabella e con il bordo arancione come la ⓘ della Watchlist in tabella. Spiega cos'è la Watchlist: una fazione, la posizione minima che deve mantenere nel sistema e il motivo; i sistemi stanno in cima con la ⓘ arancione e passano in P1 se la fazione scende sotto quella posizione. Prima la Guida diceva solo che stanno in cima.
 - Due sezioni nuove: **In alto** (età dei dati, ultimo tick, quanti sistemi sono aggiornati da allora, titolo che riporta la tabella all'apertura, Esporta, bandierine) e **Dettagli del sistema** (⚠️ di possibile conflitto, icona del Retreat, "N" delle fazioni native, stati in pending in grigio, Expansion letta come stato globale).
 - In tedesco la colonna dell'età del dato è chiamata come in tabella ("Stand").
 
