@@ -8,6 +8,17 @@
     <p>{{ t('help.table3') }}</p>
   </section>
 
+  <section class="info-card">
+    <h3 class="info-heading">{{ t('help.top') }}</h3>
+    <p>{{ t('help.top1') }}</p>
+  </section>
+
+  <section class="info-card">
+    <h3 class="info-heading">{{ t('help.details') }}</h3>
+    <p>{{ t('help.details1', { points: conflictMarginPoints, faction: factionName, threshold: i18n.percent(retreatInfluencePercent) }) }}</p>
+    <p>{{ t('help.details2') }}</p>
+  </section>
+
   @if (!i18n.isItalian()) {
     <section class="info-card">
       <h3 class="info-heading">{{ t('help.internal') }}</h3>
@@ -20,6 +31,12 @@
     <p>Il pulsante <strong>Assegna</strong> (o la matita, se già registrato) apre il modulo per registrare chi segue il sistema e la fazione preferita. La risposta finisce nel foglio dello squadrone e compare in tabella entro 15 minuti.</p>
   </section>
 
+  @if (!showOrders) {
+    <section class="info-card">
+      <h3 class="info-heading">Ordini Ufficiali</h3>
+      <p>La pagina <strong>Ordini</strong> è riservata: per maggiori informazioni chiedi ai tuoi Ufficiali sul Discord dello squadrone.</p>
+    </section>
+  } @else {
   <section class="info-card">
     <h3 class="info-heading">Ordini Ufficiali</h3>
     <p>La pagina <strong>Ordini</strong> compone il report giornaliero da incollare su Discord — area riservata, passphrase dello squadrone.</p>
@@ -30,6 +47,7 @@
     <p><strong>Dettaglio:</strong> il testo libero dopo "per ACFS &gt;" (o l'intera riga per una nota) — grassetto e corsivo si scrivono a mano in Markdown, come <code>**conquista**</code> o <code>di _Apgar City_</code>, perché la formulazione cambia troppo da caso a caso per automatizzarla del tutto.</p>
     <p><strong>Anteprima:</strong> il testo è pronto per Discord in basso — <strong>Copia</strong> lo mette negli appunti. La data si genera da sola nel calendario di gioco (l'anno reale più 1286).</p>
   </section>
+  }
   }
 </mat-dialog-content>
 

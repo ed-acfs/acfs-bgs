@@ -2,6 +2,25 @@
 
 Tutte le modifiche rilevanti di questo progetto sono documentate in questo file.
 
+## [Non ancora pubblicato] - 2026-10-10 — Rifiniture
+
+### Guida
+
+- Dalla tabella la Guida **non spiega più gli Ordini Ufficiali**: dice solo che la pagina è riservata e di chiedere agli Ufficiali sul Discord dello squadrone. La spiegazione completa resta nel "Come funziona?" della pagina Ordini, e solo dopo aver inserito la passphrase. Tolto anche il rimando all'icona 📋.
+- La Guida copre le novità delle ultime versioni: tutte le colonne (servizi accanto al nome, grafico delle fazioni, Retreat nello Stato, fazione preferita), il filtro Servizi e i filtri per architetto e fazione, il clic sulle icone dello Stato (punteggio e posta in palio) e il tooltip della Priorità.
+- Due sezioni nuove: **In alto** (età dei dati, ultimo tick, quanti sistemi sono aggiornati da allora, titolo che riporta la tabella all'apertura, Esporta, bandierine) e **Dettagli del sistema** (⚠️ di possibile conflitto, icona del Retreat, "N" delle fazioni native, stati in pending in grigio, Expansion letta come stato globale).
+- In tedesco la colonna dell'età del dato è chiamata come in tabella ("Stand").
+
+### Legenda
+
+- La voce della Watchlist ricorda che quei sistemi restano sempre in cima alla tabella.
+
+Tutti i testi sono in italiano, tedesco e inglese.
+
+### Test
+
+- Due test nuovi sulla Guida (nota riservata dalla tabella, Ordini completi dalla pagina Ordini). Passano 264 test dell'app.
+
 ## [1.2.1] - 2026-10-09 — Tabella per priorità, Watchlist in cima, più dettagli sulle fazioni
 
 Il lavoro di tutta la giornata in una voce sola. In mattinata il sito ha pubblicato due passi intermedi, 1.1.1 (Watchlist in cima) e 1.1.2 (ordine per priorità e titolo cliccabile): il loro contenuto è qui sotto.

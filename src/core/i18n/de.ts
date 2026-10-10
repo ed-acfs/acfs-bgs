@@ -96,7 +96,7 @@ export const de: Dictionary = {
   'legend.copy': 'kopiert den Namen; der Name öffnet Inara',
   'legend.distance': 'Entfernung vom System im Feld „{distanceFrom}“',
   'legend.info': 'Details des Systems',
-  'legend.watchlist': 'orange: das System steht auf der Watchlist',
+  'legend.watchlist': 'orange: das System steht auf der Watchlist (immer oben in der Tabelle)',
   'legend.services': 'Dienste der Stationen',
   'legend.servicesNote': 'Station und Entfernung vom Stern im Tooltip und in den Details des Systems.',
   'legend.traderUnknown': 'Material Trader unbekannten Typs',
@@ -251,11 +251,19 @@ export const de: Dictionary = {
   'help.title': 'Kurzanleitung',
   'help.table': 'Die Tabelle',
   'help.table1':
-    'Ein System pro Zeile: kontrollierende Fraktion, Einfluss von {faction} (ACFS), Abstand (Vorsprung auf oder Rückstand zur kontrollierenden Fraktion), Priorität, Zustand (Kriege, Wahlen), Aktualisiert (Alter der Daten) und Architekt.',
+    'Ein System pro Zeile: Name (mit den Symbolen der Stationsdienste), Distanz, Stand (Alter der Daten), Fraktionen (Einflussdiagramm), Zustand (Kriege, Wahlen und Retreat von {faction}), Priorität, kontrollierende Fraktion, Einfluss von {faction} (ACFS), Abstand (Vorsprung auf oder Rückstand zur kontrollierenden Fraktion), Architekt und bevorzugte Fraktion.',
   'help.table2':
-    'Beim Öffnen ist die Tabelle nach Priorität sortiert, ab P1; ein Klick auf eine Spaltenüberschrift sortiert anders. Systeme auf der Watchlist bleiben bei jeder Sortierung immer oben. Die Suche oben sortiert nach Entfernung von einem beliebigen System. Die Schnellfilter beschränken die Liste auf Kriege/Wahlen, veraltete Systeme, nur kontrollierte Systeme oder nur Systeme mit einem ACFS-Architekten.',
+    'Beim Öffnen ist die Tabelle nach Priorität sortiert, ab P1; ein Klick auf eine Spaltenüberschrift sortiert anders. Systeme auf der Watchlist bleiben bei jeder Sortierung immer oben. Das Feld „Entfernung von“ sortiert nach Entfernung von einem beliebigen System. Die Schnellfilter zeigen nur Systeme mit Kriegen oder Wahlen, veraltete Systeme oder Systeme mit Material Trader und Technology Broker; die Filter Architekt und Fraktion beschränken die Liste auf Systeme ohne Architekt, mit einem ACFS-Architekten oder einem Architekten nach Wahl, auf die von uns kontrollierten Systeme oder auf Systeme, in denen eine bestimmte Fraktion vertreten ist.',
   'help.table3':
-    'Das Symbol ⓘ öffnet die Details des Systems (vertretene Fraktionen, Stationen, ein etwaiger Watchlist-Eintrag). Die Schaltfläche Legende erklärt Farben und Symbole der Tabelle.',
+    'Der Tooltip der Priorität erklärt den Grund. Ein Klick auf die Symbole im Zustand zeigt Punktestand und Einsatz von Kriegen und Wahlen. Das Symbol ⓘ öffnet die Details des Systems. Die Schaltfläche Legende erklärt Farben und Symbole der Tabelle.',
+  'help.top': 'Oben',
+  'help.top1':
+    'Unter dem Titel: wann Spansh die Daten aktualisiert hat, die Uhrzeit des letzten Ticks und wie viele Systeme (und wie viele P1-P2) seitdem aktualisiert wurden. Spansh hinkt dem Spiel hinterher: Ein System wird aktualisiert, wenn jemand hindurchfliegt, die Daten eines seit dem letzten Tick nicht aktualisierten Systems können sich also schon geändert haben. Der Titel setzt die Tabelle auf den Zustand beim Öffnen zurück; Exportieren lädt die Daten als JSON oder CSV herunter; die Flaggen wechseln die Sprache.',
+  'help.details': 'Details des Systems',
+  'help.details1':
+    'Übersicht, Stationen mit ihren Diensten, ein etwaiger Watchlist-Grund und die Tabelle der Fraktionen. Neben dem Einfluss: ⚠️ für Fraktionen, die {points} Punkte oder weniger von {faction} entfernt sind (ein Konflikt ist möglich), das Retreat-Symbol (ausgefüllt, wenn schon im Retreat, gestrichelt bei {threshold} oder weniger) und ein N für einheimische Fraktionen, die nicht in Retreat gehen können.',
+  'help.details2':
+    'Die Spalte Zustände zeigt auch bevorstehende Zustände (pending), in Grau. Die Expansion ist ein fraktionsweiter Zustand: Sie gilt für alle Systeme der Fraktion, und das Tool liest sie aus ihrem zuletzt aktualisierten System (der Tooltip sagt, welches), damit ein System mit alten Daten ihr nicht widerspricht.',
   'help.internal': 'Werkzeuge des Geschwaders',
   'help.internalNote': 'Das Geschwader hat auch interne Werkzeuge, etwa die Zuordnung der Architekten: Sie sind nur auf Italienisch verfügbar.',
 };

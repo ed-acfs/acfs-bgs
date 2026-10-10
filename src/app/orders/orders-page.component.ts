@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { BgsService } from '../bgs.service';
-import { HelpDialogComponent } from '../help-dialog/help-dialog.component';
+import { HelpDialogComponent, HelpDialogData } from '../help-dialog/help-dialog.component';
 import { findOrderType, ORDER_STATUSES, ORDER_TRENDS, ORDER_TYPES } from '../../core/order-types';
 import {
   changeOrderType,
@@ -123,8 +123,10 @@ export class OrdersPageComponent {
     this.passphraseControl.setValue('');
   }
 
+  /** The Ordini section of the guide only shows once the page is unlocked. */
   protected openHelp(): void {
-    this.dialog.open(HelpDialogComponent, {
+    this.dialog.open<HelpDialogComponent, HelpDialogData>(HelpDialogComponent, {
+      data: { orders: this.store.unlocked() },
       autoFocus: 'first-tabbable',
       restoreFocus: true,
       maxWidth: 'min(1168px, 90vw)',
